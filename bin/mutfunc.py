@@ -20,63 +20,30 @@ def main(args):
             line_id = ''.join((line[6], ' ', line[4], line[3], line[5]))
             mutations[line_id] = {header[i]:line[i] for i in range(8)}
 
+    # Process SIFT data
     add_to_dict(mutations, ''.join((args.mutfunc, 'sift.tsv')),
                 10, {'acc':0, 'sift_score':4, 'sift_median_ic':5})
 
-    # # Process SIFT data
-    # with fileinput.input(''.join((args.mutfunc, 'sift.tsv'))) as sift_file:
-    #     next(sift_file)
-    #     for line in sift_file:
-    #         line = line.strip().split('\t')
-    #         if line[10] in mutations.keys():
-    #             mutations[line[10]]['acc'] = line[0]
-    #             mutations[line[10]]['sift_score'] = line[4]
-    #             mutations[line[10]]['sift_median_ic'] = line[5]
+    # Process Elms data
+    add_to_dict(mutations, ''.join((args.mutfunc, 'elms.tsv')),
+                12, {'elm_lost':9})
 
-    # # Process Elms data
-    # with fileinput.input(''.join((args.mutfunc, 'elms.tsv'))) as elms_file:
-    #     next(elms_file)
-    #     for line in elms_file:
-    #         line = line.strip().split('\t')
-    #         if line[12] in mutations.keys():
-    #             mutations[line[12]]['elm_lost'] = line[9]
+    # Process foldx data
+    add_to_dict(mutations, ''.join((args.mutfunc, 'foldx.tsv')),
+                0, {'foldx_ddG':3, 'foldx_ddG_sd':4, 'foldx_evidence':5})
 
-    # # Process foldx data
-    # with fileinput.input(''.join((args.mutfunc, 'foldx.tsv'))) as foldx_file:
-    #     next(foldx_file)
-    #     for line in foldx_file:
-    #         line = line.strip().split('\t')
-    #         if line[0] in mutations.keys():
-    #             mutations[line[0]]['foldx_ddG'] = line[3]
-    #             mutations[line[0]]['foldx_ddG_sd'] = line[4]
-    #             mutations[line[0]]['foldx_evidence'] = line[5]
+    # Process foldx interaction data
+    add_to_dict(mutations, ''.join((args.mutfunc, 'foldx-int.tsv')),
+                0, {'foldx_int_ddG':7, 'foldx_int_ddG_sd':8,
+                    'foldx_int_evidence':6, 'foldx_int_interactor':3})
 
-    # # Process foldx interaction data
-    # with fileinput.input(''.join((args.mutfunc, 'foldx-int.tsv'))) as foldx_int_file:
-    #     next(foldx_int_file)
-    #     for line in foldx_int_file:
-    #         line = line.strip().split('\t')
-    #         if line[0] in mutations.keys():
-    #             mutations[line[0]]['foldx_int_ddG'] = line[7]
-    #             mutations[line[0]]['foldx_int_ddG_sd'] = line[8]
-    #             mutations[line[0]]['foldx_int_evidence'] = line[6]
-    #             mutations[line[0]]['foldx_int_interactor'] = line[3]
+    # Process phosphorylation data
+    add_to_dict(mutations, ''.join((args.mutfunc, 'pho.tsv')),
+                17, {'pho_prob':15})
 
-    # # Process phosphorylation data
-    # with fileinput.input(''.join((args.mutfunc, 'pho.tsv'))) as pho_file:
-    #     next(pho_file)
-    #     for line in pho_file:
-    #         line = line.strip().split('\t')
-    #         if line[17] in mutations.keys():
-    #             mutations[line[17]]['pho_prob'] = line[15]
-
-    # # Process PTM data
-    # with fileinput.input(''.join((args.mutfunc, 'ptms.tsv'))) as ptm_file:
-    #     next(ptm_file)
-    #     for line in ptm_file:
-    #         line = line.strip().split('\t')
-    #         if line[11] in mutations.keys():
-    #             mutations[line[11]]['ptm_modification'] = line[8]
+    # Process PTM data
+    add_to_dict(mutations, ''.join((args.mutfunc, 'ptms.tsv')),
+                11, {'ptm_modification':8})
 
     # Process Genomic mutations
     genomic_to_id = {}
