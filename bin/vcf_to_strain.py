@@ -1,17 +1,28 @@
 #!/usr/bin/env python3
 """
 Extract strains carrying each mutation in a VCF file
-
-ToDo
-- deal with multiple alt alleles
 """
 import argparse
-#import fileinput
+import fileinput
 import vcf
 from format_chroms import format_chrom
 
 def main(args):
     """Main script"""
+    # Import strain info
+    if args.meta:
+        meta = {}
+        with fileinput.input(args.meta) as meta_file:
+            for line in meta_file:
+                if meta_file.isfirstline():
+                    header = line.strip().split('\t')
+                    standard = header.index('Standardized name')
+                    isolate = header.index('Isolate name')
+
+                else:
+                    line = line.strip().split('\t')
+                    meta[line[standard]] = line[isolate]
+
     vcf_file = vcf.Reader(filename=args.vcf)
     genotypes = {}
     for site in vcf_file:
@@ -25,7 +36,12 @@ def main(args):
                 genotypes[mut_id].append(call.data.GT.count(str(i + 1)))
 
     # Print matrix of strain genotypes
-    print('mut_id', *vcf_file.samples, sep='\t')
+    if args.meta:
+        print('mut_id', *[meta[i] for i in vcf_file.samples], sep='\t')
+
+    else:
+        print('mut_id', *vcf_file.samples, sep='\t')
+
     for mut_id, gens in genotypes.items():
         print(mut_id, *gens, sep='\t')
 
@@ -35,6 +51,10 @@ def parse_args():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('vcf', metavar='V', help="Input VCF file")
+
+    parser.add_argument('--meta', '-m', help="File giving strain details to convert\
+                                              strain names to standardized names\
+                                              used in VCF", default='')
 
     return parser.parse_args()
 
