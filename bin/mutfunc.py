@@ -72,27 +72,32 @@ def main(args):
 
 
     # Print Results
-    vals = ('mut_id', 'ref_codon', 'alt_codon', 'pos_aa', 'ref_aa',
-            'alt_aa', 'gene', 'type', 'acc', 'sift_score', 'sift_median_ic',
-            'elm_lost', 'foldx_ddG', 'foldx_ddG_sd', 'foldx_evidence',
-            'foldx_int_ddG', 'foldx_int_ddG_sd', 'foldx_int_evidence',
-            'foldx_int_interactor', 'pho_prob', 'ptm_modification',
-            'tf_score_diff', 'tf_perc_diff')
+    values = ('mut_id', 'ref_codon', 'alt_codon', 'pos_aa', 'ref_aa',
+              'alt_aa', 'gene', 'type', 'acc', 'sift_score', 'sift_median_ic',
+              'elm_lost', 'foldx_ddG', 'foldx_ddG_sd', 'foldx_evidence',
+              'foldx_int_ddG', 'foldx_int_ddG_sd', 'foldx_int_evidence',
+              'foldx_int_interactor', 'pho_prob', 'ptm_modification',
+              'tf_score_diff', 'tf_perc_diff')
 
-    print('id', *vals, sep='\t')
+    defaults = ('NA', 'NA', 'NA', 'NA', 'NA',
+                'NA', 'NA', 'genomic', 'NA', 'NA', 'NA',
+                'False', 'NA', 'NA', 'NA',
+                'NA', 'NA', 'NA',
+                'NA', '0', 'None',
+                'NA', 'NA')
+
+    defaults = dict(zip(values, defaults))
+
+    process_missing(mutations, defaults)
+    process_missing(genomic_mutations, defaults)
+
+
+    print('id', *values, sep='\t')
     for key, value in mutations.items():
-        for i in vals:
-            if not i in value.keys():
-                value[i] = 'NA'
-
-        print(key, *(value[k] for k in vals), sep='\t')
+        print(key, *(value[k] for k in values), sep='\t')
 
     for key, value in genomic_mutations.items():
-        for i in vals[1:]:
-            if not i in value.keys():
-                value[i] = 'NA'
-
-        print('NA', key, *(value[k] for k in vals[1:]), sep='\t')
+        print('NA', key, *(value[k] for k in values[1:]), sep='\t')
 
 def add_to_dict(dictionary, path, id_field, fields, sep='\t'):
     """Add fields from a table file to a dictionary via an ID field"""
@@ -103,6 +108,13 @@ def add_to_dict(dictionary, path, id_field, fields, sep='\t'):
             if line[id_field] in dictionary.keys():
                 for key, value in fields.items():
                     dictionary[line[id_field]][key] = line[value]
+
+def process_missing(dictionary, defaults):
+    """Add defaults to a dictionary."""
+    for value in dictionary.values():
+        for i in defaults.keys():
+            if i not in value.keys():
+                value[i] = defaults[i]
 
 def parse_args():
     """Process input arguments"""
