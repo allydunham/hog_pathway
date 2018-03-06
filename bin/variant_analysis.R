@@ -1,4 +1,5 @@
 setwd("Projects/hog/")
+library(tidyr)
 
 growth <- read.table("data/raw/bede_2017_parsed.tsv",header=TRUE,sep='\t')
 
@@ -31,10 +32,11 @@ impact <- impact[impact$mut_id %in% rownames(strains.rare),]
 ## Analyse genotypes
 get_growth <- function(id, con){
   s <- colnames(strains)[which(strains[id,] > 0)]
-  return(mean(growth[s, con]))
+  return(growth[s, con])
 }
 
-impact$growth <- as.numeric(sapply(impact$mut_id, get_growth, con="sodium.chloride.0.6mM"))
+impact$growth <- sapply(impact$mut_id, get_growth, con="sodium.chloride.0.6mM")
+impact <- unnest(impact, growth)
 
 ## Normalise impacts relative to ko score
 ko_growth <- read.table('data/hog_ko_scores.tsv', sep='\t')
