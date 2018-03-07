@@ -3,7 +3,7 @@
 Link functionally annotated and genomic mutations with their precalculated consequences
 
 ToDo
-- Genomic Mutations
+- Rework import to be more versatile
 """
 import argparse
 import fileinput
@@ -13,12 +13,21 @@ def main(args):
     mutations = {}
 
     # Import functional mutations
-    with fileinput.input(args.functional) as fun_file:
-        header = next(fun_file).strip().split('\t')
-        for line in fun_file:
-            line = line.strip().split('\t')
-            line_id = ''.join((line[6], ' ', line[4], line[3], line[5]))
-            mutations[line_id] = {header[i]:line[i] for i in range(8)}
+    if args.effect:
+        with fileinput.input(args.functional) as fun_file:
+            header = next(fun_file).strip().split('\t')
+            for line in fun_file:
+                line = line.strip().split('\t')
+                line_id = ' '.join(line[:2])
+                mutations[line_id] = {'effect': line[2]}
+
+    else:
+        with fileinput.input(args.functional) as fun_file:
+            header = next(fun_file).strip().split('\t')
+            for line in fun_file:
+                line = line.strip().split('\t')
+                line_id = ''.join((line[6], ' ', line[4], line[3], line[5]))
+                mutations[line_id] = {header[i]:line[i] for i in range(8)}
 
     # Process SIFT data
     add_to_dict(mutations, ''.join((args.mutfunc, 'sift.tsv')),
@@ -46,29 +55,32 @@ def main(args):
                 11, {'ptm_modification':8})
 
     # Process Genomic mutations
-    genomic_to_id = {}
-    for key, value in mutations.items():
-        genomic_to_id[value['mut_id']] = key
+    # bit of a hack to work with the effect file which has no genomic ids
+    if not args.effect:
+        genomic_to_id = {}
+        for key, value in mutations.items():
+            genomic_to_id[value['mut_id']] = key
 
-    genomic_mutations = {}
-    with fileinput.input(args.genomic) as gen_file:
-        next(gen_file)
-        for line in gen_file:
-            line = line.strip()
-            if not line in genomic_to_id.keys():
-                genomic_mutations[line] = {}
+        if args.genomic:
+            genomic_mutations = {}
+            with fileinput.input(args.genomic) as gen_file:
+                next(gen_file)
+                for line in gen_file:
+                    line = line.strip()
+                    if not line in genomic_to_id.keys():
+                        genomic_mutations[line] = {}
 
-    # Process TF data
-    with fileinput.input(''.join((args.mutfunc, 'tfbs.tsv'))) as tf_file:
-        next(tf_file)
-        for line in tf_file:
-            line = line.strip().split()
-            if line[29] in genomic_to_id.keys():
-                mutations[genomic_to_id[line[29]]]['tf_score_diff'] = line[28]
-                mutations[genomic_to_id[line[29]]]['tf_perc_diff'] = line[27]
-            elif line[29] in genomic_mutations.keys():
-                genomic_mutations[line[29]]['tf_score_diff'] = line[28]
-                genomic_mutations[line[29]]['tf_perc_diff'] = line[27]
+        # Process TF data
+        with fileinput.input(''.join((args.mutfunc, 'tfbs.tsv'))) as tf_file:
+            next(tf_file)
+            for line in tf_file:
+                line = line.strip().split()
+                if line[29] in genomic_to_id.keys():
+                    mutations[genomic_to_id[line[29]]]['tf_score_diff'] = line[28]
+                    mutations[genomic_to_id[line[29]]]['tf_perc_diff'] = line[27]
+                elif args.genomic and line[29] in genomic_mutations.keys():
+                    genomic_mutations[line[29]]['tf_score_diff'] = line[28]
+                    genomic_mutations[line[29]]['tf_perc_diff'] = line[27]
 
 
     # Print Results
@@ -77,27 +89,27 @@ def main(args):
               'elm_lost', 'foldx_ddG', 'foldx_ddG_sd', 'foldx_evidence',
               'foldx_int_ddG', 'foldx_int_ddG_sd', 'foldx_int_evidence',
               'foldx_int_interactor', 'pho_prob', 'ptm_modification',
-              'tf_score_diff', 'tf_perc_diff')
+              'tf_score_diff', 'tf_perc_diff', 'effect')
 
     defaults = ('NA', 'NA', 'NA', 'NA', 'NA',
                 'NA', 'NA', 'genomic', 'NA', 'NA', 'NA',
                 'False', 'NA', 'NA', 'NA',
                 'NA', 'NA', 'NA',
-                'NA', '0', 'None',
-                'NA', 'NA')
+                'NA', 'NA', 'NA',
+                'NA', 'NA', 'NA')
 
     defaults = dict(zip(values, defaults))
 
     process_missing(mutations, defaults)
-    process_missing(genomic_mutations, defaults)
-
 
     print('id', *values, sep='\t')
     for key, value in mutations.items():
         print(key, *(value[k] for k in values), sep='\t')
 
-    for key, value in genomic_mutations.items():
-        print('NA', key, *(value[k] for k in values[1:]), sep='\t')
+    if args.genomic:
+        process_missing(genomic_mutations, defaults)
+        for key, value in genomic_mutations.items():
+            print('NA', key, *(value[k] for k in values[1:]), sep='\t')
 
 def add_to_dict(dictionary, path, id_field, fields, sep='\t'):
     """Add fields from a table file to a dictionary via an ID field"""
@@ -124,11 +136,14 @@ def parse_args():
     parser.add_argument('functional', metavar='F',
                         help="Functionally annotated mutations file")
 
-    parser.add_argument('genomic', metavar='G',
+    parser.add_argument('--genomic', '-g',
                         help="Genomic mutations file")
 
     parser.add_argument('--mutfunc', '-m', default='mutfunc/',
                         help="Compiled Mutfunc directory")
+
+    parser.add_argument('--effect', '-e', action='store_true',
+                        help="Functional file gives a list of mutations and effects")
 
     return parser.parse_args()
 
