@@ -18,6 +18,7 @@ def main(args):
                 spl[args.column] = format_chrom(spl[args.column], args.chr, args.roman)
                 print(*spl, sep=args.sep)
 
+
 def format_chrom(chrom, prefix='chr', rome=False):
     """Reformat a chromosome name"""
     num = re.sub('[Cc]hromosome|[Cc]hr', '', chrom.strip())

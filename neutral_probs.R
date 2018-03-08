@@ -73,14 +73,15 @@ curve(f(x,0.01758,-1.16157),add = TRUE)
 
 # Same workflow on foldx
 t <- impact[!is.na(impact$foldx_ddG),]
-t$bin <- cut(t$foldx_ddG, breaks = 10, labels = FALSE)
-p <- sapply(1:10, function(x){
+t$bin <- cut(t$foldx_ddG, breaks = 20, labels = FALSE)
+p <- sapply(1:20, function(x){
   sum(t[t$bin == x, "effect"] == "0")/sum(t$bin == x)
 })
 
 t$p <- p[t$bin]
-f <- function(x,a,b){1/(a*x^b + 1)}
-fit <- nls(p ~ f(sift_score,a,b), data = t, start = list(a=1, b=1))
-plot(t$sift_score, t$p)
-curve(f(x,0.01758,-1.16157),add = TRUE)
+f <- function(x,a,b){1/(1 + exp(a*x + b))}
+fit <- nls(p ~ f(foldx_ddG,a,b), data = t, start = list(a=1, b=1))
+
+plot(t$foldx_ddG, t$p, ylim = c(0,1))
+curve(f(x,0.217862,0.073517),add = TRUE)
 

@@ -11,6 +11,11 @@ requests = "*"
 numpy = "*"
 pandas = "*"
 pyvcf = "*"
+jupyter = "*"
+matplotlib = "*"
+"pymc3" = "*"
+jupyterlab = "*"
+"h5py" = "*"
 
 
 [dev-packages]
