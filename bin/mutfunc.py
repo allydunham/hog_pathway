@@ -4,6 +4,8 @@ Link functionally annotated and genomic mutations with their precalculated conse
 
 ToDo
 - Rework import to be more versatile
+- fill in data from mut id when importing effect file
+- genomic as default type?
 """
 import argparse
 import fileinput
@@ -19,7 +21,11 @@ def main(args):
             for line in fun_file:
                 line = line.strip().split('\t')
                 line_id = ' '.join(line[:2])
-                mutations[line_id] = {'effect': line[2]}
+                mutations[line_id] = {'effect': line[2],
+                                      'gene': line[0],
+                                      'pos_aa': line[1][1:-1],
+                                      'ref_aa': line[1][:1],
+                                      'alt_aa': line[1][-1]}
 
     else:
         with fileinput.input(args.functional) as fun_file:
@@ -68,7 +74,7 @@ def main(args):
                 for line in gen_file:
                     line = line.strip()
                     if not line in genomic_to_id.keys():
-                        genomic_mutations[line] = {}
+                        genomic_mutations[line] = {'type': 'genomic'}
 
         # Process TF data
         with fileinput.input(''.join((args.mutfunc, 'tfbs.tsv'))) as tf_file:
@@ -92,7 +98,7 @@ def main(args):
               'tf_score_diff', 'tf_perc_diff', 'effect')
 
     defaults = ('NA', 'NA', 'NA', 'NA', 'NA',
-                'NA', 'NA', 'genomic', 'NA', 'NA', 'NA',
+                'NA', 'NA', 'NA', 'NA', 'NA', 'NA',
                 'False', 'NA', 'NA', 'NA',
                 'NA', 'NA', 'NA',
                 'NA', 'NA', 'NA',

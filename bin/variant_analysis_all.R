@@ -87,12 +87,19 @@ get_growth <- function(x){
 impact$growth <- apply(impact, 1, get_growth)
 impact <- unnest(impact, growth)
 
-impact$norm_growth <- impact$growth/sapply(impact$gene, function(x){mean(ko_growth[ko_growth$id == x, "s-score"])})
-
+impact$norm_growth <- impact$growth/unlist(apply(impact, 1, function(x){
+  mean(ko_growth[ko_growth$condition == unlist(x["condition"]) & ko_growth$gene == unlist(x["gene"]),"score"])
+}))
 
 hist(impact$sift_score)
-plot(unlist(apply(impact, 1, function(x){rep(x["sift_score"],length(x["growth"][[1]]))})), unlist(impact$growth))
-boxplot(unlist(impact$growth) ~ unlist(apply(impact, 1, function(x){rep(x["type"],length(x["growth"][[1]]))})))
+plot(impact$sift_score, impact$norm_growth) # No apparant relation with sift score
+boxplot(norm_growth ~ type, data=impact) # Possible relation with frameshift and nonsense
+plot(impact$pos_aa, impact$norm_growth) # No apparant relation with sift score
+boxplot(norm_growth ~ as.factor(ref_codon), data=impact)
+boxplot(norm_growth ~ as.factor(alt_aa), data=impact[nchar(impact$alt_aa) == 1,])
+plot(impact$foldx_ddG, impact$norm_growth) # Nothing strong found on any factor
+
+fit <- lm(norm_growth ~ sift_score, data=impact) ## Sift score is significant but irrelevant
 
 ### Test ML solutions
 library(caret)
@@ -103,9 +110,9 @@ training <- impact.ml[train_index,]
 test <- impact.ml[-train_index,]
 
 model <- train(norm_growth ~ type + sift_score + ref_codon + alt_codon + ref_aa + alt_aa,
-               data=training, method = "rf")
+               data=training, method = "bayesglm")
 
 prediction <- predict(model, newdata = test)
 
-
+plot(test$norm_growth, prediction)
 
