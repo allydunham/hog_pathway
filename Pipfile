@@ -16,9 +16,15 @@ matplotlib = "*"
 "pymc3" = "*"
 jupyterlab = "*"
 "h5py" = "*"
+theano = "*"
 
 
 [dev-packages]
 
 "pep8" = "*"
 pylint = "*"
+
+
+[pipenv]
+
+keep_outdated = true

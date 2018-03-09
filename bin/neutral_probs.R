@@ -20,10 +20,10 @@ impact[impact$alt_aa == impact$ref_aa, 'type'] <- 'synonymous' # Non synonymous 
 impact[impact$alt_aa == '*', 'type'] <- 'nonsense'
 impact$effect <- as.factor(impact$effect)
 
-boxplot(sift_score ~ effect, data = impacts) # Impactful mutations clearly have much lower sift score
-plot(impacts$foldx_ddG, impacts$effect)
+boxplot(sift_score ~ effect, data = impact) # Impactful mutations clearly have much lower sift score
+plot(impact$foldx_ddG, impact$effect)
 
-boxplot(foldx_ddG ~ effect, data = impacts)
+boxplot(foldx_ddG ~ effect, data = impact)
 
 library(caret)
 library(e1071)
@@ -55,33 +55,29 @@ table(test$effect, prediction)
 varImp(object=model)
 
 ### Fit model of sift to prob instead
-t$bin <- cut(t$sift_score, breaks = 40, labels = FALSE)
-p <- sapply(1:40, function(x){
-  sum(t[t$bin == x, "effect"] == "0")/sum(t$bin == x)
+t <- impact[!is.na(impact$sift_score),]
+t$bin <- cut(t$sift_score, breaks = 20, labels = FALSE)
+p <- sapply(1:20, function(x){
+  sum(t[t$bin == x, "effect"] == "1")/sum(t$bin == x)
 })
 
 t$p <- p[t$bin]
-model <- glm(p ~ sift_score, data = t, family=gaussian())
 
-plot(seq(0.025,1,0.05), p, ylim = c(0,1), xlim = c(0,1))
-
-# Equivalent function to marcos paper
-f <- function(x,a,b){1/(a*x^b + 1)}
+f <- function(x,a,b){1/(1 + exp(b*x + a))}
 fit <- nls(p ~ f(sift_score,a,b), data = t, start = list(a=1, b=1))
-plot(t$sift_score, t$p)
-curve(f(x,0.01758,-1.16157),add = TRUE)
+plot(t$sift_score, t$p, pch=20, main = "Probability of Impact (SIFT)", xlab = "Sift Score", ylab = "p")
+curve(f(x,-1.331,24.500),add = TRUE)
 
 # Same workflow on foldx
 t <- impact[!is.na(impact$foldx_ddG),]
 t$bin <- cut(t$foldx_ddG, breaks = 20, labels = FALSE)
 p <- sapply(1:20, function(x){
-  sum(t[t$bin == x, "effect"] == "0")/sum(t$bin == x)
+  sum(t[t$bin == x, "effect"] == "1")/sum(t$bin == x)
 })
 
 t$p <- p[t$bin]
-f <- function(x,a,b){1/(1 + exp(a*x + b))}
 fit <- nls(p ~ f(foldx_ddG,a,b), data = t, start = list(a=1, b=1))
 
-plot(t$foldx_ddG, t$p, ylim = c(0,1))
-curve(f(x,0.217862,0.073517),add = TRUE)
+plot(t$foldx_ddG, t$p, ylim = c(0,1), pch=20, main = "Probability of Impact (FoldX)", xlab = "ddG", ylab = "p")
+curve(f(x,-0.07352,-0.21786),add = TRUE)
 
