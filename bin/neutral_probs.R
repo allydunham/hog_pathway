@@ -52,32 +52,48 @@ model <- train(effect ~ pos_aa + blosum + sift_score + elm_lost, data = training
 
 prediction <- predict(model, newdata = test)
 table(test$effect, prediction)
+summary(model)
 varImp(object=model)
+
+probs <- predict(model, newdata = test, type = "prob")
+boxplot(probs[,2] ~ test$effect)
+
+## Ranger implementation of RF
+library(ranger)
+
+model = ranger(effect ~ pos_aa + blosum + sift_score + elm_lost, data = training, probability = TRUE)
+probs <- predict(model, data = test)
+boxplot(probs$predictions[,2] ~ test$effect)
 
 ### Fit model of sift to prob instead
 t <- impact[!is.na(impact$sift_score),]
 t$bin <- cut(t$sift_score, breaks = 20, labels = FALSE)
 p <- sapply(1:20, function(x){
-  sum(t[t$bin == x, "effect"] == "1")/sum(t$bin == x)
+  sum(t[t$bin == x, "effect"] == "0")/sum(t$bin == x)
 })
 
 t$p <- p[t$bin]
 
-f <- function(x,a,b){1/(1 + exp(b*x + a))}
-fit <- nls(p ~ f(sift_score,a,b), data = t, start = list(a=1, b=1))
-plot(t$sift_score, t$p, pch=20, main = "Probability of Impact (SIFT)", xlab = "Sift Score", ylab = "p")
-curve(f(x,-1.331,24.500),add = TRUE)
+t$sift_score <- t$sift_score + min(t[t$sift_score > 0,"sift_score"])
+
+f <- function(x,a,b){1/(1 + exp(a*log(x) + b))}
+fit_sift <- nls(p ~ f(sift_score,a,b), data = t, start = list(a=-1,b=1))
+
+plot(t$sift_score, t$p, pch=20, main = "Probability of Neutrality (SIFT)", xlab = "Sift Score", ylab = "p", ylim=c(0,1))
+curve(f(x,coef(fit_sift)[1],coef(fit_sift)[2]),add = TRUE)
 
 # Same workflow on foldx
 t <- impact[!is.na(impact$foldx_ddG),]
 t$bin <- cut(t$foldx_ddG, breaks = 20, labels = FALSE)
 p <- sapply(1:20, function(x){
-  sum(t[t$bin == x, "effect"] == "1")/sum(t$bin == x)
+  sum(t[t$bin == x, "effect"] == "0")/sum(t$bin == x)
 })
 
 t$p <- p[t$bin]
-fit <- nls(p ~ f(foldx_ddG,a,b), data = t, start = list(a=1, b=1))
+t$sift_log <- 
+f <- function(x,a,b){1/(1 + exp(a*x + b))}
+fit_foldx <- nls(p ~ f(foldx_ddG,a,b), data = t, start = list(a=0, b=0))
 
-plot(t$foldx_ddG, t$p, ylim = c(0,1), pch=20, main = "Probability of Impact (FoldX)", xlab = "ddG", ylab = "p")
-curve(f(x,-0.07352,-0.21786),add = TRUE)
+plot(t$foldx_ddG, t$p, ylim = c(0,1), pch=20, main = "Probability of Neutrality (FoldX)", xlab = "ddG", ylab = "p")
+curve(f(x,coef(fit_foldx)[1],coef(fit_foldx)[2]),add = TRUE)
 
