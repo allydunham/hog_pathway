@@ -90,10 +90,20 @@ p <- sapply(1:20, function(x){
 })
 
 t$p <- p[t$bin]
-t$sift_log <- 
 f <- function(x,a,b){1/(1 + exp(a*x + b))}
 fit_foldx <- nls(p ~ f(foldx_ddG,a,b), data = t, start = list(a=0, b=0))
 
 plot(t$foldx_ddG, t$p, ylim = c(0,1), pch=20, main = "Probability of Neutrality (FoldX)", xlab = "ddG", ylab = "p")
 curve(f(x,coef(fit_foldx)[1],coef(fit_foldx)[2]),add = TRUE)
 
+# Same workflow on blosum
+t <- impact[!is.na(impact$blosum) & impact$blosum < 5,]
+# so few examples of higher blosum scores and all 3 are synonymous changes that must have effects through other mechanisms
+t$p <- sapply(t$blosum, function(x){
+  sum(t[t$blosum == x, "effect"] == "0")/sum(t$blosum == x)
+})
+
+fit_blosum <- lm(p ~ blosum, data = t)
+
+plot(t$blosum, t$p, ylim = c(0,1), pch=20, main = "Probability of Neutrality (Blosum62)", xlab = "Blosum62 Score", ylab = "p")
+abline(fit_blosum$coefficients[1], fit_blosum$coefficients[2])

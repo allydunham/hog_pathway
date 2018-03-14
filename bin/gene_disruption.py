@@ -4,11 +4,10 @@ Process per mutation genotypes to group them by gene and assign per gene disrupt
 
 ToDo
 - Currently nothing takes account of heterozygotes
-- further logic around nonsense/frameshift
+- No minimum sift score leading to 1's
 """
 import argparse
 import fileinput
-import sys
 import numpy as np
 import pandas as pd
 
@@ -60,26 +59,38 @@ def main(args):
 
 def gene_impact_prob(muts, impacts, gene):
     """Determine the probability that a gene carrying a series of variants is neutral"""
+    # Sort mutations
+    muts = sorted(muts, key=lambda x: impacts[(impacts['mut_id'] == x) &
+                                              (impacts['gene'] == gene)]['pos_aa'].item())
+
+    # Calculate probabilities
     probs = []
     for mut_id in muts:
         imp = impacts.loc[(impacts['mut_id'] == mut_id) & (impacts['gene'] == gene)]
         if imp.type.item() == "nonsynonymous":
-            probs.append(snp_neutral(mut_id, imp))
+            probs.append(snp_neutral(imp))
 
         elif imp.type.item() == "nonsense":
-            probs.append(0.01)
+            if imp.prop_aa.item() < 0.95:
+                probs.append(0.01)
+            else:
+                probs.append(0.99)    
             break
 
         elif imp.type.item() == "frameshift":
-            probs.append(0.01)
+            if imp.prop_aa.item() < 0.95:
+                probs.append(0.01)
+            else:
+                probs.append(0.99)    
             break
-
     return 1 - np.prod(probs)
 
 
-def snp_neutral(mut_id, impact):
+def snp_neutral(impact):
     """Determine the probability that a mutation is functionally neutral"""
-    return 1
+    sift = 1/(1 + np.exp(-1.312424 * np.log(impact.sift_score.item()) - 4.103955))
+    foldx = 1/(1 + np.exp(0.21786182 * impact.foldx_ddG.item() - 0.07351653))
+    return min(1, sift, foldx)
 
 def parse_args():
     """Process input arguments"""
