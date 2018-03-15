@@ -7,6 +7,7 @@ ToDo
 """
 import argparse
 import fileinput
+from Bio.SubsMat.MatrixInfo import blosum62
 
 def main(args):
     """Main script"""
@@ -65,6 +66,16 @@ def main(args):
             except KeyError:
                 value['prop_aa'] = 'NA'
 
+    # Calculate blosum scores
+    for key, value in mutations.items():
+        try:
+            value['blosum62'] = blosum62[(value['ref_aa'], value['alt_aa'])]
+        except KeyError:
+            try:
+                value['blosum62'] = blosum62[(value['alt_aa'], value['ref_aa'])]
+            except KeyError:
+                value['blosum62'] = 'NA'
+
     # Process Genomic mutations
     # bit of a hack to work with the effect file which has no genomic ids
     if not args.effect:
@@ -92,14 +103,14 @@ def main(args):
 
     # Print Results
     values = ('mut_id', 'ref_codon', 'alt_codon', 'pos_aa', 'prop_aa', 'ref_aa',
-              'alt_aa', 'gene', 'type', 'acc', 'sift_score', 'sift_median_ic',
+              'alt_aa', 'gene', 'type', 'acc', 'blosum62', 'sift_score', 'sift_median_ic',
               'elm_lost', 'foldx_ddG', 'foldx_ddG_sd', 'foldx_evidence',
               'foldx_int_ddG', 'foldx_int_ddG_sd', 'foldx_int_evidence',
               'foldx_int_interactor', 'pho_prob', 'ptm_modification',
               'tf_score_diff', 'tf_perc_diff', 'effect')
 
     defaults = ('NA', 'NA', 'NA', 'NA', 'NA', 'NA',
-                'NA', 'NA', 'NA', 'NA', 'NA', 'NA',
+                'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA',
                 'False', 'NA', 'NA', 'NA',
                 'NA', 'NA', 'NA',
                 'NA', 'NA', 'NA',
