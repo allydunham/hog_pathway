@@ -17,6 +17,7 @@ matplotlib = "*"
 jupyterlab = "*"
 "h5py" = "*"
 theano = "*"
+biopython = "*"
 
 
 [dev-packages]
