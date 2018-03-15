@@ -74,9 +74,9 @@ p <- sapply(1:20, function(x){
 
 t$p <- p[t$bin]
 
-t$sift_score <- t$sift_score + min(t[t$sift_score > 0,"sift_score"])
+min_sift <- min(t[t$sift_score > 0,"sift_score"])
 
-f <- function(x,a,b){1/(1 + exp(a*log(x) + b))}
+f <- function(x,a,b){1/(1 + exp(a*log(x + min_sift) + b))}
 fit_sift <- nls(p ~ f(sift_score,a,b), data = t, start = list(a=-1,b=1))
 
 plot(t$sift_score, t$p, pch=20, main = "Probability of Neutrality (SIFT)", xlab = "Sift Score", ylab = "p", ylim=c(0,1))
