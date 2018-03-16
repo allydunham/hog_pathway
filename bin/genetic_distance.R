@@ -21,13 +21,16 @@ growth_distance_NaCl6 <- as.matrix(dist(growth[,2]))
 growth_distance_Sorb <- as.matrix(dist(growth[,3]))
 
 plot(genetic_distance[upper.tri(genetic_distance)], growth_distance_NaCl4[upper.tri(growth_distance_NaCl4)],
-     pch=20, xlab="Genetic Distance (Manhatten)", ylab="Difference in S-Score (NaCl 0.4mM)")
+     pch=20, xlab="Genetic Distance (Manhatten)", ylab="Difference in S-Score (NaCl 0.4mM)",
+     ylim=c(0,7))
 
 plot(genetic_distance[upper.tri(genetic_distance)], growth_distance_NaCl6[upper.tri(growth_distance_NaCl6)],
-     pch=20, xlab="Genetic Distance (Manhatten)", ylab="Difference in S-Score (NaCl 0.6mM)")
+     pch=20, xlab="Genetic Distance (Manhatten)", ylab="Difference in S-Score (NaCl 0.6mM)",
+     ylim=c(0,7))
 
 plot(genetic_distance[upper.tri(genetic_distance)], growth_distance_Sorb[upper.tri(growth_distance_Sorb)],
-     pch=20, xlab="Genetic Distance (Manhatten)", ylab="Difference in S-Score (Sorbitol 1mM)")
+     pch=20, xlab="Genetic Distance (Manhatten)", ylab="Difference in S-Score (Sorbitol 1mM)",
+     ylim=c(0,7))
 
 
 
