@@ -5,6 +5,7 @@ ko_prob <- read.table("data/hog-gene-variants.koProb", header = TRUE, row.names 
 hog_meta <- read.table("meta/hog-gene-loci")
 colnames(hog_meta) <- c("chr","start","end","id","gene","strand")
 ko_prob <- ko_prob[,colnames(ko_prob) %in% hog_meta$id]
+colnames(ko_prob) <- sapply(colnames(ko_prob), function(x){hog_meta[hog_meta$id == x, "gene"]})
 
 growth <- read.table("data/raw/bede_2017_parsed.tsv",header=TRUE,sep='\t')
 
@@ -15,13 +16,15 @@ names(strain_to_sys) <- meta$Isolate.name
 growth <- growth[!is.na(strain_to_sys[rownames(growth)]),c("sodium.chloride.0.4mM", "sodium.chloride.0.6mM", "Sorbitol.1mM")]
 rownames(growth) <- strain_to_sys[rownames(growth)]
 
+boxplot(ko_prob, ylab="P(Affected)", las=2)
+
 # Gene Correlations
 library(gplots)
 
 ko_prob_cor <- ko_prob[,!colSums(ko_prob) == 0]
 gene_cor <- cor(as.matrix(ko_prob_cor))
-colnames(gene_cor) <- sapply(colnames(gene_cor), function(x){hog_meta[hog_meta$id == x, "gene"]})
-rownames(gene_cor) <- sapply(rownames(gene_cor), function(x){hog_meta[hog_meta$id == x, "gene"]})
+#colnames(gene_cor) <- sapply(colnames(gene_cor), function(x){hog_meta[hog_meta$id == x, "gene"]})
+#rownames(gene_cor) <- sapply(rownames(gene_cor), function(x){hog_meta[hog_meta$id == x, "gene"]})
 
 cols <- colorRampPalette(c("red","white","blue"))(256)
 heatmap.2(gene_cor, symm=TRUE, col=cols, breaks=seq(-1,1,2/256), trace = "none")
@@ -32,7 +35,7 @@ ko_prob <- ko_prob[rownames(growth),]
 ko_prob$growth <- growth$sodium.chloride.0.6mM
 
 for (i in colnames(ko_prob)){
-  plot(ko_prob[,i], ko_prob$growth, xlab=i, ylab = "S-Score", pch=20)
+  plot(ko_prob[,i], ko_prob$growth, xlab="P(Affected)", main=i, ylab = "S-Score", pch=20)
   readline(prompt="Press [enter] to continue")
 }
 

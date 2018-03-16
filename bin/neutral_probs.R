@@ -19,11 +19,10 @@ impact[!impact$alt_aa == impact$ref_aa, 'type'] <- 'nonsynonymous'
 impact[impact$alt_aa == impact$ref_aa, 'type'] <- 'synonymous' # Non synonymous and only one nonsense mutation in training set, maybe doesn't matter as could be dealt with separately?
 impact[impact$alt_aa == '*', 'type'] <- 'nonsense'
 impact$effect <- as.factor(impact$effect)
+impact$elm_lost <- as.factor(impact$elm_lost)
 
-boxplot(sift_score ~ effect, data = impact) # Impactful mutations clearly have much lower sift score
-plot(impact$foldx_ddG, impact$effect)
-
-boxplot(foldx_ddG ~ effect, data = impact)
+boxplot(sift_score ~ effect, data = impact, xlab = "Impact", ylab="Sift Score") # Impactful mutations clearly have much lower sift score
+boxplot(foldx_ddG ~ effect, data = impact, xlab = "Impact", ylab="ddG")
 
 library(caret)
 library(e1071)
@@ -64,6 +63,14 @@ library(ranger)
 model = ranger(effect ~ pos_aa + blosum + sift_score + elm_lost, data = training, probability = TRUE)
 probs <- predict(model, data = test)
 boxplot(probs$predictions[,2] ~ test$effect)
+
+## Masters Project implementation
+source("bin/classifier.R")
+
+f <- function(x){randomForest(effect ~ pos_aa + blosum + sift_score + elm_lost,
+                              data = x, ntree=2000)}
+model <- classifier.crossValidate(f, training)
+boxplot(t(model), main = "Random Forrest Classifier Performace", ylim=c(0,1))
 
 ### Fit model of sift to prob instead
 t <- impact[!is.na(impact$sift_score),]
