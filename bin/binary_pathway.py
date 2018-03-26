@@ -6,7 +6,6 @@ ToDo
 - Proteins to class?
 - More sophisticated integration of upstream signal
 - Add repression interactions?
-- easier way to remove outputs
 """
 class ProteinNetwork:
     """Signalling network"""
@@ -58,19 +57,25 @@ class ProteinNetwork:
         self.proteins[source]['outputs'].append(sink)
         self.proteins[source]['inputs'].append(source)
 
-    def set_input(self, *names):
+    def set_input(self, *names, reset=False):
         """Set a protein(s) as an input source"""
         names = set(names)
-        if all([x in self.proteins.keys() for x in names]):
-            self.inputs.update(names)
+        if not names or all([x in self.proteins.keys() for x in names]):
+            if reset:
+                self.inputs = names
+            else:
+                self.inputs.update(names)
         else:
             raise ValueError("Protein(s) not in network")
 
-    def set_output(self, *names):
+    def set_output(self, *names, reset=False):
         """Set a protein(s) as an output source"""
         names = set(names)
-        if all([x in self.proteins.keys() for x in names]):
-            self.outputs.update(names)
+        if not names or all([x in self.proteins.keys() for x in names]):
+            if reset:
+                self.output = names
+            else:
+                self.outputs.update(names)
         else:
             raise ValueError("Protein(s) not in network")
 
