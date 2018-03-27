@@ -4,6 +4,7 @@ Link functionally annotated and genomic mutations with their precalculated conse
 
 ToDo
 - Rework import to be more versatile
+- Add gene filtering
 """
 import argparse
 import fileinput

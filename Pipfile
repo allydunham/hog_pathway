@@ -18,6 +18,7 @@ jupyterlab = "*"
 "h5py" = "*"
 theano = "*"
 biopython = "*"
+tensorflow = "*"
 
 
 [dev-packages]
