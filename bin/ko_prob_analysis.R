@@ -34,12 +34,23 @@ ko_prob <- ko_prob[rownames(growth),]
 
 ko_prob$growth <- growth$sodium.chloride.0.6mM
 
-for (i in colnames(ko_prob)){
-  plot(ko_prob[,i], ko_prob$growth, xlab="P(Affected)", main=i, ylab = "S-Score", pch=20)
-  readline(prompt="Press [enter] to continue")
-}
+#for (i in colnames(ko_prob)){
+#  plot(ko_prob[,i], ko_prob$growth, xlab="P(Affected)", main=i, ylab = "S-Score", pch=20)
+#  readline(prompt="Press [enter] to continue")
+#}
 
 fit <- lm(growth ~ ., data = ko_prob)
 
 m <- colMeans(ko_prob)
 names(m) <- sapply(names(m), function(x){hog_meta[hog_meta$id == x, "gene"]})
+
+### Analyse whole pathway ko prob
+path_active <- read.table('data/hog-gene-variants.pathKO', header = TRUE, sep='\t')
+path_active <- subset(path_active, strain %in% rownames(growth))
+rownames(path_active) <- path_active$strain
+path_active <- merge(path_active, growth, by='row.names')
+
+boxplot(sodium.chloride.0.4mM ~ hog_active, data = path_active)
+plot(path_active$hog_active, path_active$sodium.chloride.0.4mM)
+
+

@@ -46,18 +46,17 @@ def main(args):
     # Evaluate network in each strain
     with fileinput.input(args.probs) as prob_file:
         header = next(prob_file).strip().split('\t')
-        print([meta[header[i]] for i in range(len(header)) if header[i] in meta.keys()])
-
+        
         # Determine which columns have hog pathway genes
-        gene_cols = {meta[header[i]]:i for i in range(len(header))
+        hog_cols = {meta[header[i]]:i for i in range(len(header))
                      if header[i] in meta.keys()
                      and meta[header[i]] in hog.get_protein_names()}
-        
-        print('strain',sep='\t')
+
+        print('strain', 'hog_active', sep='\t')
         for line in prob_file:
             line = line.strip().split('\t')
             # Set protein functions as P(!impact) then eval network
-            for name, col in gene_cols.items():
+            for name, col in hog_cols.items():
                 hog.set_function(name, 1 - float(line[col]))
             path_activity = hog.get_activity()
 

@@ -9,7 +9,7 @@ ToDo
 - deal with loop interactions
 - More complex functionality representation
 """
-FUNCTIONALITY_THRESHOLD = 0.05
+FUNCTIONALITY_THRESHOLD = 0.5
 
 class ProteinNetwork:
     """Signalling network"""
