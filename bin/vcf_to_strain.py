@@ -24,26 +24,26 @@ def main(args):
                     meta[line[standard]] = line[isolate]
 
     vcf_file = vcf.Reader(filename=args.vcf)
-    genotypes = {}
-    for site in vcf_file:
-        for i in range(len(site.ALT)):
-            mut_id = ''.join((format_chrom(site.CHROM, rome=True),
-                              ':', str(site.POS), '_', site.REF,
-                              '/', str(site.ALT[i])))
 
-            genotypes[mut_id] = []
-            for call in site.samples:
-                genotypes[mut_id].append(call.data.GT.count(str(i + 1)))
-
-    # Print matrix of strain genotypes
+    # Print headers
     if args.meta:
         print('mut_id', *[meta[i] for i in vcf_file.samples], sep='\t')
 
     else:
         print('mut_id', *vcf_file.samples, sep='\t')
 
-    for mut_id, gens in genotypes.items():
-        print(mut_id, *gens, sep='\t')
+    # Iterate over loci
+    for site in vcf_file:
+        for i in range(len(site.ALT)):
+            mut_id = ''.join((format_chrom(site.CHROM, rome=True),
+                              ':', str(site.POS), '_', site.REF,
+                              '/', str(site.ALT[i])))
+
+            gens = []
+            for call in site.samples:
+                gens.append(call.data.GT.count(str(i + 1)))
+
+            print(mut_id, *gens, sep='\t')
 
 def parse_args():
     """Process input arguments"""
