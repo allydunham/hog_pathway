@@ -60,7 +60,7 @@ def main(args):
             line = line.strip().split('\t')
             # Set protein functions as P(!impact) then eval network
             for name, col in hog_cols.items():
-                hog.set_function(name, 1 - float(line[col]))
+                hog.set_probability(name, 1 - float(line[col]))
             path_activity = hog.get_activity()
 
             # Print strain, network function and p(impact) for other genes

@@ -10,13 +10,16 @@ ToDo
 - More complex functionality representation
 - Separate binding/localisation and kinase interactions
 """
-FUNCTIONALITY_THRESHOLD = 0.6
+import numpy as np
+FUNCTIONALITY_THRESHOLD = 0.5
 
 class ProteinNetwork:
     """Signalling network"""
     def __init__(self, proteins=None, inputs=(), outputs=()):
-        self.nodes = {}
+        self.nodes = {} # dict of named nodes in network
         self.complex_members = {} # Lookup of all protein:complex pairs
+
+        # Import any supplied nodes
         if not proteins is None:
             for protein in proteins.values():
                 self.node(protein)
@@ -24,8 +27,11 @@ class ProteinNetwork:
                     for name in protein.components:
                         self.complex_members[name] = protein.name
 
-        self.inputs = set(inputs)
-        self.outputs = set(outputs)
+        self.inputs = set(inputs) # Set of input nodes (activity sources)
+        self.outputs = set(outputs) # Set of output nodes (netowrk targets)
+        self.branches = [] # list of branches in the network
+
+        self.verify_all_edges()
 
 
     def __repr__(self):
@@ -38,7 +44,7 @@ class ProteinNetwork:
         return self.__repr__()
 
     def node(self, obj):
-        """Add a protein to the network or modify an exisiting one"""
+        """Add a node to the network or modify an exisiting one"""
         self.nodes[obj.name] = obj
 
         if isinstance(obj, ProteinComplex):
@@ -48,9 +54,28 @@ class ProteinNetwork:
         self.verify_edges(obj.name)
 
     def edge(self, source, sink):
-        """Add an interaction between proteins already in the network"""
+        """Add an interaction between nodes already in the network"""
         self.nodes[source].add_output(sink)
         self.nodes[sink].add_input(source)
+
+    def verify_edges(self, name):
+        """Check edges are fully described with respect to named protein"""
+        for i in self.nodes[name].inputs:
+            try:
+                self.nodes[i].add_output(name)
+            except KeyError:
+                print("Warning: absent protein {} referenced as input to {}".format(i, name))
+
+        for i in self.nodes[name].outputs:
+            try:
+                self.nodes[i].add_input(name)
+            except KeyError:
+                print("Warning: absent protein {} referenced as output to {}".format(i, name))
+
+    def verify_all_edges(self):
+        """Check edges are fully described across all proteins"""
+        for name in self.nodes:
+            self.verify_edges(name)
 
     def set_input(self, *names, reset=False):
         """Set a protein(s) as an input source"""
@@ -74,46 +99,20 @@ class ProteinNetwork:
         else:
             raise ValueError("Protein(s) not in network")
 
-    def set_function(self, name, function):
+    def set_probability(self, name, probability):
         """Set a component proteins functionality"""
         if name in self.nodes:
-            self.nodes[name].function = function
+            self.nodes[name].probability_active = probability
         elif name in self.complex_members:
             comp = self.complex_members[name]
-            self.nodes[comp].components[name].function = function
+            self.nodes[comp].components[name].probability_active = probability
         else:
             raise ValueError("Protein not in network")
 
-    def verify_edges(self, name):
-        """Check edges are fully described with respect to named protein"""
-        for i in self.nodes[name].inputs:
-            try:
-                self.nodes[i].add_output(name)
-            except KeyError:
-                print("Warning: absent protein {} referenced as input to {}".format(i, name))
+    def get_branches(self):
+        """Identify all branches within the network"""
+        pass
 
-        for i in self.nodes[name].outputs:
-            try:
-                self.nodes[i].add_input(name)
-            except KeyError:
-                print("Warning: absent protein {} referenced as output to {}".format(i, name))
-
-    def verify_all_edges(self):
-        """Check edges are fully described across all proteins"""
-        for name in self.nodes:
-            self.verify_edges(name)
-
-    def get_activity(self):
-        """Check activity of the network"""
-        active = {name: False for name in self.nodes}
-        to_test = list(self.inputs)
-        while to_test:
-            current_protein = to_test.pop()
-            if self.nodes[current_protein].get_activity():
-                active[current_protein] = True
-                to_test += list(self.nodes[current_protein].outputs)
-
-        return any([active[x] for x in self.outputs])
 
     def get_protein_names(self):
         """Return a list of all proteins in the network"""
@@ -129,9 +128,26 @@ class ProteinNetwork:
 
         return proteins
 
+    def get_activity(self, threshold=FUNCTIONALITY_THRESHOLD):
+        """Check binary activity of the network outputs based on P(Active) > threshold"""
+        active = {name: False for name in self.nodes}
+        to_test = list(self.inputs)
+        while to_test:
+            current_protein = to_test.pop()
+            if self.nodes[current_protein].get_activity(threshold):
+                active[current_protein] = True
+                to_test += list(self.nodes[current_protein].outputs)
+
+        return any([active[x] for x in self.outputs])
+
+    def get_probability(self):
+        """Determine the probability that each network output is active based\
+           on upstream activity probabilities"""
+        pass
+
 class Protein:
     """Individual component of a protein network"""
-    def __init__(self, name, inputs=None, outputs=None, function=1):
+    def __init__(self, name, inputs=None, outputs=None, probability=0.95):
         if inputs is None:
             inputs = set()
         if outputs is None:
@@ -140,11 +156,12 @@ class Protein:
         self.name = name
         self.inputs = set(inputs)
         self.outputs = set(outputs)
-        self.function = function
+        self.probability_active = probability
+
 
     def __repr__(self):
-        return "Protein('{}', inputs={}, outputs={}, function={})".format(
-            self.name, self.inputs, self.outputs, self.function
+        return "Protein('{}', inputs={}, outputs={}, probability={})".format(
+            self.name, self.inputs, self.outputs, self.probability_active
             )
 
     def __str__(self):
@@ -158,9 +175,13 @@ class Protein:
         """Add an output edge"""
         self.outputs.add(name)
 
-    def get_activity(self):
+    def get_activity(self, threshold=FUNCTIONALITY_THRESHOLD):
         """Test if the protein is functional"""
-        return self.function > FUNCTIONALITY_THRESHOLD
+        return self.probability_active > threshold
+
+    def get_probability(self):
+        """Get the probability of the protein being active"""
+        return self.probability_active
 
 class ProteinComplex(Protein):
     """Protein network component made up of multiple individual components"""
@@ -173,9 +194,12 @@ class ProteinComplex(Protein):
             self.name, [x for x in self.components.values()], self.inputs, self.outputs
             )
 
-    def get_activity(self):
+    def get_activity(self, threshold=FUNCTIONALITY_THRESHOLD):
         """Test if the complex is active"""
-        return all([x.get_activity() for x in self.components.values()])
+        return all([x.get_activity(threshold) for x in self.components.values()])
+
+    def get_probability(self):
+        return np.prod([x.get_probability() for x in self.components])
 
 
 if __name__ == "__main__":
