@@ -1,0 +1,1012 @@
+Tree order	OS_name	Isolate name	Standardized name	Isolation	Ecological origins	Geographical origins	HO deletion	Plasmid class	Plasmid CN	Ploidy	Aneuploidies	Zygosity	Total number of SNPs	Proportion of clean heterozygous SNPs (whole dataset)	Number of singletons	Mean coverage	Clade	MTA (no distribution)	Collection / Provider	Reference
+1	OS_1447	EXF-5295	BFC	Kefyr	Fermentation	Slovenia	no	A	75	2	euploid	homozygous	42,404	0.0	305	231	1. Wine/European 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+2	OS_827	CBS4458	AGL	Red wine	Wine	France	yes	A	10	1	euploid	homozygous	43,585	0.0	565	921	1. Wine/European 		CBS collection (Nguyen H.V.)	
+3	OS_770	YJM434_1b	ABE	Human, clinical 	Human, clinical	NA	yes	A	30	1	euploid	homozygous	42,562	0.0	117	197	1. Wine/European 		Kruglyak Laboratory	1
+4	OS_1683	YJM453	SACE_YAM	Unknown	Human, clinical	NA	no	A	70	2	euploid	homozygous	41,676	0.0	139	82	1. Wine/European 		Phaff collection	2
+5	OS_1194	DBVPG1554	BKI	Wine	Wine	Dalmatia 	no	A	12	2	euploid	homozygous	42,541	0.0	248	242	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+6	OS_677	DBVPG1794_1b	ABR	Soil	Soil	Finland	yes	A	34	1	euploid	homozygous	42,682	0.0	3	189	1. Wine/European 		Kruglyak Laboratory	1
+7	OS_676	DBVPG1788_1b	ABQ	Soil	Soil	Finland	yes	A	29	1	euploid	homozygous	42,848	0.0	12	202	1. Wine/European 		Kruglyak Laboratory	1
+8	OS_1235	DBVPG1790	BNV	Soil	Soil	Turku, Finland	no	A	8	2	euploid	homozygous	43,052	0.0	1	257	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+9	OS_1237	DBVPG1795	BPB	Grape must	Wine	Illasi, Verona, Italy	no	A	11	2	euploid	homozygous	43,363	0.0	393	368	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+10	OS_1253	DBVPG1960	BPT	Grape must	Wine	Recioto, Verona, Italy	no	A	9	2	euploid	heterozygous	45,188	9.9	337	255	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+11	OS_1270	DBVPG4162	BQM	Grape must	Wine	Reggio Emilia, Italy	no	A	8	2	euploid	heterozygous	45,851	13.3	385	199	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+12	OS_1454	EXF-6761	BFK	Quercus cerris	Tree	Slovenia	no	A	54	2	euploid	homozygous	42,620	0.0	310	296	1. Wine/European 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+13	OS_1275	DBVPG4410	BQS	Wine	Wine	Italy 	no	none	0	2	euploid	heterozygous	43,600	5.2	511	239	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+14	OS_1262	DBVPG2166	BQE	Sagrantino wine	Wine	production zone of Sagrantino wine, Montefalco, Foligno, Italy	no	A	10	2	euploid	heterozygous	46,097	15.3	490	186	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+15	OS_477	MC5	AIN	Cooked wine (vino cotto)	Wine	Ascoli Piceno, Italy	no	none	0	2	euploid	heterozygous	44,430	6.6	677	218	1. Wine/European 		Universita politecnica delle Marche (Maurizio Ciani)	
+16	OS_1274	DBVPG4381	BQR	Seawater	Water	Italy 	no	A	13	2	euploid	heterozygous	43,741	4.8	528	209	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+17	OS_1257	DBVPG1984	BLT	Grape must	Wine	Slovenia	no	A	8	2	euploid	heterozygous	45,306	8.9	596	346	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+18	OS_855	CBS457	AIF	Grape must	Wine	Italy	no	A	26	2	euploid	heterozygous	44,600	10.1	10	224	1. Wine/European 		CBS collection (Nguyen H.V.)	
+19	OS_1372	CBS1190	AQR	Wine	Wine	Germany	no	A	68	2	aneu;+1*11;+1*14;	heterozygous	44,653	9.9	4	216	1. Wine/European 		CBS collection (Nguyen H.V.)	
+20	OS_1241	DBVPG1832	BPF	Fruit juice	Fruit	NA	no	none	0	2	euploid	heterozygous	44,882	10.0	401	258	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+21	OS_1254	DBVPG1973	BLR	Grape must	Wine	Greece	no	none	0	2	euploid	heterozygous	45,338	10.3	34	249	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+22	OS_1227	DBVPG1708	BNL	Soil	Soil	Ultura, Sweden	no	none	0	2	euploid	heterozygous	44,885	8.7	14	245	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+23	OS_1245	DBVPG1861	BPK	River water	Water	Rajamaki River, Finland	no	none	0	2	euploid	heterozygous	44,940	9.5	188	241	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+24	OS_1203	DBVPG1584	BKQ	Unknown	Unknown	Porec, Istria	no	A	41	2	euploid	heterozygous	44,193	5.4	754	237	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+25	OS_1242	DBVPG1841	BPG	Red Tecc	Unknown	Ethiopia	no	A	36	2	aneu;+1*1;	homozygous	41,579	0.0	21	132	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+26	OS_1243	DBVPG1843	BPH	White Tecc	Unknown	Ethiopia	no	A	35	2	aneu;+1*1;	homozygous	42,333	0.0	11	244	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+27	OS_1276	DBVPG4460	BQT	Wine	Wine	Jesi, Italy 	no	A	6	2	euploid	homozygous	42,858	0.0	410	251	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+28	OS_1355	CBS459	APT	Grape must	Wine	Italy	no	A	102	2	aneu;+1*14;	homozygous	42,776	0.0	239	295	1. Wine/European 		CBS collection (Nguyen H.V.)	
+29	OS_1168	DBVPG1058	BID	Baker's yeast	Bakery	Pazzaglia, Italy	no	none	0	2	euploid	homozygous	42,560	0.0	363	256	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+30	OS_861	CBS1590	AGI	Grape must / juice	Wine	Italy	no	A	1	2	euploid	homozygous	42,994	0.0	339	328	1. Wine/European 		CBS collection (Nguyen H.V.)	
+31	OS_1163	DBVPG1014	BHV	Grape must	Wine	Umbria, Italy	no	A	84	2	euploid	homozygous	42,750	0.0	373	221	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+32	OS_1167	DBVPG1057	BNE	Grape must	Wine	Colli Romani, Lazio, Italy	no	A	43	2	euploid	homozygous	42,723	0.0	24	224	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+33	OS_1209	DBVPG1599	BLA	Grape must	Wine	Cerro del Moro, La Mancha, Spain	no	A	21	2	euploid	homozygous	42,919	0.0	8	266	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+34	OS_1207	DBVPG1596	BKT	Grape must	Wine	Santa Cruz de los Canamos, La Mancha, Spain	no	A	15	2	euploid	homozygous	43,088	0.0	10	228	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+35	OS_1164	DBVPG1029	BIA	Fermenting Grape must	Wine	Colli di Roma, Lazio, Italy	no	A	33	2	euploid	homozygous	42,983	0.0	8	194	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+36	OS_1197	DBVPG1564	BKL	Grape must	Wine	Dolianova, Sardinia, Italy	no	A	21	2	euploid	homozygous	43,188	0.0	4	245	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+37	OS_1165	DBVPG1041	BIB	Grape must	Wine	Tuscany, Italy	no	A	44	2	euploid	homozygous	42,362	0.0	10	117	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+38	OS_1195	DBVPG1555	BKK	Unknown	Unknown	Radgona, Slovenia	no	A	25	2	euploid	homozygous	42,384	0.0	0	229	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+39	OS_1223	DBVPG1669	BLQ	Grape must	Wine	Cenicero, Rioja, Spain	no	A	42	2	aneu;+1*11;	homozygous	42,745	0.0	2	296	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+40	OS_1712	YJM1336	SACE_YBY	Unknown	Wine	Italy	no	A	114	2	euploid	homozygous	43,911	0.0	14	402	1. Wine/European 		Phaff collection	2
+41	NA	YJM1526	SACE_YDF	Clinical (throat)	Human, clinical	NA	no	A	155	2	euploid	homozygous	43,687	0.0	148	251	1. Wine/European 			2
+42	OS_1675	YJM1129	SACE_YDO	Non-Clinical, segregant of NRRL Y-53 (=NRRL Y-567)	Distillery	Ohio, USA	no	A	47	2	euploid	homozygous	42,848	0.0	109	138	1. Wine/European 		Phaff collection	2
+43	OS_747	CBS1586	AHG	Pear must	Fruit	NA	yes	A	32	1	euploid	homozygous	42,683	0.0	381	228	1. Wine/European 		CBS collection (Nguyen H.V.)	
+44	OS_473	C6.1	AII	Palm wine	Palm wine	Cameroon	no	A	25	2	aneu;+1*1;	heterozygous	44,147	4.6	446	326	1. Wine/European 			3
+45	OS_744	CBS1192	AHD	Wine	Wine	NA	yes	A	26	1	aneu;+1*1;	homozygous	43,092	0.0	302	308	1. Wine/European 		CBS collection (Nguyen H.V.)	
+46	OS_847	CBS1479	AGF	Wine	Wine	NA	yes	none	0	1	euploid	homozygous	42,942	0.0	82	475	1. Wine/European 		CBS collection (Nguyen H.V.)	
+47	OS_829	CBS1194	AHE	Wine	Wine	NA	yes	none	0	1	aneu;+1*8;	homozygous	42,589	0.0	73	215	1. Wine/European 		CBS collection (Nguyen H.V.)	
+48	OS_1371	CBS1175	AQQ	Wine	Wine	Switzerland	no	A	75	2	aneu;+1*9;+1*14;	heterozygous	43,685	5.4	143	175	1. Wine/European 		CBS collection (Nguyen H.V.)	
+49	OS_1401	CBS1489	ASG	Tubercular lung	Human, clinical	Italy	no	A	46	2	aneu;+2*2;+1*3;+1*8;+1*10;	homozygous	42,666	0.0	357	275	1. Wine/European 		CBS collection (Nguyen H.V.)	
+50	OS_1398	CBS4507	ASD	Brewer's yeast, English top yeast	Beer	NA	no	none	0	2	euploid	heterozygous	43,786	4.4	1	239	1. Wine/European 		CBS collection (Nguyen H.V.)	
+51	OS_1399	CBS4667	ASE	Grapes	Wine	Former Czechoslovakia	no	none	0	2	euploid	heterozygous	43,656	4.5	1	226	1. Wine/European 		CBS collection (Nguyen H.V.)	
+52	OS_479	MC7	AIQ	Spontaneous alcoholic fermentation	Fermentation	Umbria, Italy	no	A	15	2	euploid	heterozygous	47,267	16.9	323	251	1. Wine/European 		Universita politecnica delle Marche (Maurizio Ciani)	4
+53	OS_1215	DBVPG1625	BLG	Grape must	Wine	La Enconienda, La Mancha, Spain 	no	A	59	2	euploid	heterozygous	46,748	15.2	24	300	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+54	OS_1217	DBVPG1629	BLI	Grape must	Wine	La Mancha, Spain	no	A	39	2	euploid	heterozygous	47,028	15.7	28	372	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+55	OS_795	CLIB154_1b	ACP	Wine	Wine	Russia	yes	A	22	1	euploid	homozygous	43,074	0.0	221	241	1. Wine/European (subclade 1)		Kruglyak Laboratory	1
+56	OS_1258	DBVPG1994	BQA	Grapes	Wine	Greece	no	A	10	2	euploid	homozygous	42,970	0.0	215	277	1. Wine/European (subclade 1)		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+57	OS_590	21-4-125	AMA	Fruit of plum tree (Prunus domestica L., 'Stanley')	Fruit	Male Zaluzie, Slovakia	no	A	43	3	euploid	heterozygous	47,184	18.5	320	232	1. Wine/European (subclade 1)		Culture collection of Yeast (Renata Vadkertiova)	
+58	OS_585	21-4-111	ALQ	Leaves of Prunus domestica L., 'Stanley'	Tree	Male Zaluzie, Slovakia	no	A	56	2	euploid	homozygous	42,959	0.0	138	251	1. Wine/European (subclade 1)		Culture collection of Yeast (Renata Vadkertiova)	
+59	OS_671	CCY_21-4-120	BBI	Blossoms of plum tree (Prunus domestica L., 'Stanley')	Flower	Male Levare, Slovakia	no	A	20	2	euploid	homozygous	43,097	0.0	197	279	1. Wine/European (subclade 1)		Culture collection of Yeast (Renata Vadkertiova)	
+60	OS_588	21-4-122	ALT	Blossoms of apricot tree (Prunus armeniaca)	Flower	Male Zaluzie, Slovakia	no	A	28	2	euploid	homozygous	43,053	0.0	1	222	1. Wine/European (subclade 1)		Culture collection of Yeast (Renata Vadkertiova)	
+61	OS_672	CCY_21-4-121	BBK	Blossoms of apricot tree (Prunus armeniaca L., Madraska)	Flower	Male Zaluzie, Slovakia	no	A	42	2	euploid	homozygous	43,352	0.0	1	268	1. Wine/European (subclade 1)		Culture collection of Yeast (Renata Vadkertiova)	
+62	OS_1446	EXF-5287	BFB	Plum	Nature	Slovenia	no	A	94	2	euploid	heterozygous	46,371	16.7	239	213	1. Wine/European (subclade 1)		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+63	OS_1448	EXF-5297	BFD	Mashed pears	Fruit	Slovenia	no	A	63	2	euploid	homozygous	43,547	0.0	219	270	1. Wine/European (subclade 1)		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+64	OS_587	21-4-116	ALS	Blossom of apple tree (Malus domestica)	Flower	Male levare, Slovakia	no	A	35	2	euploid	homozygous	43,126	0.0	5	228	1. Wine/European (subclade 1)		Culture collection of Yeast (Renata Vadkertiova)	
+65	OS_670	CCY_21-4-119	BBH	Blossoms of pear tree (Pyrus communis)	Flower	Male Levare, Slovakia	no	A	51	2	euploid	homozygous	43,197	0.0	10	250	1. Wine/European (subclade 1)		Culture collection of Yeast (Renata Vadkertiova)	
+66	OS_1250	DBVPG1918	BPQ	Grape must	Wine	Malta	no	A	36	2	euploid	homozygous	42,978	0.0	121	180	1. Wine/European (subclade 1)		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+67	OS_1271	DBVPG4186	BQN	Wine	Wine	Slovenia	no	A	31	2	euploid	homozygous	43,170	0.0	6	196	1. Wine/European (subclade 1)		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+68	OS_1461	DBVPG4036	CBI	Grape must	Wine	ex Yugoslavia	no	A	43	2	euploid	homozygous	43,172	0.0	7	194	1. Wine/European (subclade 1)		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+69	OS_1569	N493-2C	CCM	Fir tree needles	Tree	Kiev district, Ukraine	no	A	101	2	euploid	homozygous	43,172	0.0	167	262	1. Wine/European (subclade 1)		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+70	OS_1439	EXF-3387	BEP	Homemade apple vingar	Unknown	Ljubljana, Slovenia	no	A	80	2	euploid	heterozygous	44,797	9.4	217	236	1. Wine/European (subclade 1)		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+71	OS_1280	DBVPG4695	BRC	Winery surface at the beginning of Vino Santo production, Lungarotti winery	Wine	Torgiano, Perugia, Italy	no	A	9	2	euploid	homozygous	42,776	0.0	156	261	1. Wine/European (subclade 1)		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+72	OS_1649	Lib39	CGT	Fermenting grape must (white wine)	Wine	Lebanon	no	A	6	2	euploid	homozygous	43,263	0.0	156	264	1. Wine/European (subclade 1)		INRA Gringnon, France (Nguyen H.V.)	
+73	OS_579	21-4-99	ALL	River water (Danube)	Water	Bratislava, Slovakia	no	A	29	2	euploid	heterozygous	46,123	13.9	60	263	1. Wine/European 		Culture collection of Yeast (Renata Vadkertiova)	
+74	OS_580	21-4-101	ALM	River water (Danube)	Water	Bratislava, Slovakia	no	A	32	2	aneu;+1*9;	heterozygous	45,766	13.4	44	203	1. Wine/European 		Culture collection of Yeast (Renata Vadkertiova)	
+75	OS_1438	CECT1478	AVH	Wine	Wine	Hungary	no	none	0	2	aneu;+1*2;+1*6;+1*7;+1*10;+1*13;+1*15;+1*16;	homozygous	42,765	0.0	309	266	1. Wine/European 		CECT collection	
+76	OS_758	CBS1227	AHR	Abscess on epididymis	Human, clinical	Romania	yes	A	1	1	euploid	homozygous	42,774	0.0	7	268	1. Wine/European 		CBS collection (Nguyen H.V.)	
+77	OS_1679	YJM244	SACE_YAD	Human	Human, clinical	Romania	no	A	61	2	euploid	homozygous	42,587	0.0	1	91	1. Wine/European 		Phaff collection	2
+78	OS_732	CBS1582	AGH	Wine	Wine	Portugal	yes	A	30	1	euploid	homozygous	42,592	0.0	318	225	1. Wine/European 		CBS collection (Nguyen H.V.)	
+79	OS_383	ZP_577	BTH	Quercus faginea	Tree	Portugal, Aldeia das Dez, S. Estrela,	no	A	7	2	euploid	homozygous	42,813	0.0	337	324	1. Wine/European 		Faculdade de Ciencias e Tecnologia of Universidade NOVA de Lisboa (FCT-NOVA)(Jose Paulo Sampaio)	
+80	OS_1420	UC4	ATH	Vineyard	Wine	Germany	no	A	125	2	euploid	heterozygous	44,025	6.0	418	214	1. Wine/European 		Washington University School of Medicine (Justin C Fay)	5
+81	OS_1115	CLIB484	BFQ	Cider brewery, industrial raw juice	Cider	Brittany, France	no	A	20	2	euploid	homozygous	42,381	0.0	5	263	1. Wine/European 		CLIB collection (Serge Casaregola)	
+82	OS_1517	SRC 147	CIA	Bioindustrial strains	Industrial	Bretagne, France	no	A	42	2	euploid	homozygous	42,511	0.0	6	263	1. Wine/European 		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+83	OS_1116	CLIB485	BFR	Cider brewery, industrial raw juice	Cider	Brittany, France	no	A	35	2	euploid	homozygous	42,270	0.0	3	236	1. Wine/European 		CLIB collection (Serge Casaregola)	
+84	OS_1518	SRC 213	CIB	Bioindustrial strains	Industrial	Bretagne, France	no	A	72	2	euploid	homozygous	42,207	0.0	5	220	1. Wine/European 		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+85	OS_1459	DBVPG1978	CBG	Grape must	Wine	Slovakia	no	A	21	2	euploid	heterozygous	45,588	13.9	498	167	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+86	OS_788	CLIB294_1b	ACF	Distillery	Distillery	France	yes	A	28	1	euploid	homozygous	42,639	0.0	252	202	1. Wine/European 		CLIB collection / Bureau National Interprofessionnel du Cognac	1
+87	OS_1717	YJM1356	SACE_YCD	Cider	Cider	NA	no	A	99	2	aneu;+1*1;	homozygous	43,202	0.0	188	321	1. Wine/European 		Phaff collection	2
+88	OS_1354	CBS423	APS	Wine	Wine	Switzerland	no	A	131	2	aneu;+1*1;+1*8;+1*14;	heterozygous	44,618	8.4	548	219	1. Wine/European 		CBS collection (Nguyen H.V.)	
+89	OS_1378	CBS1257	ARC	Wine	Wine	Germany	no	A	149	2	aneu;+1*14;	heterozygous	44,120	6.3	640	220	1. Wine/European 		CBS collection (Nguyen H.V.)	
+90	OS_1441	EXF-5042	BER	Straw broom sink cleaning after grape pressing	Wine	Slovenia	no	A	85	2	euploid	heterozygous	44,073	5.4	548	251	1. Wine/European 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+91	OS_1442	EXF-5046	BES	Grapes	Wine	Slovenia	no	A	210	2	euploid	heterozygous	43,843	5.5	578	238	1. Wine/European 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+92	OS_1385	CBS1602	ARK	Must of Blanchard pears	Fruit	NA	no	A	28	2	aneu;+1*8;+1*13;	heterozygous	43,956	4.7	392	270	1. Wine/European 		CBS collection (Nguyen H.V.)	
+93	OS_1414	PR	ATA	Vineyard	Wine	France	no	none	0	2	euploid	homozygous	42,868	0.0	304	276	1. Wine/European 		Washington University School of Medicine (Justin C Fay)	5
+94	OS_1390	CBS2271	ARQ	Wine	Wine	Belgium	no	none	0	2	euploid	homozygous	42,347	0.0	475	196	1. Wine/European 		CBS collection (Nguyen H.V.)	
+95	NA	YJM1242	SACE_YBN	Unknown	Fruit	Illinois, USA	no	A	72	2	euploid	homozygous	42,791	0.0	9	217	1. Wine/European 			2
+96	OS_1356	CBS1250	APV	Cherry wine	Wine	Spain	no	A	18	2	euploid	homozygous	42,341	0.0	17	226	1. Wine/European 		CBS collection (Nguyen H.V.)	
+97	OS_1562	UCD_40-49	CFV	Citrus fermentation	Fruit	NA	no	A	67	2	aneu;+1*1;+1*4;	homozygous	42,651	0.0	25	291	1. Wine/European 		Phaff collection	
+98	NA	YJM1477	SACE_YDC	Blatz beer	Beer	Ethiopia	no	A	47	2	euploid	homozygous	43,345	0.0	10	295	1. Wine/European 			2
+99	OS_688	L1528	SACE_GAP	Wine	Wine	Chile	no	A	33	2	euploid	homozygous	40,705	0.0	347	19	1. Wine/European 		Universidad de Santiago de Chile (Francisco Cubillos) and Pontificia Universidad Catolica de Chile (Claudio Martinez)	6
+100	OS_748	CBS2966a	AAI	Distillery	Distillery	Denmark	yes	none	0	1	euploid	homozygous	43,085	0.0	18	243	1. Wine/European 		CBS collection (Nguyen H.V.)	
+101	OS_1394	CBS2965	ARV	Distillery	Distillery	Denmark	no	A	87	2	aneu;+1*1;	homozygous	43,022	0.0	10	253	1. Wine/European 		CBS collection (Nguyen H.V.)	
+102	OS_1147	CLIB1040	BHC	Cider brewery, raw apple juice	Cider	Brittany, France	no	A	60	2	euploid	heterozygous	45,562	5.5	283	180	1. Wine/European 		CLIB collection (Serge Casaregola)	
+103	OS_1150	CLIB1062	BHF	Cider brewery, half fermenting apple juice	Cider	Brittany, France	no	A	37	2	euploid	homozygous	42,980	0.0	198	283	1. Wine/European 		CLIB collection (Serge Casaregola)	
+104	OS_1210	DBVPG1601	BLB	Grape must	Wine	Casa del Rey, La Mancha, Spain	no	A	24	2	euploid	homozygous	42,545	0.0	410	239	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+105	OS_1249	DBVPG1898	BPP	Grape must	Wine	Pantelleria, Italy	no	A	25	2	aneu;+1*1;	homozygous	42,668	0.0	404	265	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+106	OS_409	L-475	BTN	Wine	Wine	Chile	no	A	21	2	euploid	homozygous	42,470	0.0	293	193	1. Wine/European 		Universidad de Santiago de Chile (Francisco Cubillos) and Pontificia Universidad Catolica de Chile (Claudio Martinez)	
+107	OS_407	L-304	BTL	Wine	Wine	Chile	no	A	5	2	euploid	homozygous	42,632	0.0	273	210	1. Wine/European 		Universidad de Santiago de Chile (Francisco Cubillos) and Pontificia Universidad Catolica de Chile (Claudio Martinez)	
+108	OS_408	L-319	CRH	Wine	Wine	Chile	no	A	10	2	euploid	heterozygous	45,482	10.0	411	228	1. Wine/European 		Universidad de Santiago de Chile (Francisco Cubillos) and Pontificia Universidad Catolica de Chile (Claudio Martinez)	
+109	OS_1676	YJM189	SACE_YAA	Unknown	Distillery	NA	no	A	45	2	euploid	homozygous	43,640	0.0	391	167	1. Wine/European 		Phaff collection	2
+110	OS_211	L-1183	BSP	Wine	Wine	Uruguay	no	A	14	2	euploid	homozygous	41,722	0.0	306	143	1. Wine/European 		Pontificia Universidad Catolica de Chile (Claudio Martinez)	
+111	OS_849	CBS1460	AHT	Fermenting fruit	Fermentation	Indonesia	yes	A	11	1	euploid	homozygous	43,122	0.0	20	244	1. Wine/European 		CBS collection (Nguyen H.V.)	
+112	OS_1425	Y4	ATN	Fruit	Fruit	Indonesia	no	A	85	2	euploid	homozygous	43,041	0.0	1	235	1. Wine/European 		Washington University School of Medicine (Justin C Fay)	5
+113	NA	YJM1244	SACE_YBO	Unknown	Fruit	Indonesia	no	A	64	2	euploid	homozygous	43,261	0.0	4	58	1. Wine/European 			2
+114	OS_1226	DBVPG1701	BNK	Grape must	Wine	Cihuri, Rioja, Spain	no	A	20	2	euploid	homozygous	42,671	0.0	6	196	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+115	OS_1232	DBVPG1725	BNR	Grape must	Wine	La Puebla de la Barca, Rioja, Spain	no	A	52	2	euploid	homozygous	42,630	0.0	2	199	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+116	OS_1266	DBVPG3100	BQH	Grape must	Wine	Toscana, Italy	no	A	27	2	euploid	heterozygous	46,498	13.9	542	216	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+117	OS_1440	EXF-4126	BEQ	Dry wine-berry selection	Wine	Ljubljana, Slovenia	no	A	67	2	euploid	heterozygous	50,512	26.0	405	240	1. Wine/European 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+118	OS_474	C15.1	AIK	Palm nuts 	Nature	Cameroon	no	A	23	2	euploid	heterozygous	43,321	3.0	138	278	1. Wine/European 			3
+119	OS_1333	D-1	CAH	Wine conserved in amphora	Wine	Georgia	no	A	100	2	aneu;+1*4;	heterozygous	46,741	17.0	12	210	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	7
+120	OS_1345	A-14	CBA	Wine conserved in amphora	Wine	Georgia	no	A	64	2	euploid	heterozygous	46,883	17.3	7	229	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	7
+121	OS_1334	D-4	CAI	Wine conserved in amphora	Wine	Georgia	no	A	17	2	euploid	heterozygous	34,543	25.2	1	54	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	7
+122	OS_1335	A-16	CAK	Wine conserved in amphora	Wine	Georgia	no	A	12	2	euploid	heterozygous	49,833	24.2	7	337	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	7
+123	OS_1336	A-19	CAL	Wine conserved in amphora	Wine	Georgia	no	A	17	2	euploid	heterozygous	49,751	25.0	3	232	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	7
+124	OS_193	M57	BSL	Wine	Wine	Italy	no	A	8	2	euploid	heterozygous	48,560	22.4	58	217	1. Wine/European 		University of Florence (Duccio Cavalieri)	8
+125	OS_1711	YJM1332	SACE_YBX	Unknown	Wine	Italy	no	A	40	2	euploid	homozygous	43,609	0.0	10	298	1. Wine/European 		Phaff collection	2
+126	OS_1301	DBVPG6880	BSE	Winery	Wine	Ridge Winery, California, USA	no	A	45	2	euploid	homozygous	42,960	0.0	196	254	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+127	OS_857	RM11-1a	AAA	Zinfandel vineyard	Wine	California, USA	yes	none	0	1	euploid	homozygous	42,872	0.0	254	218	1. Wine/European 		Kruglyak Laboratory	
+128	OS_1668	UCD_40-255	CFS	Red Tokay grapes  (1939)	Wine	Walnut Creek, California	no	A	153	4	aneu;+1*2;-1*6;	homozygous	43,275	0.0	110	302	1. Wine/European 		Phaff collection	
+129	OS_1444	EXF-5248	BEV	Seawater in harbour	Water	Koper, Slovenia	no	A	60	2	euploid	homozygous	42,934	0.0	1	190	1. Wine/European 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+130	OS_1443	EXF-5247	BET	Seawater in harbour	Water	Koper, Slovenia	no	A	66	2	euploid	homozygous	43,202	0.0	4	236	1. Wine/European 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+131	OS_232	L-962	BST	Wine	Wine	Mendoza area, Argentina	no	A	8	2	euploid	homozygous	43,269	0.0	2	223	1. Wine/European 		Pontificia Universidad Catolica de Chile (Claudio Martinez)	
+132	OS_1411	M5	ASS	Vineyard	Wine	Italy	no	A	31	2	euploid	homozygous	44,701	0.0	124	204	1. Wine/European 		Washington University School of Medicine (Justin C Fay)	5
+133	OS_1300	DBVPG6879	BSD	Winery	Wine	Newton Winery, California, USA	no	A	24	2	euploid	homozygous	44,287	0.0	167	243	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+134	OS_1424	UC10	ATM	Wine	Wine	California, USA	no	A	114	2	euploid	homozygous	43,247	0.0	150	175	1. Wine/European 		Washington University School of Medicine (Justin C Fay)	5
+135	OS_233_2	L-982	CQT	Wine	Wine	Argentina	no	A	24	2	euploid	homozygous	43,581	0.0	70	292	1. Wine/European 		Pontificia Universidad Catolica de Chile (Claudio Martinez)	
+136	OS_1297	DBVPG6876	BSA	Winery	Wine	Frog's Leap Winery, California, USA	no	A	33	2	euploid	homozygous	43,387	0.0	255	342	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+137	OS_810	M22_1b	ADR	Vineyard	Wine	Italy	yes	A	25	1	euploid	homozygous	42,508	0.0	124	226	1. Wine/European 		Kruglyak Laboratory	1
+138	OS_1299	DBVPG6878	BSC	Winery	Wine	Mondavi Winery, California, USA	no	A	7	2	euploid	homozygous	42,795	0.0	155	236	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+139	OS_1671	UCD_40-235	CFQ	Muscate grapes	Wine	Walnut Creek, California	no	A	63	2	euploid	homozygous	43,187	0.0	245	340	1. Wine/European 		Phaff collection	
+140	OS_1672	UCD_40-248	CFR	Muscat must to be fortified  (1939)	Wine	Tulare Winery, California	no	none	0	2	euploid	homozygous	42,776	0.0	206	219	1. Wine/European 		Phaff collection	
+141	OS_1298	DBVPG6877	BSB	Winery	Wine	Sterling Winery, California, USA	no	none	0	2	euploid	homozygous	43,010	0.0	194	250	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+142	OS_679	UC1_1b	ADC	Wine	Wine	France	yes	A	27	1	euploid	homozygous	42,594	0.0	16	259	1. Wine/European 		Kruglyak Laboratory	1
+143	OS_1728	YJM1415	SACE_YCP	Wine	Wine	France	no	A	106	2	euploid	homozygous	43,403	0.0	8	410	1. Wine/European 		Phaff collection	2
+144	OS_1729	YJM1417	SACE_YCQ	Cider	Cider	NA	no	A	48	2	euploid	homozygous	43,132	0.0	209	472	1. Wine/European 		Phaff collection	2
+145	OS_1175	DBVPG1106	BII	Grapes	Wine	Australia	no	A	60	2	euploid	homozygous	43,102	0.0	207	257	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+146	OS_1183	DBVPG1129	BIS	Grape must	Wine	Senigallia, Italy	no	A	11	2	euploid	homozygous	43,106	0.0	185	227	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+147	OS_1172	DBVPG1080	BIG	Grape must	Wine	Barletta, Italy	no	A	47	2	aneu;-1*1;	homozygous	43,119	0.0	502	277	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+148	OS_480	MC8	AIR	Cooked wine (vino cotto)	Wine	Ascoli Piceno, Italy	no	A	15	2	euploid	homozygous	42,709	0.0	0	244	1. Wine/European 		Universita politecnica delle Marche (Maurizio Ciani)	
+149	OS_482	MC10	AIT	Winery surface	Wine	Umbria, Italy	no	A	17	2	euploid	homozygous	42,683	0.0	1	237	1. Wine/European 		Universita politecnica delle Marche (Maurizio Ciani)	4
+150	OS_1171	DBVPG1078	BNF	Grape must	Wine	San Ferdinando, Italy	no	none	0	2	euploid	homozygous	42,937	0.0	348	199	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+151	OS_659	PB56	BAR	Bark from Quercus sp. (Oak 1), next to vineyard	Tree	Montalcino in Italy	no	A	17	2	euploid	homozygous	42,981	0.0	4	251	1. Wine/European 		Max Planck Institute for Evolutionary Biology (Primrose Boynton)	
+152	OS_660	PB67	BAS	Soil beneath grape vine	Soil	Montalcino in Italy	no	A	13	2	euploid	homozygous	42,983	0.0	5	229	1. Wine/European 		Max Planck Institute for Evolutionary Biology (Primrose Boynton)	
+153	OS_661	PB94	BAT	Soil by trunk of Quercus sp. (Oak 1), next to vineyard	Soil	Montalcino in Italy	no	A	21	2	euploid	homozygous	43,008	0.0	1	245	1. Wine/European 		Max Planck Institute for Evolutionary Biology (Primrose Boynton)	
+154	OS_1281	DBVPG4902	BRD	Dried sausages under oil	Unknown	Perugia, Italy	no	A	7	2	euploid	heterozygous	47,063	17.0	569	296	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+155	OS_739	CBS6223	AGV	Grape juice	Wine	Chile	yes	A	48	1	euploid	homozygous	42,783	0.0	426	209	1. Wine/European 		CBS collection (Nguyen H.V.)	
+156	OS_1267	DBVPG3924	BQI	Grape must	Wine	Piave, Italy	no	A	7	2	euploid	homozygous	42,837	0.0	233	187	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+157	OS_729	CBS3012	AGA	Wine	Wine	Cadiz, Spain	no	A	30	2	aneu;+2*1;+2*8;	homozygous	42,762	0.0	11	233	1. Wine/European 		CBS collection (Nguyen H.V.)	
+158	OS_737	CBS3013	AGS	Wine	Wine	Cadiz, Spain	yes	A	50	1	euploid	homozygous	42,714	0.0	11	220	1. Wine/European 		CBS collection (Nguyen H.V.)	
+159	OS_1238	DBVPG1798	BPC	Grape must	Wine	Sicily, Italy	no	A	5	2	euploid	homozygous	43,469	0.0	532	249	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+160	OS_1190	DBVPG1380	BKE	Grape must	Wine	Rufina, Italy	no	A	19	2	euploid	homozygous	43,206	0.0	360	204	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+161	OS_1216	DBVPG1626	BLH	Grape must	Wine	La Mancha, Spain	no	A	31	2	euploid	homozygous	43,229	0.0	315	287	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+162	OS_229_2	L-846	CRG	Wine	Wine	Chile	no	A	20	2	euploid	heterozygous	45,841	12.4	399	213	1. Wine/European 		Pontificia Universidad Catolica de Chile (Claudio Martinez)	
+163	OS_475	C10.4	AIL	Clay	Nature	Cameroon	no	A	48	2	euploid	heterozygous	44,829	10.2	9	212	1. Wine/European 			3
+164	OS_624	SJ5L17	AMS	Probiotic	Probiotic	Austria	no	A	19	2	euploid	heterozygous	45,035	11.3	38	216	1. Wine/European 	yes	Biomin	
+165	OS_1213	DBVPG1611	BLE	Grape must	Wine	Retamosa, La Mancha, Spain	no	A	10	2	euploid	homozygous	43,192	0.0	384	330	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+166	OS_802	Y9J_1b	ADB	Wine	Wine	Japan	yes	A	13	1	aneu;+1*10;	homozygous	44,873	0.0	364	259	1. Wine/European 		Kruglyak Laboratory	1
+167	OS_1259	DBVPG2049	BQB	Lambrusco grape must	Wine	Reggio Emilia, Italy	no	A	7	2	euploid	heterozygous	47,387	17.7	397	178	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+168	OS_623	SJ5L16	AMR	Soil	Soil	Jhuosi, Hualein, Taiwan	no	A	15	2	euploid	homozygous	42,935	0.0	1	223	1. Wine/European 		National Hsinchu University of Education (Ching-Fu Lee)	25
+169	OS_781	DBVPG4651_1b	ABT	Tuber magnatum	Nature	Italy	yes	A	20	1	euploid	homozygous	42,986	0.0	0	209	1. Wine/European 		DBVPG collection	1
+170	OS_1278	DBVPG4651	BRA	Surface of Tuber magnatum	Nature	Italy	no	A	8	2	euploid	homozygous	43,409	0.0	2	297	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+171	OS_1166	DBVPG1056	BIC	grape must	Wine	production zone of Chianti wine, Italy	no	A	19	2	euploid	homozygous	44,477	0.0	374	314	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+172	OS_1218	DBVPG1631	BLK	Grape must treated with sulfur dioxide	Wine	Valdepenas, La Mancha, Spain	no	A	75	2	euploid	homozygous	43,993	0.0	339	267	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+173	OS_878	2282	BBV	Grapes, Verdosilla variety	Wine	Tuejar, Spain	no	A	9	2	aneu;+1*3;	heterozygous	46,043	10.6	26	295	1. Wine/European 		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+174	OS_1316	4LBI-3	BVK	Spontaneous grape fermentation	Wine	Basilicata, Italy	no	A	29	2	euploid	homozygous	43,518	0.0	8	230	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	
+175	OS_1627	4.9_WLP099	CFE	Carlsberg Beer, super high gravity	Beer	United Kingdom	no	A	68	2	euploid	heterozygous	46,661	13.9	72	272	1. Wine/European 		Carlsberg	
+176	OS_1283	DBVPG5760	BRF	Wine fermenter	Wine	Production zone of Sagrantino wine, Montefalco, Foligno, Italy	no	A	9	2	euploid	heterozygous	48,840	19.2	10	215	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+177	OS_196	SGU89	BSM	Wine	Wine	Italy	no	A	15	2	euploid	heterozygous	48,638	19.6	5	230	1. Wine/European 		University of Florence (Duccio Cavalieri)	8
+178	OS_203	SG60	BSN	Wine	Wine	Italy	no	A	12	2	euploid	heterozygous	48,640	19.4	4	228	1. Wine/European 		University of Florence (Duccio Cavalieri)	8
+179	OS_870	1216	CPE	Unknown	Unknown	El Sauzal, Tenerife, Spain	no	A	10	2	aneu;+1*1;	homozygous	43,435	0.0	219	244	1. Wine/European 		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+180	OS_1220	DBVPG1656	BLM	Grape must treated with sulfur dioxide	Wine	Los Campillos, La Mancha, Spain	no	A	7	2	euploid	homozygous	42,837	0.0	188	306	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+181	OS_1260	DBVPG2088	BQC	Cognac	Distillery	Cognac, France	no	A	13	2	euploid	homozygous	43,003	0.0	161	251	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+182	OS_1282	DBVPG4905	BRE	Fermenting grape must	Wine	Marsciano, Perugia, Italy	no	A	12	2	euploid	homozygous	42,817	0.0	159	291	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+183	OS_1256	DBVPG1976	BPV	Wine	Wine	Slovakia	no	A	33	2	euploid	homozygous	43,438	0.0	162	261	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+184	OS_1322_2	Ba-215	CRC	Wine	Wine	Italy	no	A	8	2	euploid	homozygous	42,779	0.0	173	218	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	
+185	OS_1157	CLIB1410	BHN	Rice wine, Oenology	Fermentation	Laos	no	A	34	2	euploid	homozygous	42,710	0.0	277	220	1. Wine/European 		CLIB collection (Serge Casaregola)	
+186	OS_664	PB200	BBB	Soil by trunk of Quercus sp. (Oak K), next to vineyard	Soil	Montalcino in Italy	no	A	45	2	euploid	homozygous	42,485	0.0	5	181	1. Wine/European 		Max Planck Institute for Evolutionary Biology (Primrose Boynton)	
+187	OS_662	PB137	BAV	Bark of grape vine 	Wine	Montalcino in Italy	no	A	15	2	euploid	homozygous	42,739	0.0	4	262	1. Wine/European 		Max Planck Institute for Evolutionary Biology (Primrose Boynton)	
+188	OS_1330	B-4	CAE	Wine conserved in amphora	Wine	Georgia	no	A	3	2	euploid	homozygous	43,065	0.0	2	352	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	7
+189	OS_1331	C-3	CAF	Wine conserved in amphora	Wine	Georgia	no	A	3	2	euploid	homozygous	42,654	0.0	2	205	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	7
+190	OS_1332_2	C-6	CRL	Wine conserved in amphora	Wine	Georgia	no	A	6	2	euploid	homozygous	38,217	0.0	0	64	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	7
+191	OS_663	PB197	BBA	Litter by trunk of Quercus sp. (Oak 4), next to vineyard	Soil	Montalcino in Italy	no	A	23	2	euploid	homozygous	42,759	0.0	280	260	1. Wine/European 		Max Planck Institute for Evolutionary Biology (Primrose Boynton)	
+192	OS_1693	YJM969	SACE_YAY	Unknown	Human, clinical	Italy	no	A	61	2	euploid	homozygous	41,867	0.0	0	25	1. Wine/European (subclade 2)		Phaff collection	2
+193	OS_807	YJM981_b	ADI	Vagina	Human, clinical	Italy	yes	A	21	1	euploid	homozygous	43,151	0.0	6	220	1. Wine/European (subclade 2)		Phaff collection	1
+194	OS_702	YJM975	SACE_YBA	Vagina	Human, clinical	Italy	no	A	48	2	euploid	homozygous	42,713	0.0	13	36	1. Wine/European (subclade 2)		Phaff collection	2
+195	OS_1694	YJM972	SACE_YAZ	Unknown	Human, clinical	Italy	no	A	47	2	euploid	homozygous	43,204	0.0	6	71	1. Wine/European (subclade 2)		Phaff collection	2
+196	OS_306	YJM989	BMI	Vagina	Human, clinical	Italy	no	A	10	2	euploid	homozygous	42,862	0.0	0	219	1. Wine/European (subclade 2)		Phaff collection (McCusker)	2
+197	OS_1695	YJM987	SACE_YBE	Unknown	Human, clinical	Italy	no	A	36	2	euploid	homozygous	42,571	0.0	5	114	1. Wine/European (subclade 2)		Phaff collection	2
+198	OS_307	YJM990	BMK	Vagina	Human, clinical	Italy	no	A	8	2	euploid	homozygous	43,374	0.0	1	350	1. Wine/European (subclade 2)		Phaff collection (McCusker)	10
+199	OS_1696	YJM980	SACE_YBF	Unknown	Human, clinical	Italy	no	A	49	2	euploid	homozygous	42,873	0.0	0	41	1. Wine/European (subclade 2)		Phaff collection	2
+200	OS_305	YJM984	BMH	Vagina	Human, clinical	Italy	no	A	17	2	euploid	homozygous	42,736	0.0	3	196	1. Wine/European (subclade 2)		Phaff collection (McCusker)	2
+201	OS_803	IL_01_b	ADD	Soil	Soil	Illinois, USA	yes	A	19	1	euploid	homozygous	43,038	0.0	2	225	1. Wine/European (subclade 2)		Kruglyak Laboratory	1
+202	OS_700	YJM978	SACE_YBB	Vagina	Human, clinical	Italy	no	A	51	2	euploid	homozygous	43,345	0.0	0	64	1. Wine/European (subclade 2)		Phaff collection	2
+203	OS_1697	YJM993	SACE_YBG	Unknown	Human, clinical	Italy	no	A	40	2	euploid	homozygous	43,516	0.0	7	122	1. Wine/European (subclade 2)		Phaff collection	2
+204	OS_1698	YJM996	SACE_YBH	Unknown	Human, clinical	Italy	no	A	47	2	euploid	homozygous	41,198	0.0	7	24	1. Wine/European (subclade 2)		Phaff collection	2
+205	OS_1666	CECT10351-1B	CDS	Tomato	Fruit	Spain	no	A	77	2	euploid	homozygous	43,285	0.0	501	287	1. Wine/European 		CECT collection / State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+206	OS_1178	DBVPG1122	BIM	Grape must	Wine	Lucera, Puglia, Italy	no	A	21	2	euploid	homozygous	42,623	0.0	12	253	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+207	OS_1179	DBVPG1123	BIN	Grape must	Wine	Manduria, Taranto, Italy	no	A	16	2	euploid	homozygous	42,548	0.0	4	213	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+208	OS_1186	DBVPG1163	BKA	Cherries	Fruit	Aurum, Sicily, Italy	no	A	7	2	euploid	homozygous	42,612	0.0	8	228	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+209	OS_1273	DBVPG4317	BQQ	Fermenting refrigerated Grape must (5C ca)	Wine	Bettona, Perugia, Italy 	no	A	8	2	euploid	homozygous	42,420	0.0	672	172	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+210	OS_1669	T73_1b	ADS	Monastrel grape fermentation (red wine)	Wine	Alicante, Spain	no	A	36	2	euploid	homozygous	43,029	0.0	493	210	1. Wine/European 		Kruglyak Laboratory	1
+211	OS_1228	DBVPG1711	BNM	Grape must	Wine	Ygai, Rioja, Spain	no	A	46	2	euploid	homozygous	43,359	0.0	682	215	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+212	OS_797	DBVPG1339_1b	ACR	Grapes	Wine	Netherlands	yes	A	26	1	euploid	homozygous	43,596	0.0	2	273	1. Wine/European 		Kruglyak Laboratory	1
+213	OS_1174	DBVPG1105	BIH	Grapes	Wine	Adelaide, Australia	no	A	23	2	euploid	heterozygous	46,066	10.9	9	285	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+214	OS_1188	DBVPG1339	BKC	Grape must	Wine	Netherlands	no	A	24	2	euploid	heterozygous	46,163	10.9	4	274	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+215	OS_1255	DBVPG1975	BLS	Wine	Wine	Greece	no	A	7	2	euploid	heterozygous	45,909	8.8	16	403	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+216	OS_1189	DBVPG1374	BKD	Soil	Soil	Netherlands	no	A	34	2	euploid	heterozygous	46,921	15.0	59	318	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+217	OS_1230	DBVPG1714	BNP	Grape must	Wine	Fuen Mayor, Rioja, Spain	no	A	31	2	euploid	heterozygous	46,120	14.7	63	175	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+218	OS_1201	DBVPG1580	BKN	Grape must	Wine	Sardinia, Italy	no	A	80	2	euploid	homozygous	43,070	0.0	3	222	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+219	OS_1231	DBVPG1719	BNQ	Grape must	Wine	San Adrian, Rioja, Spain	no	A	138	2	euploid	homozygous	43,217	0.0	9	238	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+220	OS_1460	DBVPG3051	CBH	Grape must	Wine	Israel	no	A	39	2	euploid	heterozygous	43,130	7.5	867	95	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+221	OS_1193	DBVPG1523	BKH	Grape must	Wine	Trentino, Italy	no	A	39	2	euploid	homozygous	43,805	0.0	711	248	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+222	OS_1247	DBVPG1880	BPM	Grape must treated with pesticides	Wine	Italy	no	none	0	2	euploid	heterozygous	44,735	7.4	875	254	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+223	OS_1202	DBVPG1581	BKP	Grape must	Wine	Marassinai, Sardinia, Italy	no	A	31	2	aneu;+1*8;	heterozygous	45,859	12.1	658	175	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+224	OS_1320_2	RB3-7Sc2	CRA	Wine	Wine	Italy	no	A	43	2	aneu;-1*1;	heterozygous	45,518	10.7	727	195	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	
+225	OS_1321_2	SC2-37	CRB	Wine	Wine	Italy	no	A	10	2	euploid	homozygous	42,670	0.0	575	182	1. Wine/European 		INRA Gringnon, France (Nguyen H.V.)	
+226	OS_1653	Lib61	CHC	Fermenting grape must (red wine)	Wine	Lebanon	no	A	18	2	euploid	heterozygous	44,705	7.6	664	301	1. Wine/European 		INRA Gringnon, France (Nguyen H.V.)	
+227	OS_1648	Ca6	CGS	Fermenting grape must (sweet wine)	Wine	Lebanon	no	A	10	2	euploid	homozygous	44,096	0.0	420	235	1. Wine/European 		INRA Gringnon, France (Nguyen H.V.)	
+228	OS_1652	Lib54	CHB	Fermenting grape must (white wine)	Wine	Lebanon	no	A	54	2	euploid	heterozygous	46,366	8.9	1,109	246	1. Wine/European 		INRA Gringnon, France (Nguyen H.V.)	
+229	OS_1654	Lib70	CHD	Fermenting grape must (white wine)	Wine	Lebanon	no	A	17	2	euploid	heterozygous	47,284	19.0	758	214	1. Wine/European 		INRA Gringnon, France (Nguyen H.V.)	
+230	OS_1650	Lib51	CGV	Fermenting grape must (sweet wine)	Wine	Lebanon	no	A	34	2	euploid	heterozygous	45,222	8.5	1,198	187	1. Wine/European 		INRA Gringnon, France (Nguyen H.V.)	
+231	OS_1651	Lib52	CHA	Fermenting grape must (sweet wine)	Wine	Lebanon	no	A	16	2	euploid	homozygous	43,971	0.0	645	249	1. Wine/European 		INRA Gringnon, France (Nguyen H.V.)	
+232	OS_1655	Lib71	CHE	Fermenting grape must (rose wine)	Wine	Lebanon	no	A	12	2	euploid	heterozygous	45,918	12.8	490	202	1. Wine/European 		INRA Gringnon, France (Nguyen H.V.)	
+233	OS_750	CBS6914	AHI	White wine	Wine	Spain	yes	A	18	1	aneu;+1*14;	homozygous	43,398	0.0	496	244	1. Wine/European 		CBS collection (Nguyen H.V.)	
+234	OS_1199	DBVPG1577	BKM	Grape must	Wine	Elmas, Sardinia, Italy	no	none	0	2	euploid	heterozygous	46,164	11.2	712	241	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+235	OS_1170	DBVPG1076	BIF	Grape must	Wine	Locorotondo, Puglia, Italy	no	A	15	2	euploid	homozygous	42,848	0.0	263	240	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+236	OS_1192	DBVPG1490	BKG	Grape must	Wine	Etna, Sicily, Italy	no	A	13	2	euploid	heterozygous	45,411	7.1	620	281	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+237	OS_1191	DBVPG1473	BKF	Wine	Wine	Piemonte, Italy	no	A	28	2	euploid	heterozygous	46,157	13.5	45	228	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+238	OS_1219	DBVPG1632	BLL	Grape must	Wine	Abertura, La Mancha, Spain	no	A	39	2	euploid	heterozygous	46,251	13.2	22	293	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+239	OS_1386	CBS2087	ARL	Lychee flower	Flower	China	no	A	3	2	aneu;+1*1;	heterozygous	45,013	8.4	128	233	1. Wine/European 		CBS collection (Nguyen H.V.)	
+240	OS_1544	perentol	CKI	S. boulardiiEisolates (from Perenterol capsule)	Human, clinical	Brussels, Belgium	no	A	216	2	euploid	heterozygous	43,960	5.4	3	195	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+241	OS_1546	malade 98 3161	CKL	Feces, therapy	Human, clinical	Amiens, France	no	A	153	2	euploid	heterozygous	43,960	5.3	6	218	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+242	OS_1543	ultra lev. 1127	CKH	S. boulardiiEisolates (from UltraLevure packet)	Industrial	Paris, France	no	A	159	2	euploid	heterozygous	43,893	5.4	1	186	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+243	OS_1539	malade 97 138633/11-2-5	CKD	Feces (therapy isolate)	Human, clinical	Paris, France, H2	no	A	258	2	euploid	heterozygous	43,772	5.4	4	174	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+244	OS_1540	malade 141076/11210	CKE	Feces (therapy isolate)	Human, clinical	Paris, France, H2	no	A	148	2	euploid	heterozygous	44,078	5.2	11	205	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+245	OS_1533	malade Elbaz 6766	CIS	Therapy isolates (Blood)	Human, clinical	Paris, France, H6	no	A	94	2	euploid	heterozygous	44,017	5.2	3	200	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+246	OS_881	2698	BMN	Faringe	Human, clinical	Vall d'Hebron hospital, Barcelona, Spain	no	A	21	2	euploid	heterozygous	44,219	5.3	4	256	1. Wine/European (subclade 3)		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+247	OS_1534	malade 459 Labaume	CIT	Blood (therapy isolate)	Human, clinical	Paris, France, H1	no	A	103	2	euploid	heterozygous	43,967	5.0	6	186	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+248	OS_1549	malade Broussais	CKP	Unknown	Human, clinical	Paris, France	no	A	172	2	euploid	heterozygous	43,849	4.8	5	203	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+249	OS_1550	malade M2402A Necker 	CKQ	Feces (therapy isolate)	Human, clinical	France	no	A	116	2	euploid	heterozygous	43,960	5.0	1	192	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+250	OS_1537	malade 98 1655/125391	CKB	Blood (therapy isolate)	Human, clinical	Paris, France, H3	no	A	171	2	euploid	heterozygous	43,846	5.3	1	164	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+251	OS_1538	malade 139287/11_2_1	CKC	Blood (therapy isolate)	Human, clinical	Paris, France, H2	no	A	203	2	euploid	heterozygous	43,879	5.3	3	163	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+252	OS_1531	malade 6452	CIQ	Blood (therapy isolate)	Human, clinical	Paris, France, H6	no	A	37	2	aneu;-1*3;	heterozygous	43,652	4.3	8	177	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+253	OS_1528	malade Hc6553	CIM	Blood (therapy isolate)	Human, clinical	Paris, France, H6	no	A	103	2	aneu;+2*9;	heterozygous	43,839	5.1	3	169	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+254	OS_1529	malade Pac6436	CIN	Blood (therapy isolate)	Human, clinical	Paris, France, H6	no	A	91	2	euploid	heterozygous	43,925	5.2	0	176	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+255	OS_1532	malade 6441	CIR	Blood (therapy isolate)	Human, clinical	Paris, France, H6	no	A	89	2	euploid	heterozygous	43,849	4.9	2	179	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+256	OS_1541	malade 150865/1122	CKF	Feces (therapy isolate)	Human, clinical	Paris, France, H2	no	A	237	2	euploid	heterozygous	43,706	4.8	8	163	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+257	OS_1542	UL G84F88I90	CKG	S. boulardiiEisolates lychee (reference strain Biocodex)	Fruit	Vietnam	no	A	86	2	euploid	heterozygous	44,013	5.5	3	202	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+258	OS_1547	malade 98 2574	CKM	Feces, therapy	Human, clinical	Amiens, France	no	A	193	2	euploid	heterozygous	44,031	5.3	6	197	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+259	OS_1530	malade 6442	CIP	Catheter (therapy isolate)	Human, clinical	Paris, France, H6	no	A	147	2	aneu;-1*3;+1*7;+1*11;+1*16;	heterozygous	43,729	4.7	3	179	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+260	OS_879	2644	BCA	Human feces	Human, clinical	Hospital Vall d'Hebron, Barcelona, Spain	no	A	284	2	euploid	heterozygous	44,014	5.4	5	183	1. Wine/European (subclade 3)		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+261	OS_625	SJ5L18	AMT	Probiotic	Probiotic	Austria	no	A	43	2	euploid	heterozygous	44,094	4.9	6	251	1. Wine/European (subclade 3)	yes	Biomin	
+262	OS_1535	malade 1124/150017	CIV	Feces (therapy isolate)	Human, clinical	Paris, France, H2	no	A	49	2	euploid	heterozygous	43,787	4.8	4	229	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+263	OS_1553	malade Fauot	CKT	Unknown	Human, clinical	France	no	A	98	2	euploid	heterozygous	44,164	5.4	5	222	1. Wine/European (subclade 3)		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+264	OS_1177	DBVPG1108	BIL	Grapes	Wine	Australia	no	A	20	2	euploid	homozygous	42,550	0.0	620	174	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+265	OS_780	DBVPG3591_1b	ABS	Cocoa beans	Nature	NA	yes	A	15	1	euploid	homozygous	42,657	0.0	640	297	1. Wine/European 		DBVPG collection	1
+266	OS_1180	DBVPG1125	BIP	Grape must	Wine	Torre dei Passeri, Italy	no	none	0	2	aneu;+1*8;	homozygous	43,035	0.0	4	252	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+267	OS_1181	DBVPG1126	BIQ	Grape must	Wine	Aquila, Italy	no	none	0	1	aneu;+1*3;	homozygous	43,045	0.0	6	267	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+268	OS_1225	DBVPG1699	BNI	Grape must	Wine	De Casa la Reina, Rioja, Spain	no	A	82	2	euploid	homozygous	43,076	0.0	561	270	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+269	OS_1264	DBVPG3022	BLV	Grape must	Wine	Squinzano, Italy	no	A	20	2	euploid	homozygous	43,000	0.0	9	235	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+270	OS_1265	DBVPG3098	BQG	Grape must	Wine	Calabria, Italy	no	A	17	2	euploid	homozygous	43,002	0.0	5	279	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+271	OS_1323_2	FIMA_3	CRD	Wine	Wine	Italy	no	A	8	2	euploid	homozygous	42,581	0.0	398	137	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	
+272	OS_1315_2	AGME_5I	CRI	Wine	Wine	Italy	no	A	14	2	aneu;+1*4;+1*8;+1*15;	homozygous	43,507	0.0	435	293	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	
+273	OS_1318	SA6-31	BVM	Spontaneous grape fermentation	Wine	Toscana, Italy	no	A	4	2	euploid	homozygous	43,129	0.0	2	241	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	
+274	OS_1319_2	CD7-9Sv2	CQV	Wine	Wine	Italy	no	A	5	2	euploid	homozygous	42,973	0.0	0	204	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	
+275	OS_1317_2	E1-6	CRK	Wine 	Wine	Italy	no	A	5	2	euploid	homozygous	43,119	0.0	6	241	1. Wine/European 		University of Basilicata (Angela Capece and Patrizia Romano)	
+276	OS_1214	DBVPG1615	BLF	Grape must	Wine	La Mancha, Spain	no	A	43	2	euploid	heterozygous	45,555	10.4	67	235	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+277	OS_1595	DBVPG1617-5A	CEA	Soil	Soil	Spain	yes	A	42	1	euploid	homozygous	43,167	0.0	3	267	1. Wine/European 		DBVPG collection / State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+278	OS_1596	DBVPG1619-4B	CEB	Soil	Soil	Spain	yes	A	34	1	euploid	homozygous	43,074	0.0	16	239	1. Wine/European 		DBVPG collection / State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+279	OS_1234	DBVPG1772	BNT	Soil	Soil	Kuopio, Finland	no	none	0	2	euploid	homozygous	42,917	0.0	703	213	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+280	OS_1212	DBVPG1608	BLD	Grape must	Wine	La Mancha, Spain	no	A	48	2	euploid	homozygous	43,024	0.0	445	270	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+281	OS_1205	DBVPG1594	BKR	Grape must	Wine	Los Cerros, La Mancha, Spain 	no	A	27	2	euploid	homozygous	43,106	0.0	27	261	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+282	OS_1597	DBVPG1620-1A	CEC	Soil	Soil	Spain	no	A	58	2	euploid	homozygous	43,041	0.0	24	270	1. Wine/European 		DBVPG collection / State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+283	OS_1224	DBVPG1685	BNH	Grape must	Wine	Haro, Rioja, Spain	no	A	62	2	euploid	homozygous	42,926	0.0	257	191	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+284	OS_1211	DBVPG1606	BLC	Grape must	Wine	Villarta de San Juan, La Mancha, Spain	no	A	111	2	euploid	heterozygous	44,118	4.2	146	309	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+285	OS_1599	DBVPG1622-8B	CEE	Soil	Soil	Spain	no	A	157	2	euploid	homozygous	42,823	0.0	54	243	1. Wine/European 		DBVPG collection / State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+286	OS_1229	DBVPG1712	BNN	Grape must	Wine	Pedrejon, Rioja, Spain	no	A	4	2	euploid	homozygous	43,088	0.0	451	297	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+287	OS_1598	DBVPG1621-5A	CED	Soil	Soil	Spain	no	A	54	2	euploid	homozygous	43,285	0.0	12	270	1. Wine/European 		DBVPG collection / State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+288	OS_1206	DBVPG1595	BKS	Grape must	Wine	La Mancha, Spain	no	A	20	2	euploid	heterozygous	45,291	9.6	11	239	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+289	OS_1222	DBVPG1661	BLP	Grape must	Wine	Los Polos, La Mancha, Spain	no	A	41	2	euploid	heterozygous	45,275	8.4	19	303	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+290	OS_1221	DBVPG1659	BLN	Grape must	Wine	Campo de Santiago, La Mancha, Spain	no	A	13	2	euploid	heterozygous	45,666	10.2	5	267	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+291	OS_1594	DBVPG1616-1D	CDV	Soil	Soil	Spain	no	A	71	2	euploid	homozygous	42,948	0.0	8	275	1. Wine/European 		DBVPG collection / State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+292	OS_1600	DBVPG1623-2A	CEF	Soil	Soil	Spain	no	A	90	2	euploid	homozygous	42,951	0.0	2	250	1. Wine/European 		DBVPG collection / State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+293	OS_416	L-1191	ANQ	Wine	Wine	Valle de Ica, Peru	no	A	15	2	euploid	homozygous	42,592	0.0	468	192	1. Wine/European 		Universidad de Santiago de Chile (Francisco Cubillos) and Pontificia Universidad Catolica de Chile (Claudio Martinez)	11
+294	OS_418	L-1194	AVK	Wine	Wine	Valle de Ica, Peru	no	A	10	2	euploid	homozygous	43,340	0.0	481	242	1. Wine/European 		Universidad de Santiago de Chile (Francisco Cubillos) and Pontificia Universidad Catolica de Chile (Claudio Martinez)	11
+295	OS_1176	DBVPG1107	BIK	Grapes	Wine	McLaren Valley, Australia	no	A	57	2	euploid	homozygous	42,526	0.0	229	172	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+296	OS_291	NCYC_2743	CLH	Unknown	Wine	Spain	no	A	11	2	aneu;+1*2;+1*13;+1*15;	homozygous	42,805	0.0	302	240	1. Wine/European 		National Collection of Yeast Cultures (NCYC)(Stephen A James and Ian Roberts)	
+297	OS_755	CBS5635	AHN	Grape must	Wine	South Africa	yes	A	137	1	euploid	homozygous	42,374	0.0	1	209	1. Wine/European 		CBS collection (Nguyen H.V.)	
+298	OS_47	DBVPG6295	BSG	Grape must	Wine	South Africa	no	A	68	2	euploid	homozygous	42,584	0.0	5	246	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+299	OS_1714	YJM1341	SACE_YCA	Unknown	Wine	South Africa	no	A	84	2	euploid	homozygous	42,110	0.0	5	66	1. Wine/European 		Phaff collection	2
+300	OS_799	UC8_1b	ACT	Wine	Wine	South Africa	yes	A	11	1	aneu;+1*1;	homozygous	43,038	0.0	2	243	1. Wine/European 		Kruglyak Laboratory	1
+301	OS_800	WE372_1b	ACV	Wine	Wine	South Africa	yes	A	17	1	aneu;+1*1;	homozygous	43,066	0.0	3	256	1. Wine/European 		Kruglyak Laboratory	1
+302	OS_591	CLQCA_02-003	AKP	Heart of palm processing equipment	Industrial	Santo Domingo, Ecuador	no	A	14	2	euploid	homozygous	42,751	0.0	0	208	1. Wine/European 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+303	OS_596	CLQCA_10-027	AKV	Grass	Nature	Pichincha, Ecuador	no	A	12	2	euploid	homozygous	42,950	0.0	2	246	1. Wine/European 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+304	OS_601	CLQCA_17-060	ALE	Hemipteran insect	Insect	Loja, Ecuador	no	A	14	2	euploid	homozygous	42,972	0.0	1	248	1. Wine/European 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+305	OS_1272	DBVPG4297	BQP	Prosecco wine	Wine	Treviso, Italy 	no	B	16	2	euploid	homozygous	43,470	0.0	372	231	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+306	OS_1279	DBVPG4686	BRB	Winery	Wine	Deruta, Perugia, Italy	no	A	6	2	euploid	heterozygous	46,987	14.4	605	222	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+307	OS_1184	DBVPG1145	BIT	Grape must	Wine	Corvo, Sicily, Italy	no	none	0	2	euploid	homozygous	43,613	0.0	577	275	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+308	OS_1358	CBS5112	AQB	Grape must	Wine	Spain	no	A	70	2	euploid	homozygous	42,937	0.0	6	265	1. Wine/European 		CBS collection (Nguyen H.V.)	
+309	OS_1285	DBVPG6223	BRH	Grape must	Wine	Spain	no	A	51	2	euploid	homozygous	43,575	0.0	13	321	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+310	OS_779	CECT10109_1b	ABP	Prickly pear	Fruit	Spain	yes	A	95	1	euploid	homozygous	44,496	0.0	1,325	215	1. Wine/European 		CECT collection	1
+311	OS_1182	DBVPG1127	BIR	Grape must	Wine	Popoli, Italy	no	A	25	2	euploid	heterozygous	48,291	18.6	1,703	290	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+312	OS_871	1235	CPF	Unknown	Unknown	Guimar, Tenerife, Spain	no	A	7	2	aneu;+1*2;+1*4;+1*8;+1*9;+1*13;+1*15;	heterozygous	46,549	12.7	1,593	316	1. Wine/European 		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+313	OS_1173	DBVPG1085	BNG	Grape must	Wine	Corato, Italy	no	A	58	3	euploid	heterozygous	54,418	29.9	800	244	1. Wine/European 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+314	OS_476	E4	AIM		Wine	Umbria, Italy	no	A	24	2	euploid	heterozygous	50,929	23.2	166	217	1. Wine/European 			12
+315	OS_1624	ho_SB	CFB	Wine	Wine	Bordeaux 	no	A	94	2	aneu;+2*9;	homozygous	45,420	0.0	5	260	1. Wine/European 		BioLaffort ISVV EA Enology Universite de Bordeaux, France (Marullo P.)	
+316	OS_1656	Lib73	CHF	Fermenting grape must (red wine)	Wine	Lebanon	no	A	40	2	euploid	heterozygous	53,225	32.4	932	210	1. Wine/European 		INRA Gringnon, France (Nguyen H.V.)	
+317	OS_1146	CLIB889	BHB	Bakery	Bakery	Australia	no	A	367	2	euploid	heterozygous	50,401	22.6	17	203	1. Wine/European 		CLIB collection / INRA Gringnon, France (Nguyen H.V.)	
+318	OS_754	CBS4093a	AAK	Film on white wine	Wine	Spain	yes	A	3	1	euploid	homozygous	46,926	0.0	303	267	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+319	OS_756	CBS5835	AHP	Wine	Wine	Spain	no	A	42	2	euploid	heterozygous	48,250	6.2	318	265	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+320	OS_712	CBS6007	AET	Wine	Wine	Spain	yes	none	0	1	euploid	homozygous	46,468	0.0	245	185	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+321	OS_819	CBS4079	AEK	Film on white wine	Wine	Spain	yes	A	4	1	euploid	homozygous	46,527	0.0	133	303	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+322	OS_1361	CBS6006	AQE	Wine	Wine	Spain	no	A	68	2	euploid	heterozygous	47,932	5.4	246	218	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+323	OS_1370	CBS462	AQP	Grape must	Wine	Spain	no	none	0	2	aneu;+1*1;+1*9;	heterozygous	48,007	4.6	350	219	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+324	OS_1395	CBS4092	ASA	Film on white wine	Wine	Spain	no	A	188	3	aneu;+1*9;	heterozygous	49,347	10.7	474	172	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+325	OS_1246	DBVPG1878	BPL	Grape must	Wine	Piave, Italy	no	A	8	2	euploid	heterozygous	48,779	8.2	390	258	1. Wine/European (subclade 4)		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+326	OS_478	MC6	AIP	Grape	Wine	Umbria, Italy	no	A	32	2	aneu;+1*9;	heterozygous	49,569	10.3	85	233	1. Wine/European (subclade 4)		Universita politecnica delle Marche (Maurizio Ciani)	4
+327	OS_1338	8-3	CAN	Wine conserved in amphora	Wine	Georgia	no	A	111	2	aneu;+1*9;	heterozygous	49,331	10.2	26	188	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+328	OS_1327	11-8	CAB	Wine conserved in amphora	Wine	Georgia	no	A	22	2	euploid	heterozygous	49,090	9.4	71	265	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+329	OS_1339	11-2	CAP	Wine conserved in amphora	Wine	Georgia	no	A	42	2	euploid	heterozygous	48,490	6.2	11	272	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+330	OS_1359	CBS5155	AQC	Fermenting Grape must	Wine	South Armenia	no	A	94	2	euploid	heterozygous	47,571	4.6	1,303	181	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+331	OS_751	CBS2247	AHK	Grape must	Wine	South Africa	yes	A	20	1	euploid	homozygous	46,341	0.0	190	211	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+332	OS_711	CBS4054	AES	Red wine	Wine	Spain	yes	A	6	1	aneu;+1*2;	homozygous	46,056	0.0	133	184	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+333	OS_721	CBS2183	AFI	Wine	Wine	Chateau Chalon France	yes	A	2	1	euploid	homozygous	46,921	0.0	165	407	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+334	OS_1251	DBVPG1919	BPR	Caverns	Nature	Italy	no	A	28	3	euploid	heterozygous	49,913	12.8	1,022	219	1. Wine/European (subclade 4)		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+335	OS_851	CBS2180	AIA	Turbid Italian wine	Wine	Italy	yes	A	38	1	euploid	homozygous	46,115	0.0	113	175	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+336	OS_1324	B-24	BVT	Wine conserved in amphora	Wine	Georgia	no	A	35	2	euploid	heterozygous	48,086	7.6	38	203	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+337	OS_1326	5-18	CAA	Wine conserved in amphora	Wine	Georgia	no	A	38	2	euploid	heterozygous	48,248	6.4	22	260	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+338	OS_1328	A-12	CAC	Wine conserved in amphora	Wine	Georgia	no	A	88	2	euploid	heterozygous	48,485	7.8	0	236	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+339	OS_1325	8-15	BVV	Wine conserved in amphora	Wine	Georgia	no	A	137	2	euploid	heterozygous	48,435	7.9	4	226	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+340	OS_1329	11-18	CAD	Wine conserved in amphora	Wine	Georgia	no	A	27	2	euploid	heterozygous	48,531	8.0	2	269	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+341	OS_1337	9-7	CAM	Wine conserved in amphora	Wine	Georgia	no	none	0	2	euploid	heterozygous	48,564	8.3	18	179	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+342	OS_1340	5-2	CAQ	Wine conserved in amphora	Wine	Georgia	no	none	0	2	euploid	heterozygous	48,986	8.6	22	228	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+343	OS_1346	1-9	CBB	Wine conserved in amphora	Wine	Georgia	no	A	76	2	euploid	heterozygous	48,823	9.2	8	226	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+344	OS_1349	D-21	CBE	Wine conserved in amphora	Wine	Georgia	no	A	115	2	euploid	heterozygous	48,703	9.3	10	191	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+345	OS_709	CBS2806a	AAE	Wine	Wine	Slovakia	yes	A	24	1	euploid	homozygous	46,244	0.0	119	228	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+346	OS_831	CBS2805	AIB	Wine	Wine	Slovakia	yes	A	3	1	euploid	homozygous	46,167	0.0	267	233	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+347	OS_1342	B-17	CAS	Wine conserved in amphora	Wine	Georgia	no	A	159	2	euploid	homozygous	43,091	0.0	2	70	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+348	OS_1341	A-9	CAR	Wine conserved in amphora	Wine	Georgia	no	A	124	2	euploid	homozygous	46,284	0.0	0	195	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+349	OS_1343	C-12	CAT	Wine conserved in amphora	Wine	Georgia	no	A	134	2	euploid	homozygous	46,325	0.0	0	197	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+350	OS_1347	D-18	CBC	Wine conserved in amphora	Wine	Georgia	no	A	69	2	euploid	homozygous	45,980	0.0	4	165	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+351	OS_1344	B-13	CAV	Wine conserved in amphora	Wine	Georgia	no	A	53	2	aneu;+1*3;	homozygous	46,179	0.0	4	206	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+352	OS_1348	B-11	CBD	Wine conserved in amphora	Wine	Georgia	no	A	75	2	euploid	homozygous	46,037	0.0	6	179	1. Wine/European (subclade 4)		University of Basilicata (Angela Capece and Patrizia Romano)	7
+353	OS_728	CBS2814	AFV	Wine	Wine	Slovakia	no	A	31	2	aneu;-1*5;	homozygous	46,080	0.0	13	224	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+354	OS_1393	CBS2808	ART	Wine	Wine	Slovakia	no	A	134	2	euploid	heterozygous	48,185	8.5	113	191	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+355	OS_852	CBS2807	AIC	Wine	Wine	Slovakia	yes	none	0	1	euploid	homozygous	46,159	0.0	39	202	1. Wine/European (subclade 4)		CBS collection (Nguyen H.V.)	
+356	OS_1674	YJM270	SACE_YAF	Unknown	Wine	Slovenia	no	none	0	2	euploid	homozygous	46,607	0.0	35	84	1. Wine/European (subclade 4)		Phaff collection	2
+357	OS_230	L-958	BSR	Wine	Wine	Mendoza area, Argentina	no	A	11	2	euploid	heterozygous	54,243	34.6	8	151	1. Wine/European 		Pontificia Universidad Catolica de Chile (Claudio Martinez)	
+358	OS_231	L-960	BSS	Wine	Wine	Mendoza area, Argentina	no	A	17	2	euploid	heterozygous	54,975	35.3	12	188	1. Wine/European 		Pontificia Universidad Catolica de Chile (Claudio Martinez)	
+359	OS_422	L-1201	BTR	Heterozygote, 12% Sporulation Efficiency	Wine	Valle de Ica, Peru	no	A	10	2	euploid	heterozygous	53,926	33.6	4	148	1. Wine/European 		Universidad de Santiago de Chile (Francisco Cubillos) and Pontificia Universidad Catolica de Chile (Claudio Martinez)	11
+360	OS_420	L-1198	BTP	Heterozygote, 12% Sporulation Efficiency	Wine	Valle de Ica, Peru	no	A	7	2	euploid	heterozygous	53,951	31.5	6	221	1. Wine/European 		Universidad de Santiago de Chile (Francisco Cubillos) and Pontificia Universidad Catolica de Chile (Claudio Martinez)	11
+361	OS_1410	M1	ASR	Vineyard	Wine	Italy	no	A	61	2	euploid	heterozygous	53,806	30.9	12	251	1. Wine/European 		Washington University School of Medicine (Justin C Fay)	5
+362	NA	YJM1574	SACE_YDJ	wine/European	Wine	NA	no	A	76	2	aneu;+1*1;+1*6;	homozygous	46,850	0.0	9	302	1. Wine/European 			2
+363	OS_1433	CECT10266	AVB	Tanning liquor	Industrial	Spain	no	A	17	1	euploid	homozygous	47,764	0.0	714	198	2. Alpechin 		CECT collection	
+364	OS_1593	CECT10171-5B	CDT	Larvae of Dacus oleae	Insect	Spain	no	A	43	2	euploid	homozygous	49,211	0.0	1,170	229	2. Alpechin 		CECT collection / State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+365	OS_872	1560	CPG	Manzanilla-Alorena, olive (Noe), 2003	Nature	Aceituna, Spain	no	A	12	2	euploid	homozygous	48,602	0.0	926	271	2. Alpechin 		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+366	OS_777	CBS3093_1b	ABM	Alpechin (waste from olive oil production)	Industrial	Spain	yes	A	31	1	euploid	homozygous	47,755	0.0	259	198	2. Alpechin 		CBS collection (Nguyen H.V.)	1
+367	OS_753	CBS3093	AHM	Alpechin (waste from olive oil production)	Industrial	Spain	yes	A	75	1	euploid	homozygous	47,369	0.0	169	206	2. Alpechin 		CBS collection (Nguyen H.V.)	
+368	OS_1357	CBS4903	AQA	Alpechin (waste from olive oil production)	Industrial	Spain	no	A	107	2	euploid	heterozygous	49,143	6.2	1,195	229	2. Alpechin 		CBS collection (Nguyen H.V.)	
+369	OS_1360	CBS5378	AQD	Alpechin (waste from olive oil production)	Industrial	Spain	no	A	64	2	aneu;+1*8;	heterozygous	49,020	5.2	339	231	2. Alpechin 		CBS collection (Nguyen H.V.)	
+370	OS_1427	CECT10497	ATQ	Alpechin (waste from olive oil production)	Industrial	Spain	no	A	40	2	aneu;+2*9;+1*11;	homozygous	48,938	0.0	505	249	2. Alpechin 		CECT collection	
+371	OS_1566	UCD_09-448	CGD	Olives from Middle of season 1. on RBCA 11.25.09 Streaked onto PDA 11/30/09	Fruit	Davis, CA, UCD	no	B	65	2	euploid	homozygous	48,515	0.0	505	190	2. Alpechin 		Phaff collection	
+372	OS_1567	UCD_11-601	CGE	Olive fermentation, 1-gallon, Bucket 5B brine, Sicilian style olives, inoculated with Saccharomyces cerevisiase from 2009 olives.	Fruit	Davis, CA, UCD Food Science, Pilot plant. 	no	B	90	2	euploid	homozygous	47,666	0.0	99	190	2. Alpechin 		Phaff collection	
+373	OS_752	CBS3081	AHL	Alpechin (waste from olive oil production)	Industrial	Spain	yes	none	0	1	euploid	homozygous	48,054	0.0	101	236	2. Alpechin 		CBS collection (Nguyen H.V.)	
+374	OS_1287	DBVPG6302	BRK	Alpechin (waste from olive oil production)	Industrial	Spain	no	none	0	2	euploid	homozygous	48,294	0.0	228	220	2. Alpechin 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+375	OS_1705	YJM1252	SACE_YBR	Alpechin (waste from olive oil production)	Industrial	Spain	no	none	0	2	euploid	homozygous	48,964	0.0	295	424	2. Alpechin 		Phaff collection	2
+376	OS_853	CBS2909	AID	Human feces	Human	NA	no	A	46	2	euploid	heterozygous	48,742	4.9	543	200	2. Alpechin 		CBS collection (Nguyen H.V.)	
+377	OS_854	CBS2910	AIE	Human feces	Human	Portugal	yes	A	22	1	aneu;+1*9;	homozygous	47,729	0.0	141	203	2. Alpechin 		CBS collection (Nguyen H.V.)	
+378	OS_1680	YJM248	SACE_YAE	Faeces	Human	NA	no	A	78	2	euploid	homozygous	45,765	0.0	229	59	2. Alpechin 		Phaff collection	2
+379	OS_1699	YJM1078	SACE_YDM	Clinical	Human, clinical	Portugal	no	A	44	2	euploid	homozygous	47,648	0.0	786	48	2. Alpechin 		Phaff collection	2
+380	OS_734	CBS439	AGN	Silvaner grapes	Wine	Germany	yes	none	0	1	euploid	homozygous	43,915	0.0	446	190	M1. Mosaic region 1 		CBS collection (Nguyen H.V.)	
+381	OS_1412	M6	AST	Vineyard	Wine	Italy	no	A	102	2	euploid	heterozygous	50,184	23.4	367	177	M1. Mosaic region 1 		Washington University School of Medicine (Justin C Fay)	5
+382	OS_1149	CLIB1060	BHE	Cider brewery, half fermenting apple juice	Cider	Brittany, France	no	B	99	2	aneu;+1*14;	heterozygous	52,132	28.6	393	202	M1. Mosaic region 1		CLIB collection (Serge Casaregola)	
+383	OS_1148	CLIB1059	BHD	Cider brewery, half fermenting apple juice	Cider	Brittany, France	no	A	110	2	euploid	heterozygous	53,019	34.1	465	177	M1. Mosaic region 1		CLIB collection (Serge Casaregola)	
+384	OS_1156	CLIB1085	BHM	Cider brewery, dry cider	Cider	Upper Normandy, France	no	A	22	2	euploid	heterozygous	46,922	8.6	251	243	M1. Mosaic region 1		CLIB collection (Serge Casaregola)	
+385	OS_1162	CLIB1083	BHT	Cider brewery, dry cider	Cider	Upper Normandy, France	no	B	78	2	euploid	homozygous	46,705	0.0	491	264	M1. Mosaic region 1		CLIB collection (Serge Casaregola)	
+386	OS_1413	M9	ASV	Vineyard	Wine	Italy	no	A	71	2	aneu;+1*9;	heterozygous	53,155	41.8	503	181	M1. Mosaic region 1		Washington University School of Medicine (Justin C Fay)	5
+387	OS_746	CBS1540	AHF	Tibi grains	Nature	Switzerland	yes	A	29	1	euploid	homozygous	48,908	0.0	72	235	M1. Mosaic region 1		CBS collection (Nguyen H.V.)	
+388	OS_621	SJ5L14	AMP	Fruiting body of Auricularia auricular	Fruit	Taian, Miaoli, Taiwan	no	none	0	2	euploid	heterozygous	54,334	19.9	132	183	M1. Mosaic region 1		National Hsinchu University of Education (Ching-Fu Lee)	25
+389	OS_867	995	CPB	Fermented beverage from raisins and sugar	Beer	Hungary	no	A	17	2	aneu;+1*3;	heterozygous	55,098	24.5	219	159	M1. Mosaic region 1		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+390	OS_798	I14_1b	ACS	Vineyard soil	Wine	Italy	yes	A	27	1	euploid	homozygous	47,210	0.0	144	238	M1. Mosaic region 1		Kruglyak Laboratory	1
+391	OS_1722	YJM1387	SACE_YCI	Unknown	Wine	Japan	no	none	0	2	euploid	homozygous	45,307	0.0	446	149	M1. Mosaic region 1		Phaff collection	2
+392	OS_1155	CLIB1082	BHL	Cider brewery, dry cider	Cider	Upper Normandy, France	no	B	38	2	euploid	heterozygous	56,010	38.1	683	238	M1. Mosaic region 1		CLIB collection (Serge Casaregola)	
+393	OS_1154	CLIB1077	BHK	Cider brewery, dry cider	Cider	Upper Normandy, France	no	A	17	2	euploid	heterozygous	55,477	38.0	599	239	M1. Mosaic region 1		CLIB collection (Serge Casaregola)	
+394	OS_789	CLIB413_1b	ACG	Fermenting rice beverage	Fermentation	China	yes	B	38	1	euploid	homozygous	44,262	0.0	5	178	M1. Mosaic region 1		CLIB collection	1
+395	OS_678	CLIB483_1b	ACH	Cider	Cider	Brittany, France	yes	B	47	1	euploid	homozygous	44,503	0.0	4	204	M1. Mosaic region 1		CLIB collection	1
+396	OS_1516	SRC 120	CHV	Cider bioindustrial strain 	Cider	France	no	B	84	2	aneu;+1*9;+1*11;+1*16;	homozygous	44,251	0.0	104	267	M1. Mosaic region 1		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+397	OS_726	CBS7959	AFR	Factory producing ethanol (sugar cane syrup)	Industrial	Sao Paulo, Brazil	yes	A	21	1	aneu;+1*1;	homozygous	50,923	0.0	465	251	3. Brazilian bioethanol 		CBS collection (Nguyen H.V.)	
+398	OS_632	RP.10.14	BVC	Bioethanol	Bioethanol	Brazil	no	B	6	2	euploid	heterozygous	62,879	39.9	459	190	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+399	OS_706	CBS7962	AEG	Fermenting concentrated syrup (sugar cane)	Industrial	Brazil	yes	B	77	1	euploid	homozygous	52,280	0.0	227	255	3. Brazilian bioethanol 		CBS collection (Nguyen H.V.)	
+400	OS_733	CBS7961	AGM	Fermenting concentrated syrup (sugar cane)	Industrial	Sao Paulo, Brazil	yes	B	23	1	euploid	homozygous	53,519	0.0	266	434	3. Brazilian bioethanol 		CBS collection (Nguyen H.V.)	
+401	OS_654	SA.10.1.VL1	CNQ	Bioethanol	Bioethanol	Brazil	no	B	10	2	euploid	heterozygous	66,761	51.4	261	239	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+402	OS_707	CBS7964	AEH	Fermenting concentrated syrup (sugar cane)	Industrial	Brazil	yes	B	85	1	euploid	homozygous	48,968	0.0	48	270	3. Brazilian bioethanol 		CBS collection (Nguyen H.V.)	
+403	OS_716	CBS7960	AFD	Factory producing ethanol (sugar cane syrup)	Industrial	Sao Paulo, Brazil	yes	A	41	1	euploid	homozygous	25,931	0.0	112	185	3. Brazilian bioethanol 		CBS collection (Nguyen H.V.)	
+404	OS_742	CBS7963	AHC	Fermenting concentrated syrup (sugar cane)	Industrial	Sao Paulo, Brazil	yes	A	39	1	euploid	homozygous	48,580	0.0	61	186	3. Brazilian bioethanol 		CBS collection (Nguyen H.V.)	
+405	OS_628	M.9.1	BTT	Cachaca	Distillery	Brazil	no	B	5	2	euploid	heterozygous	60,639	39.2	165	188	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+406	OS_627	M1.1	APH	Cachaca, Muller Industrial	Distillery	Pirassununga, Sao Paulo, Brazil	no	B	24	2	euploid	heterozygous	59,578	35.9	77	207	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+407	OS_629	M.14.1	BTV	Cachaca	Distillery	Brazil	no	B	11	2	euploid	heterozygous	60,250	37.6	87	214	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+408	OS_630	RP.10.4	BVA	Bioethanol	Bioethanol	Brazil	no	B	14	2	euploid	heterozygous	60,841	39.5	281	247	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+409	OS_638	SM.9.4.BR2	CMT	Bioethanol	Bioethanol	Brazil	no	C	106	2	euploid	heterozygous	56,241	29.2	35	115	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+410	OS_646	SM.8.7.BR1	CNG	Bioethanol	Bioethanol	Brazil	no	C	37	2	euploid	heterozygous	60,821	39.5	44	212	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+411	OS_649	SA.1.5.	CNK	Bioethanol	Bioethanol	Brazil	no	B	14	2	euploid	heterozygous	57,724	29.5	114	349	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+412	OS_626	VF8_(6)	APG	Bioethanol, Sao Joao sugar mill	Bioethanol	Araras, Sao Paulo, Brazil	no	B	15	1	euploid	homozygous	48,006	0.0	69	263	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+413	OS_651	SA.9.3.VR1	CNM	Bioethanol	Bioethanol	Brazil	no	B	9	2	euploid	heterozygous	61,093	41.3	103	202	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+414	OS_653	SA.9.4.BR2	CNP	Bioethanol	Bioethanol	Brazil	no	B	10	2	euploid	heterozygous	58,538	37.1	91	164	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+415	OS_655	SA.10.1.VR4	CNR	Bioethanol	Bioethanol	Brazil	no	B	17	2	euploid	heterozygous	59,740	39.7	85	220	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+416	OS_631	RP.10.13	BVB	Bioethanol	Bioethanol	Brazil	no	B	10	2	euploid	heterozygous	63,401	46.3	236	249	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+417	OS_648	SM.8.8.CVR1	CNI	Bioethanol	Bioethanol	Brazil	no	B	6	2	euploid	heterozygous	61,424	37.8	131	289	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+418	OS_647	SM.8.8.BL1	CNH	Bioethanol	Bioethanol	Brazil	no	A	4	2	euploid	heterozygous	61,846	39.3	114	241	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+419	OS_637	SM.9.4.BR1	BVH	Bioethanol	Bioethanol	Brazil	no	B	10	2	euploid	heterozygous	58,661	46.3	5	71	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+420	OS_652	SA.9.4.VL4	CNN	Bioethanol	Bioethanol	Brazil	no	B	18	2	euploid	heterozygous	64,402	48.2	8	194	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+421	OS_645	SM.8.7.L9	CNF	Bioethanol	Bioethanol	Brazil	no	B	9	2	euploid	heterozygous	66,088	49.5	3	219	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+422	OS_641	SM.8.2.C13	CNB	Bioethanol	Bioethanol	Brazil	no	B	32	2	euploid	heterozygous	66,666	50.0	5	311	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+423	OS_636	SM.9.4.BL2	BVG	Bioethanol	Bioethanol	Brazil	no	B	14	2	euploid	heterozygous	66,469	49.7	5	263	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+424	OS_644	SM.8.7.L8	CNE	Bioethanol	Bioethanol	Brazil	no	B	107	2	euploid	heterozygous	65,319	48.8	4	188	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+425	OS_650	SA.9.2.BL3	CNL	Bioethanol	Bioethanol	Brazil	no	B	10	2	aneu;+1*3;	heterozygous	66,852	50.0	7	320	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+426	OS_633	SM.9.1.AL1	BVD	Bioethanol	Bioethanol	Brazil	no	B	5	2	euploid	homozygous	51,003	0.0	2	225	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+427	OS_635	SM.9.2.BR3(L)	BVF	Bioethanol	Bioethanol	Brazil	no	B	6	2	euploid	heterozygous	63,282	41.2	7	243	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+428	OS_656	RP11.4.1	CNS	Bioethanol	Bioethanol	Brazil	no	B	7	2	euploid	heterozygous	61,973	39.7	1	171	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+429	OS_657	RP11.4.11	CNT	Bioethanol	Bioethanol	Brazil	no	B	9	2	euploid	heterozygous	62,369	39.6	5	214	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+430	OS_634	SM.9.1.BL7	BVE	Bioethanol	Bioethanol	Brazil	no	B	20	1	euploid	homozygous	48,315	0.0	8	254	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+431	OS_658	RP11.4.14	CNV	Bioethanol	Bioethanol	Brazil	no	B	20	2	aneu;+1*6;	heterozygous	57,314	31.0	63	316	3. Brazilian bioethanol 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+432	OS_741	CBS4734	AHB	Sugar cane juice	Nature	NA	yes	A	30	1	euploid	homozygous	47,433	0.0	71	213			CBS collection (Nguyen H.V.)	
+433	OS_1704	YJM1250	SACE_YBQ	Sugar cane	Nature	NA	no	A	77	2	euploid	homozygous	47,178	0.0	64	51			Phaff collection	2
+434	OS_1568	N19-1C	CCL	Exudate of Quercus sp.	Tree	Gelendzhik region, Caucasus, Russia	no	none	0	2	euploid	homozygous	46,806	0.0	2,703	298	4. Mediterranean oak 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+435	OS_874	2162	BBQ	Forest soil, 30C	Soil	Hungary	no	none	0	2	euploid	homozygous	45,547	0.0	18	238	4. Mediterranean oak 		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+436	OS_876	2187	BBS	Forest soil, 30C	Soil	Hungary	no	none	0	2	euploid	homozygous	45,919	0.0	17	327	4. Mediterranean oak 		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+437	OS_1458	EXF-7197	BFP	Quercus sp.	Tree	Montenegro	no	none	0	2	euploid	homozygous	45,472	0.0	1,899	231	4. Mediterranean oak 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+438	OS_382	ZP_567	BTG	Quercus pyrenaica	Tree	Portugal, Castelo de Vide,	no	none	0	2	euploid	homozygous	46,473	0.0	2,386	221	4. Mediterranean oak 		Faculdade de Ciencias e Tecnologia of Universidade NOVA de Lisboa (FCT-NOVA)(Jose Paulo Sampaio)	
+439	OS_1557	sample 50	CLC	Dead tree	Tree	Bordeaux, France	no	none	0	2	aneu;+2*3;	homozygous	45,668	0.0	6	182	4. Mediterranean oak 		Schacherer Laboratory	
+440	OS_1556	sample 40	CLB	Tree leaves	Tree	Bordeaux, France	no	none	0	2	euploid	homozygous	45,988	0.0	6	264	4. Mediterranean oak 		Schacherer Laboratory	
+441	OS_1558	sample 33	CLD	Flower	Flower	Bordeaux, France	no	A	1	2	aneu;+2*3;	homozygous	45,922	0.0	39	224	4. Mediterranean oak 		Schacherer Laboratory	
+442	OS_1368	CBS420	AQM	Stracchino cheese	Dairy	Italy	no	none	0	2	aneu;+1*9;+1*16;	heterozygous	65,641	19.2	1,647	145	5. French dairy 		CBS collection (Nguyen H.V.)	
+443	OS_1457	EXF-7145	BFN	Quercus robur	Tree	Serbia	no	none	0	2	aneu;+1*10;	heterozygous	48,250	39.6	1,104	49	5. French dairy 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+444	OS_285	368428S	BME	Human	Human	RVI Newcastle, UK	no	none	0	3	aneu;+1*9;	heterozygous	96,403	66.0	6,964	325	5. French dairy 		National Collection of Yeast Cultures (NCYC)(Stephen A James, Donald Mackenzie and Ian Roberts)	
+445	OS_1392	CBS2421	ARS	Japanese kefyr grains	Nature	NA	no	none	0	2	aneu;+1*1;	heterozygous	66,561	36.0	2,073	115	5. French dairy 		CBS collection (Nguyen H.V.)	
+446	OS_1388	CBS2246	ARN	Sputum	Human, clinical	Netherlands	no	none	0	3	euploid	heterozygous	82,868	48.1	6,789	202	5. French dairy 		CBS collection (Nguyen H.V.)	
+447	OS_1131	CLIB560	BGM	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	71,621	29.2	349	255	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+448	OS_1133	CLIB562	BGP	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	67,376	32.8	295	74	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+449	OS_1452	EXF-5871	BFH	Homemade cheese	Dairy	Slovenia	no	none	0	2	euploid	heterozygous	73,794	35.8	1,911	258	5. French dairy 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+450	OS_1135	CLIB564	BGR	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	aneu;+1*12;	heterozygous	74,328	34.4	918	219	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+451	OS_1407	CLIB630	ASN	Dairy cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	75,239	38.4	96	248	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+452	OS_1129	CLIB558	BGK	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	75,031	39.1	84	242	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+453	OS_1137	CLIB631	BGS	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	aneu;+1*10;	heterozygous	73,029	36.4	134	235	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+454	OS_1123	CLIB552	BGD	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	70,440	27.1	126	231	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+455	OS_1128	CLIB557	BGI	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	74,022	36.2	84	231	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+456	OS_600	CLQCA_13-023	ALD	Wax on rock surface	Nature	Bolivar, Ecuador	no	none	0	2	euploid	heterozygous	70,912	27.4	483	221	5. French dairy 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+457	OS_1117	CLIB546	BFS	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	72,707	29.3	191	220	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+458	OS_1121	CLIB550	BGB	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	72,631	28.6	148	218	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+459	OS_1125	CLIB554	BGF	Dairy, brine	Dairy	France	no	none	0	2	euploid	heterozygous	73,587	31.3	30	225	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+460	OS_1126	CLIB555	BGG	Dairy, brine	Dairy	France	no	none	0	2	aneu;+1*11;	heterozygous	74,436	33.2	23	229	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+461	OS_1391	CBS2272	ARR	Butter milk	Dairy	Delft, Netherlands	no	none	0	2	aneu;+1*1;+1*3;	heterozygous	66,719	5.4	95	199	5. French dairy 		CBS collection (Nguyen H.V.)	
+462	OS_1118	CLIB547	BFT	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	69,298	13.8	261	208	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+463	OS_1124	CLIB553	BGE	Dairy, raw milk	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	69,299	12.9	121	225	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+464	OS_1130	CLIB559	BGL	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	74,555	31.8	150	267	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+465	OS_1119	CLIB548	BFV	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	aneu;+1*11;	heterozygous	74,218	33.3	51	213	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+466	OS_1120	CLIB549	BGA	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	73,861	32.0	35	224	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+467	OS_1138	CLIB648	BGT	Dairy, whey	Dairy	Alpes, France	no	none	0	2	euploid	heterozygous	71,410	25.8	174	244	5. French dairy 		CLIB collection (Serge Casaregola)	
+468	OS_1139	CLIB649	BGV	Dairy, whey	Dairy	Alpes, France	no	none	0	2	euploid	heterozygous	71,232	26.4	174	205	5. French dairy 		CLIB collection (Serge Casaregola)	
+469	OS_1127	CLIB556	BGH	Dairy, Saint Maure goat's cheese	Dairy	Poitou-Charentes, France	no	none	0	2	euploid	heterozygous	72,003	28.7	132	192	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+470	OS_1132	CLIB561	BGN	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	72,229	28.6	128	309	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+471	OS_1122	CLIB551	BGC	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	74,785	34.9	10	250	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+472	OS_1134	CLIB563	BGQ	Dairy, cheese (camembert)	Dairy	Normandy, France	no	none	0	2	euploid	heterozygous	75,252	35.1	34	305	5. French dairy 		CLIB collection / Laboratoire de Technologie Laitiere, INA-PG (Serge Casaregola)	
+473	OS_1554	malade Boisse	CKV	Unknown	Human, clinical	France	no	none	0	2	euploid	heterozygous	73,873	33.4	98	232	5. French dairy 		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+474	OS_723	CBS4456	AFL	Kaffir beer	Beer	South Africa	yes	none	0	1	aneu;+1*8;	homozygous	58,139	0.0	401	192	6. African beer 		CBS collection (Nguyen H.V.)	
+475	OS_821	CBS4454	AEN	Kaffir beer	Beer	South Africa	no	none	0	2	aneu;+1*1;+1*3;+1*4;	heterozygous	67,373	23.7	728	207	6. African beer 		CBS collection (Nguyen H.V.)	
+476	OS_1397	CBS4455	ASC	Kaffir beer	Beer	South Africa	no	none	0	3	aneu;+1*1;	heterozygous	77,037	43.7	1,864	240	6. African beer 		CBS collection (Nguyen H.V.)	
+477	OS_226	A-6	ANL	Sorghum beer	Beer	Ghana	no	none	0	4	euploid	heterozygous	86,350	50.0	6,635	207	6. African beer 		The Royal Veterinary and Agricultural University (Lene Jespersen)	14
+478	OS_227	A-18	ANM	Sorghum beer	Beer	Ghana	no	none	0	4	euploid	heterozygous	85,165	48.8	5,570	211	6. African beer 		The Royal Veterinary and Agricultural University (Lene Jespersen)	14
+479	OS_526	CH02	AVN	Pearl millet beer	Beer	Abengourou, Ivory Coast	no	none	0	4	euploid	heterozygous	86,031	47.4	6,659	292	6. African beer 		Universite de Lyon (Michel Aigle)	15
+480	OS_527	CH06	AVP	Pearl millet beer	Beer	Abengourou, Ivory Coast	no	none	0	5	aneu;-1*14;	heterozygous	88,917	51.6	380	204	6. African beer 		Universite de Lyon (Michel Aigle)	15
+481	OS_528	CH10	AVQ	Pearl millet beer	Beer	Abengourou, Ivory Coast	no	none	0	5	aneu;+1*4;	heterozygous	90,003	52.0	376	220	6. African beer 		Universite de Lyon (Michel Aigle)	15
+482	OS_529	CH11	AVR	Pearl millet beer	Beer	Abengourou, Ivory Coast	no	none	0	5	aneu;-1*15;	heterozygous	90,171	52.5	475	218	6. African beer 		Universite de Lyon (Michel Aigle)	15
+483	OS_530	CH14	AVS	Pearl millet beer	Beer	Abengourou, Ivory Coast	no	none	0	5	aneu;+1*12;+1*13;	heterozygous	91,561	53.6	465	244	6. African beer 		Universite de Lyon (Michel Aigle)	15
+484	OS_531	CH13	AVT	Pearl millet beer	Beer	Abengourou, Ivory Coast	no	none	0	5	aneu;+1*2;+1*5;	heterozygous	90,019	51.9	360	229	6. African beer 		Universite de Lyon (Michel Aigle)	15
+485	OS_1141	CLIB651	BEK	Beer leaven for Bili Bili beer, brewery	Beer	Chad	no	none	0	4	euploid	heterozygous	74,975	35.9	234	242	6. African beer 		CLIB collection (Serge Casaregola)	
+486	OS_1143	CLIB653	BEM	Beer leaven for Bili Bili beer, brewery	Beer	Chad	no	none	0	4	euploid	heterozygous	75,405	36.5	418	217	6. African beer 		CLIB collection (Serge Casaregola)	
+487	OS_1140	CLIB650	BEI	Bili Bili beer, brewery	Beer	Chad	no	none	0	3	euploid	heterozygous	69,615	28.1	35	261	6. African beer 		CLIB collection (Serge Casaregola)	
+488	OS_1144	CLIB654	BEN	Beer leaven for Bili Bili beer, brewery	Beer	Chad	no	none	0	3	euploid	heterozygous	69,397	28.2	34	231	6. African beer 		CLIB collection (Serge Casaregola)	
+489	OS_1145	CLIB655	BHA	Beer leaven for Bili Bili beer, brewery	Beer	Chad	no	A	3	3	euploid	heterozygous	69,408	28.1	18	223	6. African beer 		CLIB collection (Serge Casaregola)	
+490	OS_1067	MAJ_G	BDN	Plant material	Nature	Majunga, Madagascar	no	none	0	2	euploid	heterozygous	66,059	7.7	7,223	200	6. African beer 		National Collection of Yeast Cultures (NCYC)(Stephen A James and Ian Roberts)	
+491	OS_1610	N26-1-10:7-5(a)	CES	Maize dough	Bakery	Ghana	no	none	0	2	aneu;-1*1;	homozygous	61,039	0.0	1,180	143	6. African beer 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+492	OS_1609	N34:2-4(a)	CER	Maize dough	Bakery	Ghana	no	none	0	2	euploid	homozygous	62,005	0.0	1,239	229	6. African beer 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+493	OS_1611	N134:7-1(a)	CET	Maize dough	Bakery	Ghana	no	none	0	2	aneu;-1*9;	homozygous	61,876	0.0	1,284	232	6. African beer 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+494	OS_1244	DBVPG1848	BPI	Tecc	Unknown	Ethiopia	no	none	0	2	aneu;+1*1;+1*12;	heterozygous	71,062	49.3	267	174			DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+495	OS_1248	DBVPG1895	BPN	Grape must treated with pesticides	Wine	Italy	no	A	35	2	euploid	heterozygous	70,544	45.8	211	218			DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+496	NA	YJM1463	SACE_YDB	White Tecc	Unknown	Africa	no	A	117	2	euploid	homozygous	56,625	0.0	121	184				2
+497	OS_841	CBS422a	AAB	Beer	Beer	Odessa, Ukraine	yes	A	32	1	euploid	homozygous	46,688	0.0	400	206	7. Mosaic beer 		CBS collection (Nguyen H.V.)	
+498	OS_1465	NCYC_88	CBN	Ale strain	Beer	UK	no	A	34	2	euploid	homozygous	47,679	0.0	443	229	7. Mosaic beer 		National Collection of Yeast Cultures (NCYC)(Stephen A James and Ian Roberts)	
+499	OS_1363	CBS7539	AQG	Turbid beer	Beer	Plovdiv, Bulgaria	no	B	89	2	euploid	heterozygous	54,822	26.9	893	221	7. Mosaic beer 		CBS collection (Nguyen H.V.)	
+500	OS_1628	6.2_WLP570	CFF	Carlsberg Beer	Beer	Belgium	no	A	76	2	euploid	heterozygous	59,242	38.3	926	254	7. Mosaic beer 		Carlsberg	
+501	OS_715	CBS7371	AFB	Brewery	Beer	UK	yes	A	26	1	euploid	homozygous	48,529	0.0	232	224	7. Mosaic beer 		CBS collection (Nguyen H.V.)	
+502	OS_714	CBS6503	AFA	Brewery	Beer	UK	no	A	27	2	aneu;-1*16;	homozygous	47,264	0.0	295	203	7. Mosaic beer 		CBS collection (Nguyen H.V.)	
+503	OS_845	CBS6505	AFP	Brewery (Killer strain responsible for death of brewing yeast)	Beer	UK	no	A	57	2	euploid	heterozygous	48,355	0.5	213	243	7. Mosaic beer 		CBS collection (Nguyen H.V.)	
+504	OS_1364	CBS7957	AQH	Factory producing cassava flour	Industrial	Sao Paulo, Brazil	no	A	289	3	aneu;+1*3;	heterozygous	62,227	77.0	537	220	7. Mosaic beer 		CBS collection (Nguyen H.V.)	
+505	OS_1677	YJM193	SACE_YAB	Unknown	Distillery	NA	no	A	28	2	euploid	homozygous	49,322	0.0	105	42	7. Mosaic beer 		Phaff collection	2
+506	OS_763	CLIB382_1b	AAR	Beer	Beer	Ireland	yes	A	27	1	euploid	homozygous	48,456	0.0	20	216	7. Mosaic beer 		CLIB collection	1
+507	OS_814	CBS7958	AEA	Factory producing cassava flour	Industrial	Sao Paulo, Brazil	yes	A	2	1	euploid	homozygous	48,312	0.0	3	209	7. Mosaic beer 		CBS collection (Nguyen H.V.)	
+508	OS_1289	DBVPG6590	BRM	Alcohol production tank	Distillery	Brazil	no	A	19	1	euploid	homozygous	48,201	0.0	7	211	7. Mosaic beer 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+509	OS_822	CBS1782	AEQ	Super-attenuated beer	Beer	Japan	yes	A	3	1	euploid	homozygous	48,790	0.0	15	227	7. Mosaic beer 		CBS collection (Nguyen H.V.)	
+510	OS_1681	YJM271	SACE_YAG	Brewery	Beer	NA	no	A	58	2	euploid	homozygous	48,209	0.0	20	52	7. Mosaic beer 		Phaff collection	2
+511	OS_762	CLIB272_2	AAQ	Beer	Beer	USA	yes	A	33	1	euploid	homozygous	47,515	0.0	457	165	7. Mosaic beer 		CLIB collection / Charles University, Prague, Czech Republic (Vondrejs V.)	1
+512	OS_1396	CBS4255	ASB	Sputum	Human, clinical	NA	no	A	55	2	euploid	heterozygous	63,288	46.4	1,010	247	7. Mosaic beer 		CBS collection (Nguyen H.V.)	
+513	OS_1351	CBS382	APP	Beer	Beer	Brazil, Rio de Janeiro	no	B	129	3	aneu;+1*9;+1*10;+1*12;	heterozygous	61,961	36.0	1,728	230	7. Mosaic beer 		CBS collection (Nguyen H.V.)	
+514	OS_869	1175	CPD	Spoiled beer	Beer	NA	no	A	194	2	aneu;+1*8;	heterozygous	53,692	13.5	1,013	230	7. Mosaic beer 		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+515	OS_832	CBS1463	AIG	Beer	Beer	NA	yes	A	29	1	euploid	homozygous	47,777	0.0	529	172	7. Mosaic beer 		CBS collection (Nguyen H.V.)	
+516	OS_1380	CBS1398	ARE	Leaf of Eucalyptus sp.	Tree	NA	no	A	35	2	aneu;+1*2;+1*3;+1*6;+4*9;+1*12;+1*14;+1*15;	heterozygous	58,511	27.4	708	244	7. Mosaic beer 		CBS collection (Nguyen H.V.)	
+517	NA	YJM1478	SACE_YDD	Kefyr	Fermentation	Missouri, USA	no	A	50	2	euploid	homozygous	51,763	0.0	218	331	7. Mosaic beer 			2
+518	OS_725	CBS7993	AFQ	Fresh water	Water	Rio de Janeiro, Tijuca National Forest, Cushvara River, Brazil	yes	A	22	1	euploid	homozygous	52,097	0.0	295	243	M2. Mosaic region 2 		CBS collection (Nguyen H.V.)	
+519	OS_1588	UFRJ_50613-2D(a)	CDM	Cushvara river	Water	Rio de Janeiro, Brazil	no	A	20	2	euploid	homozygous	50,869	0.0	212	260	M2. Mosaic region 2 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+520	OS_1719	YJM1383	SACE_YCF	Coconut	Fruit	Philippines	no	A	127	2	euploid	homozygous	47,877	0.0	536	392	M2. Mosaic region 2		Phaff collection	2
+521	OS_1561	UCD_40-346	CFT	Spoiled Adriatic orchard figs, (1939)	Fruit	Fresno area,  California	no	B	203	2	aneu;+1*5;+1*9;	heterozygous	60,874	43.6	717	246	M2. Mosaic region 2		Phaff collection	
+522	OS_838	CBS2970	AER	Blackstrap molasses	Industrial	San Jose sugar mill, Rio Piedras, Puerto Rico	yes	B	17	1	aneu;+1*2;+1*4;+1*8;+1*9;	heterozygous	52,079	11.4	1,107	218	M2. Mosaic region 2		CBS collection (Nguyen H.V.)	
+523	OS_1054	#33	BCV	Evolution canyon	Nature	Israel	no	B	86	2	euploid	heterozygous	52,520	19.6	12	219	M2. Mosaic region 2		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+524	OS_1056	#35	BDB	Evolution canyon	Nature	Israel	no	B	102	2	euploid	heterozygous	52,428	18.8	23	215	M2. Mosaic region 2		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+525	OS_1058	#13	BDD	Evolution canyon	Nature	Israel	no	B	65	2	euploid	heterozygous	53,787	25.3	31	223	M2. Mosaic region 2		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+526	OS_1055	#34	BDA	Evolution canyon	Nature	Israel	no	B	64	2	aneu;+1*1;	heterozygous	52,902	25.2	2	200	M2. Mosaic region 2		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+527	OS_1059	#14	BDE	Evolution canyon	Nature	Israel	no	B	118	3	aneu;-1*3;	heterozygous	55,880	31.4	15	203	M2. Mosaic region 2		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+528	OS_1062	#59	BDH	Evolution canyon	Nature	Israel	no	B	76	2	euploid	heterozygous	54,238	26.1	2	217	M2. Mosaic region 2		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+529	OS_1063	#60	BDI	Evolution canyon	Nature	Israel	no	B	71	2	aneu;+1*1;	heterozygous	54,127	25.1	15	233	M2. Mosaic region 2		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+530	OS_1064	#63	BDK	Evolution canyon	Nature	Israel	no	B	29	2	aneu;+1*1;	homozygous	47,842	0.0	667	219	M2. Mosaic region 2		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+531	NA	YJM1433	SACE_YCT	Wine	Wine	France	no	A	49	2	euploid	homozygous	49,355	0.0	281	46	M2. Mosaic region 2			2
+532	OS_1716	YJM1355	SACE_YCC	Molasses	Industrial	Illinois, USA	no	B	142	2	euploid	homozygous	52,252	0.0	908	334	M2. Mosaic region 2		Phaff collection	2
+533	OS_1151	CLIB1070	BHG	Cider brewery, dry cider	Cider	Lower Normandy, France	no	A	8	2	euploid	heterozygous	57,984	37.6	246	271	M2. Mosaic region 2		CLIB collection (Serge Casaregola)	
+534	OS_1152	CLIB1071	BHH	Cider brewery, dry cider	Cider	Lower Normandy, France	no	A	34	2	euploid	homozygous	47,740	0.0	54	256	M2. Mosaic region 2		CLIB collection (Serge Casaregola)	
+535	OS_1153	CLIB1072	BHI	Cider brewery, dry cider	Cider	Lower Normandy, France	no	A	17	2	euploid	heterozygous	47,149	0.3	40	246	M2. Mosaic region 2		CLIB collection (Serge Casaregola)	
+536	OS_699	273614N	SACE_MAA	Royal Victoria Infirmary, Newcastle UK, Galloway A Clinical isolate (Fecal) Mackenzie D	Human, clinical	Newcastle, UK	no	B	43	2	euploid	homozygous	48,607	0.0	25	49	M2. Mosaic region 2			17
+537	NA	YJM1450	SACE_YCZ	Clinical	Human, clinical	Kansas, USA	no	B	82	2	euploid	homozygous	49,803	0.0	28	75	M2. Mosaic region 2			2
+538	OS_719	CBS1252	AFF	Bakery	Bakery	France	yes	B	23	1	euploid	homozygous	49,046	0.0	34	213	8. Mixed origin 		CBS collection (Nguyen H.V.)	
+539	OS_718	CBS1236-a	AAL	Bakery	Bakery	France	no	B	107	2	aneu;-1*6;	heterozygous	66,644	51.4	37	188	8. Mixed origin 		CBS collection (Nguyen H.V.)	
+540	OS_759	CLIB192_1b	AAM	Bakery	Bakery	France	yes	B	19	1	euploid	homozygous	50,479	0.0	28	188	8. Mixed origin 		CLIB collection	1
+541	OS_411	UWOPS83-883-2	ANP	Drosophila sp. from Opuntia stricta,	Insect	Navassa Island	no	B	29	2	euploid	heterozygous	69,442	61.5	36	205	8. Mixed origin 		University of Western Ontario, Canada (Lachance M.A.)	
+542	OS_850	CBS1487	AHV	Brewery	Beer	NA	yes	B	1	1	aneu;+1*1;+1*11;	heterozygous	50,020	5.4	26	192	8. Mixed origin 		CBS collection (Nguyen H.V.)	
+543	OS_1429	CECT10131	ATS	Flower	Flower	Spain	no	B	185	2	euploid	heterozygous	66,671	53.1	5	248	8. Mixed origin 		CECT collection	
+544	OS_873	1663	BBP	Flower of Centaurea alba	Flower	Spain	no	B	92	2	euploid	heterozygous	66,391	53.0	4	207	8. Mixed origin 		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+545	OS_1592	CECT10331:9-1	CDR	Flowers of Centaurea alba	Flower	Spain	no	B	42	2	euploid	homozygous	51,780	0.0	26	231	8. Mixed origin 		CECT collection / State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+546	OS_289	NCYC_2925	BMG	Human sputum	Human, clinical	Norway	no	B	77	3	aneu;+1*1;	heterozygous	73,522	62.3	74	334	8. Mixed origin 		National Collection of Yeast Cultures (NCYC)(Stephen A James and Ian Roberts)	
+547	OS_1661	SBE-1C	CHL	Bakery	Bakery	Northern Europe	no	B	40	2	aneu;+1*2;+1*13;	heterozygous	67,514	52.0	19	184	8. Mixed origin 	yes	INRA Moulon, France (Sicard D.)	
+548	OS_808	Y6_b	ADP	Unknown	Unknown	French Guiana	no	B	90	2	aneu;+2*2;+2*9;+2*11;	heterozygous	50,450	6.2	5	267	8. Mixed origin 		Kruglyak Laboratory	1
+549	OS_617	SJ6L01	AMK	Leaf of Cunninghamia lanceolata	Tree	Tuchih, Nantou, Taiwan	no	B	33	3	aneu;-1*7;	heterozygous	76,864	66.2	9	232	8. Mixed origin 		National Hsinchu University of Education (Ching-Fu Lee)	25
+550	OS_618	SJ5L11	AML	Leaf of Acacia dealbata	Tree	Tuchih, Nantou, Taiwan	no	B	71	3	euploid	heterozygous	75,678	65.5	9	204	8. Mixed origin 		National Hsinchu University of Education (Ching-Fu Lee)	25
+551	OS_616	SJ1L04	AMI	Leaf of Podocarppus macrophyllus	Tree	Yuchih, Nantou, Taiwan	no	B	47	3	aneu;+1*1;	heterozygous	78,948	68.2	10	251	8. Mixed origin 		National Hsinchu University of Education (Ching-Fu Lee)	25
+552	OS_614	SJ7L01	AMG	Leaf of Ardisia cornudentata	Tree	Tuchih, Nantou, Taiwan	no	B	60	3	euploid	heterozygous	78,714	68.7	1	189	8. Mixed origin 		National Hsinchu University of Education (Ching-Fu Lee)	25
+553	OS_622	SJ5L15	AMQ	Leaf of Acacia dealbata	Tree	Tuchih, Nantou, Taiwan	no	B	66	3	euploid	heterozygous	78,429	68.0	11	191	8. Mixed origin 		National Hsinchu University of Education (Ching-Fu Lee)	25
+554	OS_263	YS10(E)	APK	Baker's yeast	Bakery	South Africa	no	B	54	3	euploid	heterozygous	79,106	68.8	8	240	8. Mixed origin 		Macquarie University (Philip Bell)	18
+555	OS_266	YS19	APN	type yeasts of the species Saccharomyces cerevisiae in different sugar media, Letters in Applied Microbiology 2001	Bakery	Philippines	no	B	26	3	aneu;+1*1;	heterozygous	79,007	67.4	10	272	8. Mixed origin 		Macquarie University (Philip Bell)	18
+556	OS_1521	Ponton 13	CIE	Mouth	Human, clinical	Spain	no	B	49	3	aneu;+1*1;-1*3;-1*8;-1*9;-1*10;-1*13;	heterozygous	72,027	60.0	14	212	8. Mixed origin 		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+557	OS_820	CBS2973	AEM	Beer wort	Beer	NA	yes	B	9	1	aneu;+1*11;	heterozygous	50,189	6.0	34	201	8. Mixed origin 		CBS collection (Nguyen H.V.)	
+558	OS_824	CBS1464	AFT	Infected nail of 4 yo girl	Human, clinical	Austria	no	B	12	4	euploid	homozygous	51,260	0.0	13	221	8. Mixed origin 		CBS collection (Nguyen H.V.)	
+559	OS_1365	CBS8292	AQI	Seawater	Water	Sweden	no	B	117	2	euploid	heterozygous	65,679	56.2	24	202	8. Mixed origin 		CBS collection (Nguyen H.V.)	
+560	OS_717	CBS8291	AFE	Seawater	Water	Sweden	no	B	84	2	euploid	heterozygous	62,805	42.2	63	188	8. Mixed origin 		CBS collection (Nguyen H.V.)	
+561	OS_1428	CECT10120	ATR	Fruit	Fruit	Spain	no	B	64	2	euploid	heterozygous	64,234	48.7	66	199	8. Mixed origin 		CECT collection	
+562	OS_859	CBS7764	AFC	Salmo gairdneri (rainbow trout)	Nature	Goteborg, Sweden	no	B	2	2	aneu;+1*7;-1*14;	heterozygous	66,068	48.2	23	294	8. Mixed origin 		CBS collection (Nguyen H.V.)	
+563	OS_265	YS15	APM	type yeasts of the species Saccharomyces cerevisiae in different sugar media, Letters in Applied Microbiology 2001	Bakery	Korea	no	B	31	2	aneu;+1*9;	heterozygous	64,114	46.0	32	215	8. Mixed origin 		Macquarie University (Philip Bell)	18
+564	OS_267	YS20	API	type yeasts of the species Saccharomyces cerevisiae in different sugar media, Letters in Applied Microbiology 2001	Bakery	Korea	no	B	30	2	aneu;+1*8;+1*9;	heterozygous	68,623	54.0	7	224	8. Mixed origin 		Macquarie University (Philip Bell)	18
+565	OS_1405	CLIB340	ASL	Bakery levain	Bakery	Anatolia, Turkey	no	B	177	2	aneu;+1*2;+1*9;	heterozygous	66,262	46.5	7	243	8. Mixed origin 		CLIB collection / (Oraler G.)	
+566	OS_268	YS22(E)	BTF	type yeasts of the species Saccharomyces cerevisiae in different sugar media, Letters in Applied Microbiology 2001	Bakery	NA	no	B	31	2	aneu;+1*1;+1*9;	heterozygous	66,945	47.3	5	407	8. Mixed origin 		Macquarie University (Philip Bell)	18
+567	OS_1408	B1	ASP	Unknown	Unknown	France	no	B	307	2	euploid	heterozygous	71,670	61.5	28	205	8. Mixed origin 		Washington University School of Medicine (Justin C Fay)	5
+568	OS_1051	#23	BCR	Evolution canyon	Nature	Israel	no	B	256	4	aneu;+1*8;	heterozygous	85,985	76.5	63	215	8. Mixed origin 		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+569	OS_1052	#03	BCS	Evolution canyon	Nature	Israel	no	B	64	2	euploid	heterozygous	66,063	54.3	2	229	8. Mixed origin 		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+570	OS_1053	#05	BCT	Evolution canyon	Nature	Israel	no	B	56	2	euploid	heterozygous	64,918	50.0	4	248	8. Mixed origin 		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+571	OS_826	CBS2361	AGK	Trinidadian cane sugar	Nature	UK	yes	B	5	1	euploid	homozygous	51,923	0.0	21	405	8. Mixed origin 		CBS collection (Nguyen H.V.)	
+572	OS_846	CBS1385	AGE	Bakery	Bakery	NA	no	B	51	2	aneu;-1*6;	heterozygous	65,234	47.9	16	211	8. Mixed origin 		CBS collection (Nguyen H.V.)	
+573	OS_245	79	BTC	Fleischmann baker's yeast.	Bakery	NA	no	B	86	2	euploid	heterozygous	64,470	44.5	30	235	8. Mixed origin 		National Collection of Yeast Cultures (NCYC)(Stephen A James and Ian Roberts)	
+574	OS_782	DBVPG6861	ABV	Poluted stream	Water	Tijuca forest, Rio de Janeiro, Brazil	no	B	45	3	aneu;+1*1;+1*9;	heterozygous	84,868	73.0	36	241	8. Mixed origin 		DBVPG collection	1
+575	OS_589	21-4-124	ALV	Fruit of plum tree (Prunus domestica L., 'Stanley')	Fruit	Male Zaluzie, Slovakia	no	B	20	3	aneu;+1*1;+1*7;+1*9;+1*11;	heterozygous	85,367	74.2	16	195	8. Mixed origin 		Culture collection of Yeast (Renata Vadkertiova)	
+576	OS_665	CCY_21-4-88	BBC	Fruitbody of mushroom Xerocomus badius (Fr.) Gilb.	Fruit	Laksarska Nova Ves, Slovakia	no	B	63	3	aneu;+1*7;	heterozygous	83,317	71.0	31	320	8. Mixed origin 		Culture collection of Yeast (Renata Vadkertiova)	
+577	OS_620	SJ5L13	AMN	Leaf of Wendlandia formosana	Tree	Tuchih, Nantou, Taiwan	no	B	29	4	euploid	heterozygous	92,215	77.6	47	253	8. Mixed origin 		National Hsinchu University of Education (Ching-Fu Lee)	25
+578	OS_1636	3.4_Safbrew_T-58	CFP	Carlsberg Beer	Beer	NA	no	B	110	4	euploid	heterozygous	93,432	78.5	6	225	8. Mixed origin 		Carlsberg	
+579	OS_668	CCY_21-4-102	BBF	River water (Danube)	Water	Bratislava, Slovakia	no	B	71	2	euploid	heterozygous	68,837	49.6	35	227	8. Mixed origin 		Culture collection of Yeast (Renata Vadkertiova)	
+580	OS_761	CLIB326_1	AAP	Bakery	Bakery	Australia	no	B	36	2	euploid	heterozygous	68,539	51.0	19	197	8. Mixed origin 		CLIB collection	1
+581	OS_581	21-4-103	ALN	River water (Morava)	Water	Bratislava, Deninska Nova Ves, Slovakia	no	B	23	2	euploid	heterozygous	71,303	53.9	23	218	8. Mixed origin 		Culture collection of Yeast (Renata Vadkertiova)	
+582	OS_582	21-4-105	ALP	River water Morava	Water	Bratislava, Deninska Nova Ves, Slovakia	no	B	24	2	aneu;+1*9;	heterozygous	69,838	51.0	12	223	8. Mixed origin 		Culture collection of Yeast (Renata Vadkertiova)	
+583	OS_666	CCY_21-4-97	BBD	Fish pond water	Water	Jakubov, Slovakia	no	B	49	2	aneu;+1*8;	heterozygous	69,389	52.0	25	310	8. Mixed origin 		Culture collection of Yeast (Renata Vadkertiova)	
+584	OS_667	CCY_21-4-98	BBE	Sediment of fresh water lake	Water	Jakubov, Slovakia	no	B	106	2	aneu;+1*8;	heterozygous	67,543	48.0	22	302	8. Mixed origin 		Culture collection of Yeast (Renata Vadkertiova)	
+585	OS_760	CLIB274_1	AAN	Bakery	Bakery	Czech Republic	no	B	35	2	aneu;-1*3;	heterozygous	70,294	54.1	15	189	8. Mixed origin 		CLIB collection	1
+586	OS_1659	646-3B	CHI	Bakery	Bakery	USA	no	B	23	2	euploid	heterozygous	70,916	56.1	21	177	8. Mixed origin 	yes	INRA Moulon, France (Sicard D.)	
+587	OS_264	YS11(E)	APL	type yeasts of the species Saccharomyces cerevisiae in different sugar media, Letters in Applied Microbiology 2001	Bakery	Turkey	no	B	16	2	euploid	heterozygous	69,856	56.1	39	204	8. Mixed origin 		Macquarie University (Philip Bell)	18
+588	OS_713	CBS6216	AEV	Tapwater	Water	Rotterdam, Netherlands	no	B	29	2	aneu;+1*7;	heterozygous	68,065	47.0	33	228	8. Mixed origin 		CBS collection	
+589	OS_1630	2.6_Windsor_British	CFI	Carlsberg Beer	Beer	UK	no	B	103	4	aneu;+1*9;	heterozygous	94,571	77.7	28	253	8. Mixed origin 		Carlsberg	
+590	OS_1635	3.3_Safale_S-33	CFN	Carlsberg Beer	Beer	NA	no	B	100	4	aneu;+1*2;+1*9;	heterozygous	95,047	77.6	33	277	8. Mixed origin 		Carlsberg	
+591	OS_1660	Win-8B	CHK	Brewery	Beer	UK	no	B	38	2	aneu;+1*9;	heterozygous	71,262	54.1	13	212	8. Mixed origin 	yes	INRA Moulon, France (Sicard D.)	
+592	OS_1658	319-5C	CHH	Bakery	Bakery	France	no	B	10	2	aneu;+1*7;	heterozygous	68,402	52.3	102	150	8. Mixed origin 	yes	INRA Moulon, France (Sicard D.)	
+593	OS_682	CLIB318_1	ADL	Bakery	Bakery	Netherlands	no	B	33	2	aneu;+1*1;+1*6;+1*9;+1*11;	heterozygous	75,765	59.2	15	216	8. Mixed origin 		CLIB collection	1
+594	OS_1065	CLQCA_10-386	BDL	Beer	Beer	Equador	no	B	9	2	euploid	heterozygous	73,045	53.7	29	240	8. Mixed origin 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+595	OS_1456	EXF-6835	BFM	Petrol station, oil contaminated asphalt	Industrial	Slovenia	no	B	141	4	aneu;-1*13;-1*16;	heterozygous	86,428	77.5	19	77	8. Mixed origin 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+596	OS_1449	EXF-5734	BFE	Spoiled gooseberry juice	Industrial	NA	no	B	127	4	aneu;-1*14;	heterozygous	96,517	78.0	6	270	8. Mixed origin 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+597	OS_1451	EXF-5869	BFG	Rotten wood	Nature	NA	no	B	103	4	euploid	heterozygous	96,580	78.6	11	199	8. Mixed origin 		University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+598	OS_260	YS5(E)	BTD	type yeasts of the species Saccharomyces cerevisiae in different sugar media, Letters in Applied Microbiology 2001	Bakery	NA	no	B	35	4	aneu;+1*10;	heterozygous	91,744	79.0	42	90	8. Mixed origin 		Macquarie University (Philip Bell)	18
+599	OS_683	CLIB324_2	ADM	Bakery	Bakery	Vietnam	no	B	69	2	euploid	heterozygous	72,819	54.8	34	298	8. Mixed origin 		CLIB collection	1
+600	OS_595	CLQCA_10-003	AKT	Stingless bee	Insect	Pichincha, Ecuador	no	A	18	2	euploid	heterozygous	71,777	55.7	58	186	8. Mixed origin 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+601	OS_1657	324-6C	CHG	Bakery	Bakery	Vietnam	no	B	57	2	euploid	heterozygous	70,009	53.5	44	225	8. Mixed origin 	yes	INRA Moulon, France (Sicard D.)	
+602	OS_1513	SC 29 F. Dromer IP	CHR	Vagina	Human, clinical	France	no	A	52	2	euploid	heterozygous	73,587	56.4	10	212	8. Mixed origin 		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+603	OS_309	NCYC_2780	BML	Vagina	Human, clinical	Belgium	no	B	19	4	aneu;-1*3;+1*6;-1*7;-1*10;	heterozygous	92,767	76.9	57	328	8. Mixed origin 		National Collection of Yeast Cultures (NCYC)(Stephen A James and Ian Roberts)	
+604	OS_261	YS8(E)	BTE	type yeasts of the species Saccharomyces cerevisiae in different sugar media, Letters in Applied Microbiology 2001	Bakery	NA	no	B	38	4	euploid	heterozygous	97,345	80.4	27	282	8. Mixed origin 		Macquarie University (Philip Bell)	18
+605	OS_880	2680	BMM	Vagina	Human, clinical	Vall d'Hebron hospital, Barcelona, Spain	no	A	20	4	aneu;-1*1;-1*6;+1*7;-1*9;+1*13;+1*15;	heterozygous	96,513	80.4	11	220	8. Mixed origin 		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+606	OS_1350	SD-15	CBF	Sourdough levan	Bakery	Matera, Italy	no	A	158	4	aneu;+1*9;	heterozygous	97,515	80.8	13	232	8. Mixed origin 		University of Basilicata (Angela Capece and Patrizia Romano)	
+607	OS_1545	malade 98 3312	CKK	Feces, clinical	Human, clinical	Amiens, France	no	A	96	4	euploid	heterozygous	95,578	80.8	13	155	8. Mixed origin 		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+608	OS_1552	malade Berchid	CKS	Unknown	Human, clinical	France	no	B	132	4	aneu;+1*15;-1*16;	heterozygous	95,106	79.0	15	236	8. Mixed origin 		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+609	OS_1555	malade Moreau	CLA	Unknown	Human, clinical	France	no	B	142	4	aneu;-1*14;	heterozygous	95,895	80.5	18	195	8. Mixed origin 		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+610	OS_1710	YJM1326	SACE_YBW	Unknown	Human, clinical	Minnesota, USA	no	A	55	2	euploid	homozygous	52,705	0.0	156	567			Phaff collection	2
+611	OS_1488	LCBG-3D6	CPI	Agave spp. fermentation during rustic mezcal production	Distillery	Tamaulipas, Mexico	no	Spar	8	2	euploid	heterozygous	74,644	22.3	653	252	9. Mexican agave 		Instituto Politecnico Nacional - Centro de Biotecnologia Genomica (Claudia Patricia Larralde Corona)	19
+612	OS_1491	LCBG-3D2	CPM	Agave spp. fermentation during rustic mezcal production	Distillery	Tamaulipas, Mexico	no	none	0	2	euploid	heterozygous	73,782	21.5	583	234	9. Mexican agave 		Instituto Politecnico Nacional - Centro de Biotecnologia Genomica (Claudia Patricia Larralde Corona)	19
+613	OS_1489	LCBG-Mosca3	CPK	Agave spp. fermentation during rustic mezcal production	Distillery	Tamaulipas, Mexico	no	A	27	2	euploid	heterozygous	71,788	22.3	53	131	9. Mexican agave 		Instituto Politecnico Nacional - Centro de Biotecnologia Genomica (Claudia Patricia Larralde Corona)	
+614	OS_1490	LCBG-4Y3	CPL	Agave spp. fermentation during rustic mezcal production	Distillery	Tamaulipas, Mexico	no	A	16	2	euploid	heterozygous	73,971	23.0	256	248	9. Mexican agave 		Instituto Politecnico Nacional - Centro de Biotecnologia Genomica (Claudia Patricia Larralde Corona)	
+615	OS_1494	LCBG-3D4	CPQ	Agave spp. fermentation during rustic mezcal production	Distillery	Tamaulipas, Mexico	no	A	20	2	aneu;+1*11;	heterozygous	74,034	24.7	445	195	9. Mexican agave 		Instituto Politecnico Nacional - Centro de Biotecnologia Genomica (Claudia Patricia Larralde Corona)	
+616	OS_1492	LCBG-3Y3	CPN	Agave spp. fermentation during rustic mezcal production	Distillery	Tamaulipas, Mexico	no	A	9	2	euploid	heterozygous	75,247	25.5	199	183	9. Mexican agave 		Instituto Politecnico Nacional - Centro de Biotecnologia Genomica (Claudia Patricia Larralde Corona)	19
+617	OS_1495	LCBG-3Y8	CPR	Agave spp. fermentation during rustic mezcal production	Distillery	Tamaulipas, Mexico	no	A	14	2	aneu;+1*12;	heterozygous	75,527	25.9	242	211	9. Mexican agave 		Instituto Politecnico Nacional - Centro de Biotecnologia Genomica (Claudia Patricia Larralde Corona)	19
+618	OS_605	CLQCA_20-060	ALI	Water in leaf with organic matter	Water	Yasuni National Park, Orellana, Ecuador	no	Spar	8	2	euploid	heterozygous	86,950	18.6	9,326	210			National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+619	OS_893	HE008	BCG	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	84,266	10.3	417	230	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+620	OS_888	HE001	BCB	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	83,898	11.1	366	218	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+621	OS_898	HE013	BCM	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	82,798	8.5	257	207	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+622	OS_1072	CEY619	BDT	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	83,991	10.1	202	223	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+623	OS_892	HE007	BCF	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	83,879	9.6	286	224	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+624	OS_897	HE012	BCL	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	83,806	8.6	127	230	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+625	OS_890	HE005	BCD	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	85,291	12.3	119	233	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+626	OS_1068	CEY615	BDP	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	84,072	9.0	174	277	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+627	OS_895	HE010	BCI	Human feces	Human	French Guiana	no	none	0	2	aneu;+1*4;	heterozygous	84,562	11.3	300	217	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+628	OS_889	HE004	BCC	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	82,839	11.1	83	112	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+629	OS_1076	CEY623	BEC	Human feces	Human	French Guiana	no	none	0	2	aneu;+1*12;	heterozygous	83,878	9.0	123	223	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+630	OS_1077	CEY624	BED	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	84,956	12.0	150	217	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+631	OS_891	HE006	BCE	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	83,514	8.8	193	190	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+632	OS_901	HE020	BCQ	Human	Human	French Guiana	no	none	0	2	euploid	heterozygous	83,686	9.0	147	226	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+633	OS_1073	CEY620	BDV	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	84,027	9.8	140	228	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+634	OS_1104	CEY651	BNB	Fruits	Fruit	French Guiana	no	none	0	2	euploid	heterozygous	85,700	11.4	127	284	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+635	OS_1070	CEY617	BDR	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	82,774	8.3	304	189	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+636	OS_1102	CEY649	BMV	Agouti paca (RO)	Nature	French Guiana	no	none	0	2	euploid	heterozygous	83,933	9.1	101	300	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+637	OS_1103	CEY650	BNA	Agouti paca (RO)	Nature	French Guiana	no	none	0	2	euploid	heterozygous	84,173	10.3	147	297	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+638	OS_894	HE009	BCH	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	83,906	9.7	288	242	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+639	OS_900	HE016	BCP	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	83,189	9.3	95	192	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+640	OS_1071	CEY618	BDS	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	84,136	11.2	125	196	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+641	OS_899	HE015	BCN	Human feces	Human	French Guiana	no	none	0	1	euploid	homozygous	79,777	0.0	45	213	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+642	OS_1074	CEY621	BEA	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	83,253	8.2	115	186	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+643	OS_1105	CEY652	BNC	Fruits	Fruit	French Guiana	no	none	0	2	euploid	heterozygous	83,874	7.5	317	334	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+644	OS_1069	CEY616	BDQ	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	85,618	12.8	671	213	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+645	OS_1075	CEY622	BEB	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	85,611	11.6	655	307	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+646	OS_896	HE011	BCK	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	84,931	11.4	445	238	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+647	OS_1099	CEY646	BMR	Chicken	Nature	French Guiana	no	none	0	2	euploid	heterozygous	82,826	6.6	245	291	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+648	OS_1078	CEY625	BEE	Human feces	Human	French Guiana	no	none	0	2	euploid	heterozygous	84,594	11.1	429	241	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+649	OS_1106	CEY653	BND	Fruits	Fruit	French Guiana	no	none	0	2	euploid	heterozygous	82,589	6.0	300	189	10. French Guiana human 		Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	20
+650	OS_1100_2	CEY647	CQS	Molossus molossus (bat)	Nature	French Guiana	no	none	0	2	euploid	homozygous	80,676	0.0	19,508	243			Institut Pasteur (Christophe d'Enfert and Marie-Elisabeth Bougnoux)	
+651	OS_865	908	BBM	Raicilla (Mexican distilled spirit)	Distillery	Jalisco, Mexico	no	Spar	30	2	euploid	homozygous	79,266	0.0	3,874	279			Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+652	OS_864	906	CPA	Must from various Agave sp. 	Nature	Mexico	no	A	13	2	euploid	heterozygous	83,678	21.3	4,762	299			Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+653	OS_680	PW5_b	ADE	Raphia palm wine	Palm wine	Aba, Abia State, Nigeria	yes	none	0	1	euploid	homozygous	74,022	0.0	2,686	261			Kruglyak Laboratory	1
+654	OS_1724	YJM1399	SACE_YCL	Wild cherry tree	Tree	NA	no	none	0	2	euploid	homozygous	46,357	0.0	867	88			Phaff collection	2
+655	OS_1709	YJM1311	SACE_YBV	Unknown	Human, clinical	Michigan, USA	no	B	77	2	euploid	homozygous	50,816	0.0	408	282			Phaff collection	2
+656	OS_1692	YJM693	SACE_YAX	Unknown	Human, clinical	Texas, USA	no	none	0	2	euploid	homozygous	49,810	0.0	683	40			Phaff collection	2
+657	OS_1720	YJM1385	SACE_YCG	Sugar refinery	Industrial	Maryland, USA	no	none	0	2	euploid	homozygous	51,737	0.0	1,115	185			Phaff collection	2
+658	OS_745	CBS1388a	AAH	Unknown	Unknown	NA	yes	A	1	1	euploid	homozygous	52,600	0.0	780	264			CBS collection (Nguyen H.V.)	
+659	OS_727	CBS1173	AFS	Fruit ilex	Fruit	NA	no	none	0	2	aneu;-1*2;-1*3;-1*4;-1*6;-1*9;-1*10;-1*11;-1*15;-1*16;	heterozygous	58,552	18.4	1,314	237			CBS collection (Nguyen H.V.)	
+660	OS_825	CBS2444	AGC	Distillery	Distillery	Seagrams distillery, Louisville, Kentucky	yes	A	17	1	aneu;+1*1;+1*5;+1*10;+1*11;	heterozygous	50,356	10.2	499	85			CBS collection (Nguyen H.V.)	
+661	OS_1625	4.5_WLP530	CFC	Carlsberg Beer, Abbey ale yeast (Westmalle brewery)	Beer	Westmalle, Belgium	no	A	85	4	aneu;-1*12;	heterozygous	84,295	68.9	2,228	216	11. Ale beer 		Carlsberg	
+662	OS_730	CBS6308	AGB	Brewer yeast, Yorkshire type	Beer	South Yorkshire, UK	no	A	111	2	euploid	heterozygous	57,000	40.9	437	60	11. Ale beer 		CBS collection (Nguyen H.V.)	
+663	OS_1431	CECT1462	ATV	Beer	Beer	UK	no	A	153	4	euploid	heterozygous	79,605	63.4	2,043	88	11. Ale beer 		CECT collection	
+664	OS_703	CBS2165a	AAC	Brewers	Beer	England	no	A	14	2	euploid	heterozygous	66,697	38.0	1,966	271	11. Ale beer 		CBS collection (Nguyen H.V.)	
+665	OS_1468	NCYC_1187	CBR	Ale strain	Beer	UK	no	A	168	4	euploid	heterozygous	83,141	63.9	80	150	11. Ale beer 		National Collection of Yeast Cultures (NCYC)(Stephen A James and Ian Roberts)	
+666	OS_1629	1.6_Safale_S40	CFG	Carlsberg Beer	Beer	UK	no	A	106	4	aneu;-1*6;	heterozygous	84,065	63.6	196	276	11. Ale beer 		Carlsberg	
+667	OS_1631	Nottingham_ale_1.8_Lallemand	CFH	Carlsberg Beer	Beer	UK	no	A	119	4	aneu;-1*1;-1*7;	heterozygous	83,187	64.1	413	222	11. Ale beer 		Carlsberg	
+668	OS_816	CBS1248	AEC	Brewers yeast	Beer	NA	no	A	23	Xn	NA	heterozygous	78,687	59.1	1,961	111	11. Ale beer 		CBS collection (Nguyen H.V.)	
+669	OS_1626	1.3_Safale_US05	CFD	Carlsberg Beer, American Ale yeast	Beer	USA	no	A	63	4	aneu;-1*1;-1*5;+1*6;-1*12;	heterozygous	74,644	50.3	343	190	11. Ale beer 		Carlsberg	
+670	OS_1634	5.5_WLP090	CFM	Carlsberg Beer, San Diego Super Yeast	Beer	San Diego, USA	no	A	70	4	aneu;-1*1;-1*5;-1*9;	heterozygous	75,244	51.3	502	258	11. Ale beer 		Carlsberg	
+671	OS_1374	CBS1230	AQT	Beer	Beer	Belgium	no	A	109	3	aneu;+1*6;	heterozygous	69,879	44.4	1,314	232	11. Ale beer 		CBS collection	
+672	OS_1291	DBVPG6694	BRP	Artois Peterman beer	Beer	Belgium	no	A	60	4	aneu;+1*1;-1*3;	heterozygous	78,549	57.6	481	302	11. Ale beer 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+673	OS_50	DBVPG6693	BSI	Beer	Beer	Belgium	no	A	176	4	aneu;+1*1;+1*9;-1*14;	heterozygous	74,184	52.7	263	259	11. Ale beer 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+674	OS_815	CBS1171	AEB	Brewers top yeast	Beer	Oranjeboom brewery, Rotterdam, Netherlands	no	A	112	4	aneu;+1*1;+1*2;+1*15;	heterozygous	74,793	52.0	137	212	11. Ale beer 		CBS collection (Nguyen H.V.)	
+675	OS_1402	CLIB227	ASH	Beer holland	Beer	Netherlands	no	A	122	4	aneu;-1*1;-1*5;-1*7;-1*8;+1*9;-1*14;+1*16;	heterozygous	71,496	48.7	34	149	11. Ale beer 		CLIB collection (Serge Casaregola)	
+676	OS_669	CCY_21-4-106	BBG	River water (Morava)	Water	Devinska Nova Ves, Slovakia	no	A	184	4	aneu;-1*1;-1*6;-1*8;-1*10;-1*14;-1*16;	heterozygous	71,763	47.7	78	230	11. Ale beer 		Culture collection of Yeast (Renata Vadkertiova)	
+677	OS_1292	DBVPG6695	BRQ	Orval Trappist beer	Beer	Belgium	no	A	110	4	aneu;-1*1;-1*5;+2*9;-1*10;+1*13;	heterozygous	75,749	54.5	296	331	11. Ale beer 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+678	OS_1565	UCD_06-645	CGC	Female olive fly, surface sterilized, smashed, plated on RBCA	Fruit	Davis, CA, UCD	no	A	135	4	euploid	heterozygous	79,147	59.0	387	302	11. Ale beer 		Phaff collection	
+679	OS_642	SM8.3.M5	CNC	Bioethanol	Bioethanol	Brazil	no	B	124	2	euploid	heterozygous	70,376	54.4	1,529	217	M3. Mosaic region 3 		IBB-Unesp (Ana Teresa B. F. Antonangelo )	13
+680	OS_883	2720	BMQ	Blood	Human, clinical	La Fe Hospital,Valencia, Spain	no	B	11	2	aneu;+1*1;+1*6;+1*7;+1*9;+1*11;+1*12;+1*13;	heterozygous	53,504	65.6	1,844	58	M3. Mosaic region 3 		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+681	OS_794	YJM269_1b	ACN	Red Blauer Portugieser grapes	Wine	Austria	yes	A	23	1	euploid	homozygous	23,030	0.0	19	191	M3. Mosaic region 3 		Kruglyak Laboratory	1
+682	OS_1462	1	CBK	Chalcidoidea  	Insect	Schleswig-Holstein	no	A	35	1	euploid	homozygous	29,204	2.3	3	233	M3. Mosaic region 3 		Max Planck Institute for Evolutionary Biology (Duncan Greig)	
+683	OS_1463	2	CBL	Chalcidoidea  	Insect	Schleswig-Holstein	no	A	13	2	euploid	heterozygous	62,006	91.1	7	189	M3. Mosaic region 3 		Max Planck Institute for Evolutionary Biology (Duncan Greig)	
+684	OS_60	DBVPG6044	AKI	Bili wine	Wine	West Africa	no	A	12	2	euploid	homozygous	61,663	0.0	8	175	M3. Mosaic region 3 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+685	OS_801	Y55_1b	ADA	Wine	Wine	France	yes	A	19	1	euploid	homozygous	62,285	0.0	5	267	M3. Mosaic region 3 		Kruglyak Laboratory	1
+686	OS_1418	YJM627	ATE	Seg. Y55	Unknown	France	no	A	91	2	euploid	homozygous	62,289	0.0	2	256	M3. Mosaic region 3		Washington University School of Medicine (Justin C Fay)	5
+687	OS_1464	3	CBM	Chalcidoidea  	Insect	Forest of Nehmten in Schleswig-Holstein	no	A	12	2	euploid	heterozygous	62,734	87.9	13	250	M3. Mosaic region 3		Max Planck Institute for Evolutionary Biology (Duncan Greig)	
+688	OS_783	EM93_3	ACA	Rotting fig	Fruit	California, USA	yes	A	21	1	euploid	homozygous	25,551	0.0	0	230	M3. Mosaic region 3		Kruglyak Laboratory	1
+689	OS_784	TL229S2.2	ACB	Cheese	Dairy	France	yes	A	21	1	euploid	homozygous	25,605	0.0	5	249	M3. Mosaic region 3		Kruglyak Laboratory	1
+690	OS_1288	DBVPG6350	BRL	UC Berkeley	Unknown	USA	no	A	7	1	aneu;+1*11;	homozygous	17,881	4.4	132	184	M3. Mosaic region 3		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+691	OS_812	CBS7765	ADT	Salmo gairdneri (rainbow trout)	Nature	Sweden, Goteborg	yes	A	1	1	euploid	homozygous	100	0.0	12	267	M3. Mosaic region 3		CBS collection (Nguyen H.V.)	
+692	OS_836	W303	SACE_GAV	Lab strain	Lab strain	NA	no	A	57	2	euploid	homozygous	7,951	0.0	16	19	M3. Mosaic region 3		EUROFAN	6
+693	OS_1718	YJM1381	SACE_YCE	Rum fermentation	Distillery	Trinidad	no	B	85	2	euploid	homozygous	50,506	0.0	1,122	316	M3. Mosaic region 3		Phaff collection	2
+694	OS_1721	YJM1386	SACE_YCH	Sugar cane	Nature	Jamaica	no	B	49	2	euploid	homozygous	53,201	0.0	585	45	M3. Mosaic region 3		Phaff collection	2
+695	OS_290	NCYC_2966	CLG	Feces	Human, clinical	Nottingham, UK	no	B	6	2	euploid	heterozygous	71,760	57.2	1,806	268	M3. Mosaic region 3		National Collection of Yeast Cultures (NCYC)(Stephen A James and Ian Roberts)	
+696	OS_1501	MTF2546	CQC	Cocoa bean fermentation	Fermentation	West Africa	no	none	0	2	euploid	heterozygous	60,620	21.9	10	259	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+697	OS_1502	MTF2547	CQD	Cocoa bean fermentation	Fermentation	West Africa	no	none	0	2	euploid	heterozygous	60,680	21.9	10	281	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+698	OS_1505	MTF2550	CQG	Cocoa bean fermentation	Fermentation	West Africa	no	A	6	2	euploid	heterozygous	67,960	21.4	587	231	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+699	OS_1507	MTF2552	CQI	Cocoa bean fermentation	Fermentation	West Africa	no	A	6	2	euploid	heterozygous	69,228	26.8	782	268	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+700	OS_1506	MTF2551	CQH	Cocoa bean fermentation	Fermentation	West Africa	no	none	0	2	euploid	heterozygous	64,122	31.5	20	254	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+701	OS_1509	MTF2554	CQL	Cocoa bean fermentation	Fermentation	West Africa	no	none	0	2	euploid	heterozygous	65,042	34.7	5	215	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+702	OS_228	AY529516	ANN	Cocoa bean fermentation	Fermentation	Ghana	no	none	0	2	euploid	heterozygous	64,415	36.5	1	207	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+703	OS_1510	MTF2555	CQM	Cocoa bean fermentation	Fermentation	West Africa	no	none	0	2	euploid	heterozygous	64,947	36.4	6	272	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+704	OS_1503	MTF2548	CQE	Cocoa bean fermentation	Fermentation	West Africa	no	none	0	2	euploid	heterozygous	63,365	33.1	9	215	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+705	OS_1508	MTF2553	CQK	Cocoa bean fermentation	Fermentation	West Africa	no	none	0	2	euploid	heterozygous	60,388	24.4	25	298	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+706	OS_1504	MTF2549	CQF	Cocoa bean fermentation	Fermentation	West Africa	no	none	0	2	euploid	heterozygous	60,318	22.5	31	266	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+707	OS_1511	MTF2556	CQN	Cocoa bean fermentation	Fermentation	West Africa	no	none	0	2	euploid	heterozygous	61,386	27.4	22	222	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+708	OS_1512	MTF2557	CQP	Cocoa bean fermentation	Fermentation	West Africa	no	none	0	2	euploid	heterozygous	60,014	20.7	234	286	12. West African cocoa 		The Royal Veterinary and Agricultural University (Lene Jespersen)	21
+709	OS_592	CLQCA_04-021	AKQ	Beetle	Insect	Los Rios, Ecuador	no	none	0	2	euploid	homozygous	52,138	0.0	464	224	M3. Mosaic region 3 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+710	OS_594	CLQCA_09-001	AKS	Flower (Opuntia sp.)	Flower	Imbabura, Ecuador	no	A	8	2	euploid	homozygous	55,664	0.0	219	207	M3. Mosaic region 3 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+711	OS_603	CLQCA_18-003	ALG	Cocoa fruit	Fruit	Sucumbios, Ecuador	no	none	0	2	euploid	homozygous	51,601	0.0	243	226	M3. Mosaic region 3 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+712	OS_773	YJM454_1b	ABH	Human, clinical 	Human, clinical	NA	yes	A	19	1	euploid	homozygous	53,845	0.0	77	183	M3. Mosaic region 3 		Kruglyak Laboratory	1
+713	OS_1684	YJM456	SACE_YAN	Unknown	Human, clinical	California, USA	no	A	103	2	euploid	homozygous	42,954	0.0	4	108	M3. Mosaic region 3 		Phaff collection	2
+714	OS_1713	YJM1338	SACE_YBZ	Sour fig	Fruit	Maryland, USA	no	A	50	2	euploid	homozygous	54,838	0.0	92	208	M3. Mosaic region 3 		Phaff collection	2
+715	OS_384	ZP_611	BTI	Quercus robur	Tree	Canada, Vancouver,	no	A	5	2	euploid	homozygous	58,106	0.0	329	315	M3. Mosaic region 3 		Faculdade de Ciencias e Tecnologia of Universidade NOVA de Lisboa (FCT-NOVA)(Jose Paulo Sampaio)	
+716	OS_1564	UCD_05-780	CGB	Beetle from infested Prunus bokhariensis, walk plate on RBCA.  No mold on plate.  Prunus bokhariensis Type Botanky E-1-18	Insect	Winters, CA Wolfskill USDA Prunus germplasm collection, 	no	A	78	2	euploid	homozygous	53,627	0.0	30	211	M3. Mosaic region 3		Phaff collection (?)	
+717	NA	YJM1527	SACE_YDG	Prune	Fruit	California, USA	no	A	110	2	euploid	homozygous	46,033	0.0	7	65	M3. Mosaic region 3			2
+718	OS_774	YJM653_1b	ABI	Brochoalveolar lavage	Human, clinical	USA	yes	B	29	1	euploid	homozygous	51,490	0.0	113	208	M3. Mosaic region 3		Kruglyak Laboratory	1
+719	OS_1688	YJM681	SACE_YAT	Unknown	Human, clinical	California, USA	no	B	90	2	euploid	homozygous	51,525	0.0	134	44	M3. Mosaic region 3		Phaff collection	2
+720	OS_157	D3742	BSK	Spoiled ice tea	Unknown	France	no	B	29	2	euploid	heterozygous	65,669	45.4	596	250	M3. Mosaic region 3		National Collection of Yeast Cultures (NCYC)(Stephen A James and Ian Roberts)	
+721	OS_283	384103A	BMD	Human	Human	RVI Newcastle, UK	no	B	21	2	euploid	heterozygous	70,978	58.9	643	285	M3. Mosaic region 3		National Collection of Yeast Cultures (NCYC)(Stephen A James, Donald Mackenzie and Ian Roberts)	
+722	OS_766	YJM320b	AAV	Blood	Human, clinical	California, USA	yes	B	22	1	euploid	homozygous	50,886	0.0	1	188	M3. Mosaic region 3		Kruglyak Laboratory	1
+723	OS_1296	DBVPG6874	BRV	Human	Human, clinical	USA 	no	B	22	2	euploid	heterozygous	65,653	39.7	51	277	M3. Mosaic region 3		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+724	OS_1685	YJM541	SACE_YAP	Unknown	Human, clinical	California, USA	no	B	85	2	aneu;+1*9;	homozygous	52,869	0.0	13	73	M3. Mosaic region 3		Phaff collection	2
+725	OS_1686	YJM554	SACE_YAQ	Unknown	Human, clinical	California, USA	no	B	59	2	euploid	homozygous	53,947	0.0	22	69	M3. Mosaic region 3		Phaff collection	2
+726	OS_1687	YJM555	SACE_YAR	Unknown	Human, clinical	California, USA	no	B	42	2	euploid	homozygous	50,682	0.0	130	131	M3. Mosaic region 3		Phaff collection	2
+727	OS_775	YJM678_1b	ABK	Unknown	Human, clinical	NA	yes	none	0	1	euploid	homozygous	49,537	0.0	29	202	M3. Mosaic region 3		Kruglyak Laboratory	1
+728	OS_1689	YJM682	SACE_YAU	Unknown	Human, clinical	Texas, USA	no	B	74	2	euploid	homozygous	49,259	0.0	18	67	M3. Mosaic region 3		Phaff collection	2
+729	OS_767	YJM326_b	ABA	Human, clinical 	Human, clinical	California, USA	yes	B	25	1	euploid	homozygous	50,836	0.0	35	217	M3. Mosaic region 3		Kruglyak Laboratory	1
+730	OS_1690	YJM683	SACE_YAV	Unknown	Human, clinical	Texas, USA	no	none	0	2	euploid	homozygous	51,208	0.0	45	106	M3. Mosaic region 3		Phaff collection	2
+731	OS_764	YJM145_b	AAS	AIDS patient	Human, clinical	USA	yes	A	37	1	euploid	homozygous	52,302	0.0	145	177	M3. Mosaic region 3		Kruglyak Laboratory	1
+732	OS_765	YJM280_b	AAT	Peritoneal fluid	Human, clinical	USA	yes	B	24	1	aneu;+1*1;	homozygous	53,723	0.0	207	201	M3. Mosaic region 3		Kruglyak Laboratory	1
+733	OS_772	YJM440_1b	ABG	Human, clinical 	Human, clinical	NA	yes	A	29	1	euploid	homozygous	53,538	0.0	128	177	M3. Mosaic region 3		Kruglyak Laboratory	1
+734	OS_1682	YJM450	SACE_YAK	Unknown	Human, clinical	California, USA	no	A	62	2	euploid	homozygous	53,367	0.0	143	153	M3. Mosaic region 3		Phaff collection	2
+735	OS_1606	ATCC_38618:2-2	CEN	Concentrated orange juice	Fruit	NA	no	B	212	2	aneu;+1*11;+1*13;	heterozygous	51,817	0.1	141	199	M3. Mosaic region 3		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+736	OS_1691	YJM689	SACE_YAW	Unknown	Human, clinical	Texas, USA	no	none	0	2	euploid	homozygous	49,427	0.0	251	36	M3. Mosaic region 3		Phaff collection	2
+737	OS_1701	YJM1190	SACE_YBJ	Unknown	Human, clinical	Michigan, USA	no	B	87	2	euploid	homozygous	38,681	0.0	100	31	M3. Mosaic region 3		Phaff collection	2
+738	OS_1702	YJM1199	SACE_YBK	Unknown	Human, clinical	Michigan, USA	no	B	101	2	euploid	homozygous	54,843	0.0	79	42	M3. Mosaic region 3		Phaff collection	2
+739	OS_1703	YJM1202	SACE_YBL	Unknown	Human, clinical	Michigan, USA	no	B	79	2	euploid	homozygous	54,837	0.0	178	455	M3. Mosaic region 3		Phaff collection	2
+740	OS_1707	YJM1304	SACE_YBT	Unknown	Human, clinical	Texas, USA	no	B	104	2	euploid	homozygous	54,208	0.0	306	526	M3. Mosaic region 3		Phaff collection	2
+741	OS_681	CLIB208_1	ADK	Bakery	Bakery	Shanaong, China	no	A	70	2	aneu;-1*9;	heterozygous	63,171	41.2	1,957	224	M3. Mosaic region 3		CLIB collection	1
+742	OS_698	378604X	SACE_MAB	Clinical sputum	Human, clinical	Newcastle, UK	no	B	17	2	euploid	homozygous	47,666	0.0	596	46	M3. Mosaic region 3			17
+743	OS_1536	malade 3285/11-2-4	CKA	Bronchoalveolar lavage (therapy isolate)	Human, clinical	Paris, France, H3	no	A	1	2	euploid	heterozygous	62,400	43.5	650	183	M3. Mosaic region 3		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+744	OS_735	CBS1544	AGP	Juice	Fruit	Netherlands	yes	none	0	1	aneu;+1*1;+1*9;	heterozygous	51,572	4.9	159	287	M3. Mosaic region 3		CBS collection (Nguyen H.V.)	
+745	NA	YJM1549	SACE_YDH	Fermenting fruit juice	Fermentation	Netherlands	no	none	0	2	aneu;+1*1;+1*6;+1*11;	homozygous	49,737	0.0	152	233	M3. Mosaic region 3			2
+746	OS_1514	SC 32 F. Dromer IP	CHS	Feces	Human, clinical	France	no	B	122	2	euploid	heterozygous	60,498	37.5	5	221	M3. Mosaic region 3		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+747	OS_1515	SC 33 F. Dromer IP	CHT	Feces	Human, clinical	France	no	B	88	2	euploid	heterozygous	61,535	38.4	31	286	M3. Mosaic region 3		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+748	OS_769	YJM428_1b	ABD	Paracenteis fluid	Human, clinical	California, USA	no	B	36	2	aneu;+2*16;	homozygous	49,343	0.0	7	206	M3. Mosaic region 3		Kruglyak Laboratory	1
+749	OS_1416	YJM308	ATC	Clinical	Human, clinical	NA	no	B	107	2	aneu;+1*11;	heterozygous	64,818	53.2	217	200	M3. Mosaic region 3		Washington University School of Medicine (Justin C Fay)	5
+750	OS_1417	YJM339	ATD	Clinical	Human, clinical	NA	no	B	115	2	euploid	homozygous	50,732	0.0	247	201	M3. Mosaic region 3		Washington University School of Medicine (Justin C Fay)	5
+751	OS_52	DBVPG6696	ANA	Banana wine	Wine	Burundi	no	none	0	2	aneu;+1*12;	heterozygous	63,774	7.3	4,652	247	M3. Mosaic region 3		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+752	OS_673	IMB-53	BBL	Beetle Mimela aurata (Coleoptera, Rutelinae)	Insect	Platanus orientalis forest, in Belasista Mountain, near Kamena Village in Bulgaria	no	none	0	2	aneu;+1*5;+1*8;+1*9;+1*12;+1*14;	homozygous	62,200	0.0	3,333	296	M3. Mosaic region 3		Bulgarian Academy of Science (Dilnora Gouliamova)	
+753	OS_1579	N37-1A	CDC	Exudate of Quercus robur	Tree	Botanical Garden, Novosibirsk, Siberia, Russia	no	none	0	2	aneu;-1*5;	homozygous	63,582	0.0	803	234	M3. Mosaic region 3		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+754	OS_1580	N38-4A	CDD	Exudate of Quercus robur	Tree	Botanical Garden, Novosibirsk, Siberia, Russia	no	none	0	2	euploid	homozygous	63,187	0.0	227	221	M3. Mosaic region 3		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+755	OS_1581	N39-7A	CDE	Exudate of Quercus robur	Tree	Novosibirsk, Siberia, Russia	no	none	0	2	euploid	homozygous	63,268	0.0	278	202	M3. Mosaic region 3		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+756	OS_868	997	CPC	Apricot pulp	Fruit	Hungary	no	C	15	2	euploid	heterozygous	73,341	54.6	1,818	203	M3. Mosaic region 3		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+757	OS_286	269521J	BMF	Human	Human	RVI Newcastle, UK	no	B	158	2	aneu;+1*1;	heterozygous	75,631	57.8	2,147	308	M3. Mosaic region 3		National Collection of Yeast Cultures (NCYC)(Stephen A James, Donald Mackenzie and Ian Roberts)	
+758	OS_1548	malade 98 2601	CKN	Feces, clinical	Human, clinical	Amiens, France	no	A	87	2	euploid	heterozygous	76,104	65.8	955	196	M3. Mosaic region 3		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+759	OS_1523	PB11	CIG	Feces	Human, clinical	Netherlands	no	A	39	2	euploid	heterozygous	65,549	48.8	75	246	M3. Mosaic region 3		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+760	OS_1527	PB15	CIL	Feces	Human, clinical	Netherlands	no	A	74	2	euploid	heterozygous	68,647	53.9	99	194	M3. Mosaic region 3		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+761	OS_743	CBS428a	AAG	Unknown	Unknown	NA	yes	C	27	1	euploid	homozygous	55,875	0.0	383	213	M3. Mosaic region 3		CBS collection (Nguyen H.V.)	
+762	OS_740	CBS6333	AHA	Rotting banana (from Musa sapientum)	Fruit	Costa Rica	yes	C	30	1	euploid	homozygous	52,500	0.0	330	194	M3. Mosaic region 3		CBS collection (Nguyen H.V.)	
+763	OS_1525	PB13	CII	Sputum	Human, clinical	Netherlands	no	B	69	2	euploid	heterozygous	70,156	53.3	85	173	M3. Mosaic region 3		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+764	OS_1526	PB14	CIK	Sputum	Human, clinical	Netherlands	no	B	70	2	aneu;+1*11;	heterozygous	70,838	54.0	65	208	M3. Mosaic region 3		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+765	OS_236	NCYC_2798	BTA	Clinical isolate, AIDS patient	Human, clinical	Germany	no	none	0	3	euploid	heterozygous	83,228	67.8	1,525	217	M3. Mosaic region 3		National Collection of Yeast Cultures (NCYC)(Stephen A James and Ian Roberts)	
+766	OS_1057	#36	BDC	Evolution canyon	Nature	Israel	no	B	61	2	aneu;+1*1;	heterozygous	67,299	41.3	41	239	M3. Mosaic region 3		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+767	OS_1060	#57	BDF	Evolution canyon	Nature	Israel	no	B	62	2	aneu;+1*1;	heterozygous	66,092	37.7	8	227	M3. Mosaic region 3		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+768	OS_1061	#58	BDG	Evolution canyon	Nature	Israel	no	B	38	2	aneu;+1*1;	heterozygous	66,112	37.9	9	229	M3. Mosaic region 3		Comenius University in Bratislava (Josef Nosek)  and University of Haifa (Eviatar Nevo)	16
+769	OS_1665	B10-1	CHQ	Levain from organic flour	Bakery	Forcalquier	no	none	0	2	euploid	heterozygous	73,855	53.2	2,187	277	M3. Mosaic region 3	yes	INRA Moulon, France (Sicard D.)	
+770	OS_586	21-4-114	ALR	Leaves of peach tree (Prunus armeniaca)	Tree	Male levare, Slovakia	no	B	28	3	aneu;+1*9;+1*11;+1*12;	heterozygous	81,176	63.1	3,288	222	M3. Mosaic region 3		Culture collection of Yeast (Renata Vadkertiova)	
+771	OS_710	CBS1394	AEL	Distillery	Distillery	NA	no	A	48	2	euploid	heterozygous	72,219	45.8	1,220	213	M3. Mosaic region 3		CBS collection (Nguyen H.V.)	
+772	OS_705	CBS2441	AEE	Distillery	Distillery	NA	no	A	116	3	aneu;+2*1;+1*5;+1*8;+1*9;	heterozygous	77,418	49.0	797	223	M3. Mosaic region 3		CBS collection (Nguyen H.V.)	
+773	OS_1376	CBS1239	ARA	Distillery	Distillery	NA	no	A	171	4	aneu;+1*1;+1*8;+1*15;	heterozygous	78,741	49.4	1,402	226	M3. Mosaic region 3		CBS collection (Nguyen H.V.)	
+774	OS_1377	CBS1254	ARB	Bakery	Bakery	NA	no	A	129	4	aneu;+1*8;-1*10;	heterozygous	76,486	49.1	1,008	241	M3. Mosaic region 3		CBS collection (Nguyen H.V.)	
+775	OS_244	77	BTB	Baker's yeast	Bakery	NA	no	A	137	3	aneu;+1*1;	heterozygous	75,015	46.7	1,342	211	M3. Mosaic region 3		National Collection of Yeast Cultures (NCYC)(Stephen A James and Ian Roberts)	
+776	OS_1415	Y1	ATB	Mushroom	Nature	NA	no	B	91	3	euploid	heterozygous	84,272	71.5	1,331	215	M3. Mosaic region 3		Washington University School of Medicine (Justin C Fay)	5
+777	OS_1169	DBVPG1074	BIE	Grape must	Wine	San Severo, Puglia, Italy	no	C	17	2	euploid	heterozygous	81,539	68.2	57	217	M3. Mosaic region 3		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+778	OS_1236	DBVPG1792	BPA	Soil	Soil	Viik, Helsinki, Finland	no	C	45	2	aneu;+1*8;	heterozygous	82,161	68.3	71	287	M3. Mosaic region 3		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+779	OS_738	CBS3078	AGT	Spores	Unknown	NA	yes	B	47	1	euploid	homozygous	53,325	0.0	891	215	M3. Mosaic region 3		CBS collection (Nguyen H.V.)	
+780	OS_1524	PB12	CIH	Feces	Human, clinical	Netherlands	no	none	0	2	euploid	heterozygous	68,898	42.8	1,117	184	M3. Mosaic region 3		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+781	OS_771	YJM436_1b	ABF	Mouth	Human, clinical	NA	yes	B	12	1	euploid	homozygous	53,434	0.0	67	183	M3. Mosaic region 3		Kruglyak Laboratory	1
+782	OS_363	YJM451	SACE_YAL	Unknown	Human, clinical	NA	no	B	42	2	euploid	homozygous	54,126	0.0	110	51	M3. Mosaic region 3			2
+783	OS_708	CBS1428	AEI	Bakery	Bakery	NA	yes	A	30	1	euploid	homozygous	55,805	0.0	124	240	M3. Mosaic region 3		CBS collection (Nguyen H.V.)	
+784	OS_844	CBS1387	AFG	Bakery	Bakery	NA	yes	A	16	1	euploid	homozygous	57,359	0.0	183	678	M3. Mosaic region 3		CBS collection (Nguyen H.V.)	
+785	OS_1708	YJM1307	SACE_YBU	Unknown	Human, clinical	Washington DC, USA	no	A	51	2	euploid	homozygous	57,372	0.0	130	419	M3. Mosaic region 3		Phaff collection	2
+786	NA	YJM1208	SACE_YBM	Unknown	Human, clinical	Michigan, USA	no	B	94	2	euploid	homozygous	51,589	0.0	163	142	M3. Mosaic region 3			2
+787	OS_768	YJM421_b	ABC	Ascites fluid	Human, clinical	USA	yes	B	17	1	euploid	homozygous	51,278	0.0	9	204	M3. Mosaic region 3			1
+788	NA	YJM1615	SACE_YDL	Clinical	Human, clinical	California, USA	no	B	108	2	euploid	homozygous	51,882	0.0	7	95	M3. Mosaic region 3			2
+789	OS_1700	YJM1083	SACE_YDN	Clinical	Human, clinical	North Carolina, USA	no	B	75	2	euploid	homozygous	52,360	0.0	464	350	M3. Mosaic region 3		Phaff collection	2
+790	OS_1519	Ponton 11	CIC	Mouth	Human, clinical	Spain	no	B	49	2	euploid	heterozygous	68,564	41.1	825	227	M3. Mosaic region 3		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+791	OS_1586	CCY_21-4-93:6B	CDK	Leaves of Sequoia sp.	Tree	North Korea	yes	C	154	1	euploid	homozygous	58,780	0.0	1,011	165	M3. Mosaic region 3		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+792	OS_1667	CCY_21-4-89:7-3	CEM	Fermenting acorn meal	Fermentation	North Korea	yes	C	32	1	euploid	homozygous	57,683	0.0	865	203	M3. Mosaic region 3		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+793	OS_1522	Ponton 14	CIF	Feces	Human, clinical	Spain	no	B	25	2	euploid	heterozygous	70,667	39.3	1,554	175	M3. Mosaic region 3		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+794	OS_1520	Ponton 12	CID	Mouth	Human, clinical	Spain	no	B	130	2	euploid	heterozygous	66,691	35.3	894	235	M3. Mosaic region 3		Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+795	OS_877	2281	BBT	Grapes, Picudo variety	Wine	Valdevimbre, Spain	no	B	39	3	euploid	heterozygous	89,544	59.4	5,186	239	M3. Mosaic region 3		Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+796	OS_1663	B9b-1	CHN	Levain from organic flour (Renan)	Bakery	Gif-sur-Yvette	no	A	8	2	euploid	heterozygous	76,575	48.0	32	218	M3. Mosaic region 3	yes	INRA Moulon, France (Sicard D.)	
+797	OS_1664	B9c-1	CHP	Levain from organic flour (Renan)	Bakery	Gif-sur-Yvette	no	A	8	2	euploid	heterozygous	76,117	47.6	30	224	M3. Mosaic region 3	yes	INRA Moulon, France (Sicard D.)	
+798	OS_517	RIB6002	CMG	Sake	Sake	Japan	no	B*	26	3	aneu;-1*1;+1*8;	heterozygous	87,649	60.2	2,011	194	M3. Mosaic region 3		National Research Institute of Brewing, Hiroshima	
+799	OS_1473_2	CLQCA_17-111	CRE	Termite mound	Insect	Ecuador	no	none	0	3	euploid	heterozygous	88,842	59.1	5,174	221	M3. Mosaic region 3		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+800	OS_1066	MAJ_A	BDM	Plant material	Nature	Majunga, Madagascar	no	B	103	2	euploid	heterozygous	71,939	32.9	4,822	204	M3. Mosaic region 3		National Collection of Yeast Cultures (NCYC)(Stephen A James and Ian Roberts)	
+801	OS_790	Y10_1b	ACI	Coconut	Fruit	Philippines	yes	C	34	1	euploid	homozygous	62,994	0.0	2,274	183	M3. Mosaic region 3			1
+802	OS_766	YJM1419	SACE_YCS	Bagasse	Unknown	NA	no	B	55	2	euploid	homozygous	55,184	0.0	932	55	M3. Mosaic region 3			2
+803	OS_792	Y3_1b	ACL	Palm wine	Palm wine	NA	yes	none	0	1	aneu;+1*12;	homozygous	64,550	0.0	2,562	212	M3. Mosaic region 3			1
+804	OS_1608	MUCL_30909-2C	CEQ	Cassava	Fermentation	Burundi	no	A	18	2	euploid	homozygous	67,476	0.0	4,348	161	M3. Mosaic region 3		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+805	OS_534	DJ68	BAB	Palm wine	Palm wine	Yoboki, Djibouti	no	none	0	3	euploid	heterozygous	82,692	27.0	40	268	13. African palm wine 		Universite de Lyon (Michel Aigle)	22
+806	OS_532	DJ65	AVV	Palm wine	Palm wine	Yoboki, Djibouti	no	none	0	3	euploid	heterozygous	82,391	26.2	12	307	13. African palm wine 		Universite de Lyon (Michel Aigle)	22
+807	OS_533	DJ66	BAA	Palm wine	Palm wine	Yoboki, Djibouti	no	none	0	3	euploid	heterozygous	81,257	24.8	12	224	13. African palm wine 		Universite de Lyon (Michel Aigle)	22
+808	OS_536	DJ71	BAD	Palm wine	Palm wine	Yoboki, Djibouti	no	none	0	3	euploid	heterozygous	82,196	26.3	40	260	13. African palm wine 		Universite de Lyon (Michel Aigle)	22
+809	OS_535	DJ70	BAC	Palm wine	Palm wine	Yoboki, Djibouti	no	none	0	3	euploid	heterozygous	82,625	26.2	24	296	13. African palm wine 		Universite de Lyon (Michel Aigle)	22
+810	OS_537	DJ73	BAE	Palm wine	Palm wine	Yoboki, Djibouti	no	none	0	3	euploid	heterozygous	82,522	26.7	18	264	13. African palm wine 		Universite de Lyon (Michel Aigle)	22
+811	OS_538	DJ74	BAF	Palm wine	Palm wine	Yoboki, Djibouti	no	C	13	2	euploid	heterozygous	87,289	28.3	5,785	202	13. African palm wine 		Universite de Lyon (Michel Aigle)	22
+812	OS_1613	Dji2-2A(a)	CFA	Palm wine 	Palm wine	Djibouti	no	C	50	2	euploid	homozygous	74,035	0.0	1,885	277	13. African palm wine 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+813	OS_686	SK1	SACE_GAL	Lab strain	Lab strain	USA	no	A	48	2	euploid	homozygous	68,401	0.0	21	24	13. African palm wine 		Rosenstiel Basic Medical Sciences Research Center (James E Haber)	6
+814	OS_1496	FTPW4	CPS	Palm wine	Palm wine	Burkina Faso	no	none	0	3	euploid	heterozygous	88,636	25.6	3,234	219	13. African palm wine 		Universite de Lyon (Michel Aigle)	22
+815	OS_1497	FTPW3	CPT	Palm wine	Palm wine	Burkina Faso	no	none	0	2	aneu;+1*9;	heterozygous	80,692	8.6	2,892	207	13. African palm wine 		Universite de Lyon (Michel Aigle)	22
+816	OS_1499	FTPW32	CQA	Palm wine	Palm wine	Burkina Faso	no	none	0	2	euploid	heterozygous	77,813	3.0	694	246	13. African palm wine 		Universite de Lyon (Michel Aigle)	22
+817	OS_1500	FTPW35	CQB	Palm wine	Palm wine	Burkina Faso	no	none	0	2	euploid	heterozygous	79,654	7.9	1,502	264	13. African palm wine 		Universite de Lyon (Michel Aigle)	22
+818	OS_830	CBS1419	AHS	Wine	Wine	Ghana	yes	none	0	1	aneu;+1*9;	homozygous	75,709	0.0	4,296	290	13. African palm wine 		CBS collection (Nguyen H.V.)	
+819	OS_813	CBS7903	ADV	Palm wine	Palm wine	Nigeria	yes	none	0	1	euploid	homozygous	7,359	0.0	2,592	219	13. African palm wine 		CBS collection (Nguyen H.V.)	
+820	OS_469	NPA06.1	AKG	Palm wine	Palm wine	Nigeria	no	none	0	2	euploid	homozygous	74,047	0.0	2,049	224	13. African palm wine 		INRA Montpelier, France (Legras JL)	23
+821	OS_1678	YJM195	SACE_YAC	Palm wine	Palm wine	Nigeria	no	none	0	2	euploid	homozygous	76,930	0.0	4,016	68	13. African palm wine 		Phaff collection	2
+822	OS_804	YPS1009_b	ADF	Exudate from Quercus sp.	Tree	USA	yes	none	0	1	euploid	homozygous	75,878	0.0	18	271	13. African palm wine 		Kruglyak Laboratory	1
+823	OS_464	NPA07.1	AKB	Palm wine	Palm wine	Nigeria	no	none	0	2	euploid	heterozygous	78,487	6.6	426	238	13. African palm wine 		INRA Montpelier, France (Legras JL)	23
+824	OS_466	NPA05b1	AKD	Palm wine	Palm wine	Nigeria	no	none	0	3	euploid	heterozygous	78,831	6.3	1,022	201	13. African palm wine 		INRA Montpelier, France (Legras JL)	23
+825	OS_465	NPA05a1	AKC	Palm wine	Palm wine	Nigeria	no	none	0	3	aneu;+1*14;	heterozygous	79,612	8.8	1,120	225	13. African palm wine 		INRA Montpelier, France (Legras JL)	23
+826	OS_467	NPA03.1	AKE	Palm wine	Palm wine	Nigeria	no	none	0	2	euploid	homozygous	75,530	0.0	324	194	13. African palm wine 		INRA Montpelier, France (Legras JL)	23
+827	OS_470	NPA02-1	AKH	Palm wine	Palm wine	Nigeria	no	none	0	2	euploid	homozygous	75,887	0.0	297	234	13. African palm wine 		INRA Montpelier, France (Legras JL)	23
+828	OS_1352	CBS400	APQ	Palm wine, from Elaeis guineensis	Palm wine	Ivory Coast	no	none	0	2	euploid	homozygous	75,577	0.0	18	245	13. African palm wine 		CBS collection (Nguyen H.V.)	
+829	OS_1353	CBS403	APR	Ginger beer, from Zingiber officinale	Beer	West Africa	no	none	0	2	aneu;+1*9;	homozygous	75,732	0.0	10	265	13. African palm wine 		CBS collection (Nguyen H.V.)	
+830	OS_1426	Y5	ATP	Bili wine	Palm wine	West Africa	no	none	0	2	euploid	homozygous	75,885	0.0	15	348	13. African palm wine 		Washington University School of Medicine (Justin C Fay)	
+831	NA	YJM1248	SACE_YBP	Unknown	Wine	West Africa	no	none	0	2	euploid	homozygous	75,831	0.0	14	53	13. African palm wine 			2
+832	NA	YJM1439	SACE_YCV	Ginger beer	Beer	West Africa	no	none	0	2	aneu;+1*8;	homozygous	75,194	0.0	11	36	13. African palm wine 			2
+833	OS_558	HN10	BAM	Rotten wood	Nature	Wuzhi Mountain, Hainan province, China	no	none	0	2	euploid	homozygous	84,486	0.0	105	221	14. CHNIII 		Chinese Academy of Sciences (Feng-Yan Bai)	24
+834	OS_567	HN19	BAQ	Bark from tree in Fagaceae family 	Tree	Wuzhi Mountain, Hainan province, China	no	none	0	2	euploid	homozygous	84,480	0.0	76	236	14. CHNIII 		Chinese Academy of Sciences (Feng-Yan Bai)	24
+835	OS_546	SX1	BAG	Bark from tree in Fagaceae family 	Tree	Qinling Mountain, Shaanxi province, China	no	none	0	2	euploid	homozygous	109,626	0.0	2,449	201	15. CHNII 		Chinese Academy of Sciences (Feng-Yan Bai)	24
+836	OS_548	SX3	BAH	Bark from Carya sp.	Tree	Qinling Mountain, Shaanxi province, China	no	none	0	2	euploid	homozygous	110,370	0.0	2,644	230	15. CHNII 		Chinese Academy of Sciences (Feng-Yan Bai)	24
+837	OS_555	HN6	BAL	Rotten wood	Nature	Bawangling Mountain, Hainan province, China	no	none	0	2	euploid	homozygous	126,303	0.0	45,722	237	16. CHNI		Chinese Academy of Sciences (Feng-Yan Bai)	24
+838	OS_615	EN14S01	AMH	Soil	Soil	Sinyi, Nantou, Taiwan	no	D	10	2	euploid	homozygous	166,452	0.0	161	228	17. Taiwanese 		National Hsinchu University of Education (Ching-Fu Lee)	25
+839	OS_1601	EM14S01-3B	CEG	Soil 	Soil	Taiwan	no	D	45	2	euploid	homozygous	166,759	0.0	148	226	17. Taiwanese 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	25
+840	OS_1603	GE14S01-7B	CEI	Soil	Soil	Taiwan	no	D	53	2	euploid	homozygous	166,118	0.0	1,708	193	17. Taiwanese 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	25
+841	OS_1572	Ksc2-2B	CCQ	Tree exudate	Tree	Japan	no	none	0	2	euploid	homozygous	72,686	0.0	7,600	240	18. Far East Asia 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+842	OS_1573	Ksc40-8A	CCR	Tree exudate	Tree	Japan	no	none	0	2	euploid	homozygous	73,580	0.0	2,813	247	18. Far East Asia 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+843	OS_1574	Ksc73-2D	CCS	Tree exudate	Tree	Japan	no	none	0	2	euploid	homozygous	74,816	0.0	2,552	258	18. Far East Asia 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+844	OS_552	BJ20	BAK	Bark from Quercus wutaishanica	Tree	Dongling Mountain, Beijing, China	no	none	0	2	euploid	homozygous	76,505	0.0	4,159	266	18. Far East Asia 		Chinese Academy of Sciences (Feng-Yan Bai)	24
+845	OS_549	BJ6	BAI	Persimmon	Fruit	Changping, Beijing, China	no	none	0	2	euploid	homozygous	77,220	0.0	3,485	265	18. Far East Asia 		Chinese Academy of Sciences (Feng-Yan Bai)	24
+846	OS_796	CLIB219_2b	ACQ	Wine	Wine	Russia	yes	none	0	1	euploid	homozygous	77,273	0.0	56	218	18. Far East Asia 		CLIB collection / State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	1
+847	OS_1570	VKM_Y-504:S	CCN	Berries of Viburnum Burejanum	Fruit	Russian Far East	no	none	0	2	euploid	homozygous	77,912	0.0	35	262	18. Far East Asia 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+848	OS_1587	N51-1A	CDL	Exudate of Quercus mongolica	Tree	Vladivostok, Russian Far East	no	none	0	2	euploid	homozygous	78,120	0.0	1,343	261	18. Far East Asia 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+849	OS_1730	YJM1418	SACE_YCR	Quercus sp. 	Tree	Japan	no	none	0	2	euploid	homozygous	78,925	0.0	1,727	502	18. Far East Asia 		Phaff collection	2
+850	OS_275	UWOPS03-429.1	BMA	Nectar, bertam palm	Tree	Malaysia	no	none	0	2	euploid	homozygous	78,549	0.0	16	209	19. Malaysian 		University of Western Ontario, Canada (Lachance M.A.)	9
+851	OS_278	UWOPS03-461.4	AKM	Nectar, Bertam palm	Tree	Malaysia	no	none	0	2	euploid	homozygous	78,382	0.0	22	200	19. Malaysian 		University of Western Ontario, Canada (Lachance M.A.)	9
+852	OS_276	UWOPS03-433.3	BMB	Nectar, bertam palm	Tree	Malaysia	no	none	0	2	euploid	homozygous	78,822	0.0	31	238	19. Malaysian 		University of Western Ontario, Canada (Lachance M.A.)	9
+853	OS_277	UWOPS03-459.1	BMC	Nectar, bertam palm	Tree	Malaysia	no	none	0	2	euploid	homozygous	79,389	0.0	51	314	19. Malaysian 		University of Western Ontario, Canada (Lachance M.A.)	9
+854	OS_696	UWOPS05_227_2	SACE_MAL	Telok Senangin, Malaysia, Lachance M, 2005 Trigona spp (Stingless bee) collected near Bertam palm flower	Insect	Telok Senangin, Malaysia	no	none	0	2	euploid	homozygous	78,333	0.0	169	61	19. Malaysian 		University of Western Ontario, Canada (Lachance M.A.)	17
+855	NA	YJM1447	SACE_YCY	Bertam Palm	Tree	Malaysia	no	A	6	2	euploid	homozygous	62,447	0.0	24	52	19. Malaysian 			2
+856	OS_776	CBS2888_1b	ABL	Soil	Soil	South Africa	yes	none	0	1	euploid	homozygous	70,982	0.0	58	295			CBS collection (Nguyen H.V.)	1
+857	OS_1715	YJM1342	SACE_YCB	Unknown	Soil	South Africa	no	B	1	2	euploid	homozygous	71,946	0.0	143	387			Phaff collection	2
+858	OS_619	SJ5L12	AMM	Leaf of Trema orientalis	Tree	Beinan, Taitung, Taiwan	no	none	0	2	euploid	homozygous	70,453	0.0	5,286	212			National Hsinchu University of Education (Ching-Fu Lee)	25
+859	OS_561	HN15	BAN	Rotten wood	Nature	Wuzhi Mountain, Hainan province, China	no	none	0	2	euploid	homozygous	73,116	0.0	2,860	225	20. CHN V 		Chinese Academy of Sciences (Feng-Yan Bai)	24
+860	OS_564	HN16	BAP	Soil	Soil	Wuzhi Mountain, Hainan province, China	no	none	0	2	euploid	homozygous	72,925	0.0	2,552	223	20. CHN V 		Chinese Academy of Sciences (Feng-Yan Bai)	24
+861	OS_539	YPS615	CMP	Quercus sp.	Tree	Pennsylvania, USA	no	none	0	2	euploid	homozygous	66,125	0.0	11	111	21. Ecuadorean 		YPS collection / University of Pennsylvania, USA (Snigowski P.)	
+862	OS_1479	CLQCA_20-314	CCH	Termite mound	Insect	Yasuni, Orellana	no	none	0	2	aneu;+1*16;	homozygous	67,900	0.0	40	191	21. Ecuadorean 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+863	OS_785	YPS1000_1b	ACC	Exudate from Quercus sp.	Tree	USA	yes	none	0	1	euploid	homozygous	68,090	0.0	3	245	21. Ecuadorean 			1
+864	OS_1474	CLQCA_20-156	CCC	Flower (Gesneriaceae sp.)	Flower	Yasuni, Orellana	no	none	0	2	euploid	homozygous	68,394	0.0	45	260	21. Ecuadorean 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+865	OS_1475	CLQCA_20-184	CCD	Flower from Heliconia sp.	Flower	Yasuni, Orellana	no	none	0	2	euploid	homozygous	68,846	0.0	93	401	21. Ecuadorean 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+866	OS_1476	CLQCA_20-221	CCE	Flower from Heliconia sp.	Flower	Yasuni, Orellana	no	none	0	2	euploid	homozygous	68,824	0.0	14	328	21. Ecuadorean 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+867	OS_1477	CLQCA_20-246	CCF	Termite mound	Insect	Yasuni, Orellana	no	none	0	2	euploid	homozygous	68,927	0.0	5	379	21. Ecuadorean 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+868	OS_1478	CLQCA_20-259	CCG	Decaying fruit	Fruit	Yasuni, Orellana	no	none	0	2	euploid	homozygous	68,472	0.0	8	304	21. Ecuadorean 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+869	OS_1485	CLQCA_20-248	CCI	Termite mound	Insect	Yasuni, Orellana	no	none	0	2	euploid	homozygous	67,968	0.0	4	209	21. Ecuadorean 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+870	OS_540	YPS617	CMQ	Quercus sp.	Tree	Pennsylvania, USA	no	none	0	2	euploid	homozygous	67,256	0.0	8	160	21. Ecuadorean 		YPS collection / University of Pennsylvania, USA (Snigowski P.)	
+871	OS_693	UWOPS87-2421	SACE_GAT	Opuntia spp.	Nature	Hawaii	no	none	0	2	euploid	homozygous	63,460	0.0	4	32			University of Western Ontario, Canada (Lachance M.A.)	6
+872	NA	YJM1444	SACE_YCX	Cladode	Nature	Hawaii	no	none	0	2	euploid	homozygous	63,579	0.0	5	38				2
+873	OS_1589	UCD_61-190-6A	CDN	Drosophila sp. 	Insect	California, USA	no	none	0	2	aneu;+2*1;+2*3;	homozygous	66,851	0.0	787	253			State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+874	OS_1445	EXF-5284	BFA	Soil below rotten apple	Soil	Slovenia	no	none	0	2	euploid	homozygous	60,214	0.0	34	279			University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+875	OS_1455	EXF-6780	BFL	Quercus petrea	Tree	Slovenia	no	none	0	2	euploid	homozygous	60,316	0.0	34	300			University of Ljubljana, Biotech Facility dept. Biology Ljubljana, Slovenia (Gunde-Cimerman N.)	
+876	OS_607	IY_03-5-30-1-1-1_(1)	AMB	Chauliodes pectinicornis (male) - Corydalidae	Insect	Louisiana, USA	no	none	0	2	euploid	homozygous	62,522	0.0	35	208			Louisiana State University (Meredith Blackwell)	26
+877	OS_609	IY_03-5-26-5-1-1_(1)	AMC	Chauliodes pectinicornis (female) - Corydalidae	Insect	Louisiana, USA	no	none	0	2	euploid	homozygous	62,634	0.0	34	212			Louisiana State University (Meredith Blackwell)	26
+878	OS_1591	N95-6-1C	CDQ	Exudate of Quercus sp.	Tree	Augusta, MI 49012, USA	no	none	0	2	euploid	homozygous	62,838	0.0	34	232			State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+879	OS_692	UWOPS83-787_3	SACE_GAS	Opuntia spp.	Nature	Bahamas	no	none	0	2	euploid	homozygous	65,004	0.0	50	458			University of Western Ontario, Canada (Lachance M.A.)	6
+880	NA	YJM1443	SACE_YCW	Fruit	Fruit	Bahamas	no	none	0	2	euploid	homozygous	63,423	0.0	7	47				2
+881	OS_1582	N22.00-5D	CDF	Fruit of Grataegus dachurica	Fruit	Botanical garden, Blagoveshchensk, Russia	no	none	0	2	euploid	homozygous	72,076	0.0	37	224	22. Far East Russian 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+882	OS_1583	N3.00-7A	CDG	Grape berries of wild Vitus amurensis	Wine	Botanical garden, Blagoveshchensk, Russia	no	none	0	2	euploid	homozygous	72,484	0.0	28	269	22. Far East Russian 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+883	OS_1584	N159.01-2B	CDH	Exudate of Quercus mongolica	Tree	Botanical garden, Blagoveshchensk, Russia	no	none	0	2	euploid	homozygous	72,011	0.0	8	201	22. Far East Russian 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+884	OS_1585	N163.01-5A	CDI	Exudate of Quercus mongolica	Tree	Botanical garden, Blagoveshchensk, Russia	no	none	0	2	euploid	homozygous	71,849	0.0	15	185	22. Far East Russian 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+885	OS_611	ES4M07	AMD	Fruiting body of Geastrum sp.	Fruit	Dongpu, Sinyi Township, Nantou, Taiwan	no	none	0	2	euploid	homozygous	65,433	0.0	1,674	223			National Hsinchu University of Education (Ching-Fu Lee)	25
+886	OS_613	ES2M03	AMF	Fruiting body of Russula sp.	Fruit	Dongpu, Sinyi Township, Nantou, Taiwan	no	none	0	2	euploid	homozygous	65,491	0.0	5	195			National Hsinchu University of Education (Ching-Fu Lee)	25
+887	OS_1602	ES2M03-7A	CEH	Fruiting body of Russula sp.	Fruit	Taiwan	no	none	0	2	euploid	homozygous	66,059	0.0	27	250			State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+888	OS_1571	IFO_0877:6-1	CCP	Quercus sp.	Tree	Japan	no	none	0	2	euploid	homozygous	62,333	0.0	3,376	205			State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+889	OS_1112	CLIB414	BEG	High sugar foodstuff, Food	Industrial	Japan	no	none	0	2	aneu;+1*16;	homozygous	63,240	0.0	2,145	264			CLIB collection (Serge Casaregola)	
+890	OS_1578	ATCC_66348-1D	CDB	Soil	Soil	Japan	no	none	0	2	euploid	homozygous	63,118	0.0	2,306	192			State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+891	OS_113	YPS163	AVI	Soil beneath Quercus rubra	Soil	Pennsylvanian	no	none	0	2	euploid	homozygous	62,131	0.0	3	167	23. North American oak 		YPS collection / University of Pennsylvania, USA (Snigowski P.)	27
+892	OS_786	YPS163_1b	ACD	Exudate from Quercus sp.	Tree	USA	yes	none	0	1	euploid	homozygous	62,419	0.0	2	202	23. North American oak 		Kruglyak Laboratory	1
+893	OS_108	YPS139	ANF	Soil beneath unidentified Quercus sp.	Soil	Pennsylvania, USA	no	none	0	2	euploid	homozygous	62,263	0.0	1	183	23. North American oak 		YPS collection / University of Pennsylvania, USA (Snigowski P.)	27
+894	OS_110	YPS142	ANH	Bark of q.rubra	Nature	Pennsylvania, USA	no	none	0	2	euploid	homozygous	62,446	0.0	0	202	23. North American oak 		YPS collection / University of Pennsylvania, USA (Snigowski P.)	27
+895	OS_105	YPS129	ANC	Flux from Quercus alba	Tree	Pennsylvania, USA	no	none	0	2	euploid	homozygous	62,601	0.0	27	226	23. North American oak 		YPS collection / University of Pennsylvania, USA (Snigowski P.)	27
+896	OS_107	YPS134	ANE	Soil beneath Quercus velutina	Soil	Pennsylvania, USA	no	none	0	2	euploid	homozygous	62,452	0.0	2	193	23. North American oak 		YPS collection / University of Pennsylvania, USA (Snigowski P.)	27
+897	OS_109	YPS141	ANG	Soil beneath Quercus velutina	Soil	Pennsylvania, USA	no	none	0	2	euploid	homozygous	62,526	0.0	17	215	23. North American oak 		YPS collection / University of Pennsylvania, USA (Snigowski P.)	27
+898	OS_106	YPS133	AND	Soil beneath Quercus alba	Soil	Pennsylvania, USA	no	none	0	2	euploid	homozygous	62,591	0.0	0	238	23. North American oak 		YPS collection / University of Pennsylvania, USA (Snigowski P.)	27
+899	OS_112	YPS154	ANK	Bark of q.velutina	Tree	Pennsylvania, USA	no	none	0	2	euploid	homozygous	62,497	0.0	11	224	23. North American oak 		YPS collection / University of Pennsylvania, USA (Snigowski P.)	27
+900	OS_111	YPS143	ANI	Soil beneath(q.rubra)	Soil	Pennsylvania, USA	no	none	0	2	euploid	homozygous	62,732	0.0	0	272	23. North American oak 		YPS collection / University of Pennsylvania, USA (Snigowski P.)	27
+901	OS_104	YPS128	AKN	Soil beneath Quercus alba	Soil	Pennsylvania, USA	no	none	0	2	euploid	homozygous	62,706	0.0	20	245	23. North American oak 		YPS collection / University of Pennsylvania, USA (Snigowski P.)	27
+902	OS_1706	YJM1273	SACE_YBS	Quercus sp. 	Tree	Pennsylvania, USA	no	none	0	2	euploid	homozygous	63,960	0.0	12	309	23. North American oak 		Phaff collection	2
+903	NA	YJM1434	SACE_YCU	Oak	Tree	Pennsylvania, USA	no	none	0	2	euploid	homozygous	64,035	0.0	12	291	23. North American oak 			2
+904	OS_875	2163	BBR	Quercus faginea, 30C	Tree	Castellon, Spain	no	none	0	2	euploid	homozygous	65,253	0.0	624	236			Instituto de Agroquimica y Tecnologia de los Alimentos (IATA)-CSIC (Amparo Querol)	
+905	OS_1727	YJM1402	SACE_YCO	Wine	Wine	NA	no	A	5	2	euploid	homozygous	55,007	0.0	36	154			Phaff collection	2
+906	OS_542	YPS670	CMS	Quercus sp.	Tree	Pennsylvania, USA	no	none	0	2	euploid	homozygous	63,254	0.0	40	211			YPS collection / University of Pennsylvania, USA (Snigowski P.)	
+907	OS_805	NC_02_b	ADG	Exudate from Quercus sp.	Tree	North Carolina, USA	yes	none	0	1	euploid	homozygous	63,527	0.0	21	265				1
+908	OS_1590	N95-5-1A	CDP	Exudate of Quercus sp.	Tree	Augusta, MI 49012, USA	no	none	0	2	euploid	homozygous	63,585	0.0	24	267			State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+909	NA	YJM1573	SACE_YDI	Fermented food	Unknown	India	no	none	0	2	euploid	homozygous	64,303	0.0	23	118				2
+910	OS_1383	CBS1592	ARH	Fermenting cacao	Fermentation	Java, Indonesia	no	C	85	2	aneu;+1*1;	heterozygous	67,859	9.4	1,380	211	24. Asian islands 		CBS collection (Nguyen H.V.)	
+911	OS_1384	CBS1593	ARI	Fermenting cacao	Fermentation	Java, Indonesia	no	C	131	2	aneu;+2*1;+1*2;	heterozygous	70,548	14.4	1,564	210	24. Asian islands 		CBS collection (Nguyen H.V.)	
+912	OS_722	CBS2992	AFK	Palm wine	Palm wine	Pakistan	no	none	0	2	euploid	homozygous	68,308	0.0	2,869	187	24. Asian islands 		CBS collection (Nguyen H.V.)	
+913	OS_749	CBS3000	AHH	Palm wine	Palm wine	Denmark	yes	none	0	1	euploid	homozygous	68,352	0.0	2,479	203	24. Asian islands 		CBS collection (Nguyen H.V.)	
+914	OS_1575	S11F3-6B	CCT	Phloem sap of Caryota urens	Tree	Sri Lanka	no	C	171	2	euploid	homozygous	68,304	0.0	2,678	223	24. Asian islands 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+915	OS_1576	S8BM-30-2D	CCV	Phloem sap of Caryota urens	Tree	Sri Lanka	no	C	91	2	euploid	homozygous	68,338	0.0	2,448	199	24. Asian islands 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+916	OS_1577	S8BM-32-4D(a)	CDA	Phloem sap of Caryota urens	Tree	Sri Lanka	yes	C	19	1	euploid	homozygous	68,336	0.0	2,481	247	24. Asian islands 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+917	OS_736	CBS1594	AGR	Plant	Nature	NA	yes	C	34	1	euploid	homozygous	67,676	0.0	2,366	189	24. Asian islands 		CBS collection (Nguyen H.V.)	
+918	OS_1382	CBS1576	ARG	Exudate of Arenga sp.	Tree	Celebes, Sulavesi, Indonesia	no	C	66	2	euploid	homozygous	68,061	0.0	2,858	222	24. Asian islands 		CBS collection (Nguyen H.V.)	
+919	OS_1725	YJM1400	SACE_YCM	Guava	Fruit	Philippines	no	C	52	2	euploid	homozygous	68,707	0.0	69	478	24. Asian islands 		Phaff collection	2
+920	NA	YJM1479	SACE_YDE	Coconut tuba	Palm wine	Phillipines	no	C	46	2	euploid	homozygous	67,977	0.0	12	129	24. Asian islands 			2
+921	OS_1726	YJM1401	SACE_YCN	Papaya	Fruit	Philippines	no	C	52	2	euploid	homozygous	64,919	0.0	1,781	357			Phaff collection	2
+922	OS_1406	CLIB409	ASM	Sugar cane (plant)	Nature	Vietnam	no	none	0	3	aneu;+1*1;+1*6;+1*9;+1*16;	heterozygous	74,710	26.9	1,641	247			CLIB collection (Serge Casaregola)	
+923	OS_1639	VNL3	CGH	Unknown	Unknown	Ha Noi, North Vietnam	no	none	0	3	euploid	heterozygous	77,009	29.5	2,786	268			INRA Gringnon, France (Nguyen H.V.)	
+924	OS_1607	ATCC_52922-1C	CEP	Tapuy (rice wine)	Fermentation	Philippines	no	none	0	2	aneu;+1*8;	homozygous	63,858	0.0	3,416	295			State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+925	OS_1551	malade Darkman	CKR	Unknown	Human, clinical	France	no	none	0	2	aneu;+1*6;	heterozygous	63,224	9.9	1,082	204			Inserm Universite P. M. Curie, Paris, France (Hennequin C.)	
+926	OS_1389	CBS2270	ARP	Japanese wine	Wine	Japan	no	none	0	2	aneu;+1*4;+1*11;+1*15;	heterozygous	64,226	4.2	1,444	256	25. Sake 		CBS collection (Nguyen H.V.)	
+927	OS_818	CBS6414	AEF	Sake yeast	Sake	Japan	yes	none	0	1	euploid	homozygous	62,552	0.0	859	252	25. Sake 		CBS collection (Nguyen H.V.)	
+928	OS_518	RIB6003	CMH	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	65,191	8.1	57	185	25. Sake 		National Research Institute of Brewing, Hiroshima	
+929	OS_1387	CBS2188	ARM	Fruit of Eryobotrya japonica	Fruit	Japan	no	none	0	2	euploid	heterozygous	64,667	6.5	33	231	25. Sake 		CBS collection (Nguyen H.V.)	
+930	OS_484	K5	CLI	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	65,124	6.5	18	241	25. Sake 		Washington University School of Medicine (Justin C Fay)	5
+931	OS_520	RIB6005	CMK	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	64,627	6.1	11	188	25. Sake 		National Research Institute of Brewing, Hiroshima	
+932	OS_492	UC5	CLQ	Sake	Sake	Japan	no	none	0	1	aneu;+1*1;	homozygous	62,379	0.0	651	191	25. Sake 		Washington University School of Medicine (Justin C Fay)	5
+933	OS_489	K14	CLN	Sake	Sake	Japan	no	none	0	2	euploid	homozygous	62,276	0.0	462	207	25. Sake 		Washington University School of Medicine (Justin C Fay)	5
+934	OS_724	CBS6413	AFN	Sake yeast	Sake	Japan	yes	none	0	1	euploid	homozygous	62,669	0.0	507	251	25. Sake 		CBS collection (Nguyen H.V.)	
+935	OS_809	K12_2	ADQ	Sake (shochu)	Sake	Japan	yes	none	0	1	euploid	homozygous	62,621	0.0	431	208	25. Sake 		Kruglyak Laboratory	1
+936	OS_823	CBS6412	AFM	Sake yeast	Sake	Japan	yes	none	0	1	euploid	homozygous	63,117	0.0	349	693	25. Sake 		CBS collection (Nguyen H.V.)	
+937	OS_497	RIB0005	APA	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	63,466	3.3	268	202	25. Sake 		National Research Institute of Brewing, Hiroshima	
+938	OS_503	RIB1005	BTS	Sake	Sake	Japan	no	none	0	2	aneu;+1*11;	heterozygous	65,973	8.4	519	271	25. Sake 		National Research Institute of Brewing, Hiroshima	
+939	OS_495	RIB0003	ANT	Sake	Sake	Japan	no	none	0	2	aneu;+1*1;+1*8;	heterozygous	65,139	6.1	8	218	25. Sake 		National Research Institute of Brewing, Hiroshima	
+940	OS_493	RIB0001	ANR	Sake	Sake	Japan	no	none	0	2	aneu;+1*1;	heterozygous	64,875	5.8	14	197	25. Sake 		National Research Institute of Brewing, Hiroshima	
+941	OS_496	RIB0004	ANV	Sake	Sake	Japan	no	none	0	2	aneu;+1*1;+1*8;	heterozygous	65,208	6.1	8	217	25. Sake 		National Research Institute of Brewing, Hiroshima	
+942	OS_684	K1_1	ADN	Sake	Sake	Japan	yes	none	0	1	euploid	homozygous	62,766	0.0	7	207	25. Sake 		Kruglyak Laboratory	1
+943	OS_516	RIB6001	CMF	Sake	Sake	Japan	no	none	0	2	aneu;+1*3;	heterozygous	64,372	5.2	27	157	25. Sake 		National Research Institute of Brewing, Hiroshima	
+944	OS_519	RIB6004	CMI	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	63,672	4.0	216	168	25. Sake 		National Research Institute of Brewing, Hiroshima	
+945	OS_704	CBS436a	AAD	Moto (sake yeast starter)	Sake	Japan	no	none	0	2	aneu;+2*8;	homozygous	62,525	0.0	114	205	25. Sake 		CBS collection (Nguyen H.V.)	
+946	OS_494	RIB0002	ANS	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	63,224	2.8	97	196	25. Sake 		National Research Institute of Brewing, Hiroshima	
+947	OS_1369	CBS435	AQN	Moto (sake yeast starter)	Sake	Japan	no	none	0	2	euploid	heterozygous	63,555	4.1	69	221	25. Sake 		CBS collection (Nguyen H.V.)	
+948	OS_488	K13	CLM	Sake	Sake	Japan	no	none	0	2	aneu;+1*3;	heterozygous	64,273	4.3	21	277	25. Sake 		Washington University School of Medicine (Justin C Fay)	5
+949	OS_523	RIB0007	CMN	Sake	Sake	Japan	no	none	0	2	aneu;+1*1;	heterozygous	63,863	5.8	36	145	25. Sake 		National Research Institute of Brewing, Hiroshima	
+950	OS_499	RIB1001	APC	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	64,509	3.8	13	284	25. Sake 		National Research Institute of Brewing, Hiroshima	
+951	OS_500	RIB1002	APD	Sake	Sake	Japan	no	none	0	2	aneu;+1*9;	heterozygous	64,774	3.9	13	284	25. Sake 		National Research Institute of Brewing, Hiroshima	
+952	OS_1434	CECT10711	AVC	Sake	Sake	Japan	no	none	0	2	aneu;-1*1;+1*9;+1*15;	heterozygous	64,054	2.8	9	252	25. Sake 		CECT collection	
+953	OS_514	RIB1016	CMD	Sake	Sake	Japan	no	none	0	2	aneu;+1*3;+1*9;	heterozygous	63,917	3.4	16	148	25. Sake 		National Research Institute of Brewing, Hiroshima	
+954	OS_490	K15	CLP	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	64,047	2.1	16	220	25. Sake 		Washington University School of Medicine (Justin C Fay)	5
+955	OS_513	RIB1015	CMC	Sake	Sake	Japan	no	none	0	2	aneu;+1*14;	heterozygous	63,568	3.1	14	134	25. Sake 		National Research Institute of Brewing, Hiroshima	
+956	OS_502	RIB1004	APF	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	64,072	2.8	18	210	25. Sake 		National Research Institute of Brewing, Hiroshima	
+957	OS_501	RIB1003	APE	Sake	Sake	Japan	no	none	0	2	aneu;+1*3;+1*11;	heterozygous	64,029	2.5	4	220	25. Sake 		National Research Institute of Brewing, Hiroshima	
+958	OS_1435	CECT10712	AVD	Sake	Sake	Japan	no	none	0	2	aneu;+1*3;+1*11;	heterozygous	63,593	1.8	7	233	25. Sake 		CECT collection	
+959	OS_525	RIB6009	AVM	Sake	Sake	Japan	no	none	0	2	aneu;+1*3;+1*11;	heterozygous	63,786	2.2	12	217	25. Sake 		National Research Institute of Brewing, Hiroshima	
+960	OS_509	RIB1011	CLT	Sake	Sake	Japan	no	none	0	2	aneu;+1*9;	heterozygous	63,853	2.6	4	181	25. Sake 		National Research Institute of Brewing, Hiroshima	
+961	OS_508	RIB1010	CLS	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	63,872	2.2	8	197	25. Sake 		National Research Institute of Brewing, Hiroshima	
+962	OS_515	RIB1017	CME	Sake	Sake	Japan	no	none	0	2	aneu;+1*9;	heterozygous	64,150	2.8	4	188	25. Sake 		National Research Institute of Brewing, Hiroshima	
+963	OS_486	K10	CLL	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	63,904	2.7	11	188	25. Sake 		Washington University School of Medicine (Justin C Fay)	5
+964	OS_506	RIB1008	CLR	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	63,666	2.0	2	206	25. Sake 		National Research Institute of Brewing, Hiroshima	
+965	OS_521	RIB6006	CML	Sake	Sake	Japan	no	none	0	2	aneu;-1*1;	homozygous	62,051	0.0	13	130	25. Sake 		National Research Institute of Brewing, Hiroshima	
+966	OS_522	RIB6007	CMM	Sake	Sake	Japan	no	none	0	2	aneu;+1*3;	heterozygous	63,682	3.8	445	122	25. Sake 		National Research Institute of Brewing, Hiroshima	
+967	OS_512	RIB1014	CMB	Sake	Sake	Japan	no	none	0	2	aneu;+1*11;	heterozygous	63,648	2.3	16	177	25. Sake 		National Research Institute of Brewing, Hiroshima	
+968	OS_524	RIB6008	AVL	Sake	Sake	Japan	no	none	0	2	aneu;+1*3;	heterozygous	63,678	2.5	9	195	25. Sake 		National Research Institute of Brewing, Hiroshima	
+969	OS_510	RIB1012	CLV	Sake	Sake	Japan	no	none	0	2	aneu;+1*3;+1*9;	heterozygous	63,851	2.6	4	167	25. Sake 		National Research Institute of Brewing, Hiroshima	
+970	OS_485	K9	CLK	Sake	Sake	Japan	no	none	0	2	aneu;+2*9;	heterozygous	64,501	2.8	9	275	25. Sake 		Washington University School of Medicine (Justin C Fay)	5
+971	OS_504	RIB1006	CQQ	Sake	Sake	Japan	no	none	0	2	aneu;+1*3;	heterozygous	64,584	2.9	24	234	25. Sake 		National Research Institute of Brewing, Hiroshima	
+972	OS_505	RIB1007	CQR	Sake	Sake	Japan	no	none	0	2	aneu;+1*3;	heterozygous	64,643	3.1	3	237	25. Sake 		National Research Institute of Brewing, Hiroshima	
+973	OS_757	CBS440	AHQ	Molasses	Industrial	Taiwan	yes	none	0	1	euploid	homozygous	60,494	0.0	1,331	239	26. Asian fermentation 		CBS collection (Nguyen H.V.)	
+974	OS_1642	BMQ557	CGL	Unknown	Unknown	Hai Phong, North Vietnam	no	none	0	2	euploid	heterozygous	66,127	15.6	1,569	316	26. Asian fermentation 		INRA Gringnon, France (Nguyen H.V.)	
+975	OS_720	CBS1509	AFH	Distillery	Distillery	NA	yes	none	0	1	euploid	homozygous	61,502	0.0	273	484	26. Asian fermentation 		CBS collection (Nguyen H.V.)	
+976	OS_731	CBS1480	AGG	Distillery	Distillery	NA	no	none	0	2	euploid	heterozygous	63,490	8.2	533	217	26. Asian fermentation 		CBS collection (Nguyen H.V.)	
+977	OS_842	CBS1508	AEP	Starter for sorghum brandy	Distillery	NA	no	none	0	2	euploid	homozygous	61,295	0.0	322	327	26. Asian fermentation 		CBS collection (Nguyen H.V.)	
+978	OS_1612	IFO_0289:4-3(b)	CEV	Moromi of Chinese wine kaoliangchiu	Distillery	China	yes	none	0	1	euploid	homozygous	62,046	0.0	497	564	26. Asian fermentation 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+979	OS_1640	Me7	CGI	Unknown	Unknown	Cai Be, South Vietnam	no	C	41	2	euploid	heterozygous	68,572	18.8	1,534	270	26. Asian fermentation 		INRA Gringnon, France (Nguyen H.V.)	
+980	OS_1644	SGB1	CGN	Rice fermentation starter culture	Fermentation	Saigon, South Vietnam	no	C	28	2	euploid	heterozygous	67,289	15.0	116	224	26. Asian fermentation 		INRA Gringnon, France (Nguyen H.V.)	
+981	OS_1645	SG4	CGP	Unknown	Unknown	Saigon, South Vietnam	no	C	24	2	euploid	heterozygous	68,647	18.3	174	247	26. Asian fermentation 		INRA Gringnon, France (Nguyen H.V.)	
+982	OS_1638	TayTa	CGG	Unknown	Unknown	Long An, South Vietnam	no	none	0	2	euploid	heterozygous	66,586	13.6	460	231	26. Asian fermentation 		INRA Gringnon, France (Nguyen H.V.)	
+983	OS_1647	VL5	CGR	Rice fermentation starter culture	Fermentation	Phan Thiet, South Vietnam	no	none	0	2	euploid	heterozygous	65,658	10.4	632	251	26. Asian fermentation 		INRA Gringnon, France (Nguyen H.V.)	
+984	OS_1373	CBS1196	AQS	Arak Distillery	Distillery	Indonesia	no	none	0	2	aneu;+1*1;	heterozygous	62,590	3.9	940	215	26. Asian fermentation 		CBS collection (Nguyen H.V.)	
+985	OS_1113	CLIB415	BEH	Fermenting rice (lao chao), Fermented beverage	Fermentation	Taiwan	no	C	42	2	euploid	homozygous	60,746	0.0	950	230	26. Asian fermentation 		CLIB collection (Serge Casaregola)	
+986	OS_793	Y9_4	ACM	Ragi fermentation	Fermentation	Indonesia	yes	none	0	1	euploid	homozygous	61,466	0.0	7	216	26. Asian fermentation 		Kruglyak Laboratory	1
+987	OS_253	K12	AKL	Sake	Sake	Japan	no	none	0	2	euploid	heterozygous	67,948	19.2	149	242	26. Asian fermentation 		Washington University School of Medicine (Justin C Fay)	
+988	OS_675	YJM413_b	ABB	Blood	Human, clinical	USA	yes	none	0	1	euploid	homozygous	61,013	0.0	1	197	26. Asian fermentation 		Kruglyak Laboratory	1
+989	OS_791	Y12_1b	ACK	Palm wine	Palm wine	Ivory Coast	yes	none	0	1	euploid	homozygous	61,198	0.0	2	223	26. Asian fermentation 		Kruglyak Laboratory	1
+990	OS_806	T7_b	ADH	Exudate from Quercus sp.	Tree	Babler State Park, MO, USA	yes	none	0	1	euploid	homozygous	61,327	0.0	2	287	26. Asian fermentation 		Kruglyak Laboratory	1
+991	NA	YJM1460	SACE_YDA	Palm Wine	Palm wine	Newcastle, UK	no	A	1	2	euploid	homozygous	60,697	0.0	13	219	26. Asian fermentation 			2
+992	OS_598	CLQCA_10-620	ALB	Orthopteran insect	Insect	Pichincha, Ecuador	no	none	0	2	euploid	heterozygous	64,492	9.1	8	219	26. Asian fermentation 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+993	OS_593	CLQCA_05-006	AKR	Rotten fruit	Fruit	Guayas, Ecuador	no	none	0	2	euploid	heterozygous	64,803	9.0	56	299	26. Asian fermentation 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+994	OS_599	CLQCA_11-024	ALC	Unidentified aquatic plant	Nature	Cotopaxi, Ecuador	no	none	0	2	euploid	heterozygous	64,505	8.6	6	261	26. Asian fermentation 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+995	OS_604	CLQCA_19-011	ALH	Horse dung	Nature	Napo, Ecuador 	no	none	0	2	euploid	heterozygous	64,271	9.0	4	198	26. Asian fermentation 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+996	OS_597	CLQCA_10-619	ALA	Beetle	Insect	Pichincha, Ecuador	no	none	0	2	euploid	heterozygous	64,666	8.9	5	241	26. Asian fermentation 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+997	OS_606	CLQCA_24SC-235	ALK	Tree exudate (Bursera graveolens)	Tree	Galapagos, Ecuador	no	none	0	2	aneu;+1*5;	heterozygous	63,635	7.1	14	176	26. Asian fermentation 		National Collection of Yeast Cultures (NCYC)(Stephen A James) and Coleccion de Levaduras Quito Catolica (CLQCA)(Enrique Javier Carvajal Barriga)	
+998	OS_1646	RR1a	CGQ	Unknown	Unknown	My Tho, South Vietnam	no	none	0	2	euploid	heterozygous	64,849	8.8	7	260	26. Asian fermentation 		INRA Gringnon, France (Nguyen H.V.)	
+999	OS_1284	DBVPG5836	BRG	Soil close to plum tree, depth: 25 cm. Agricultural soil: presence of important vegetation, some fallen fruit (plum) rotting & insects. Average T (June): [max: 26.3C / min: 13.6C]. Precipitation (June): 17.4 mm.	Soil	District of Hamma Bouziane, Constantine, Algeria	no	none	0	3	euploid	heterozygous	65,134	8.7	25	271	26. Asian fermentation 		DBVPG collection (Benedetta Turchetti and Pietro Buzzini)	
+1000	OS_1641	Lx2	CGK	Unknown	Unknown	Dong Thap, South Vietnam	no	none	0	2	euploid	heterozygous	64,887	9.1	8	253	26. Asian fermentation 		INRA Gringnon, France (Nguyen H.V.)	
+1001	OS_1662	SBD	CHM	Bakery	Bakery	Northern Europe	no	none	0	2	euploid	heterozygous	65,121	9.5	4	296	26. Asian fermentation 	yes	INRA Moulon, France (Sicard D.)	
+1002	OS_1158	CLIB1411	BHP	Rice wine, Oenology	Fermentation	Laos	no	none	0	2	euploid	heterozygous	66,366	13.5	13	222	26. Asian fermentation 		CLIB collection (Serge Casaregola)	
+1003	OS_1159	CLIB1412	BHQ	Rice wine, Oenology	Fermentation	Laos	no	none	0	2	euploid	heterozygous	66,121	12.6	29	238	26. Asian fermentation 		CLIB collection (Serge Casaregola)	
+1004	OS_1160	CLIB1413	BHR	Rice wine, Oenology	Fermentation	Laos	no	none	0	2	euploid	heterozygous	65,999	12.5	21	242	26. Asian fermentation 		CLIB collection (Serge Casaregola)	
+1005	OS_1161	CLIB1414	BHS	Rice wine, Oenology	Fermentation	Laos	no	none	0	2	euploid	heterozygous	66,295	14.3	186	187	26. Asian fermentation 		CLIB collection (Serge Casaregola)	
+1006	OS_1111	CLIB413	BEF	Fermenting rice	Fermentation	China	no	none	0	2	euploid	heterozygous	67,419	16.4	2,139	234	26. Asian fermentation 		CLIB collection (Serge Casaregola)	
+1007	OS_1604	JCM_2985-4B	CEK	Fermented fish	Fermentation	Tailand	no	none	0	2	euploid	homozygous	62,045	0.0	242	235	26. Asian fermentation 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+1008	OS_1605	JCM_3529-7B	CEL	Fermented shrimp	Fermentation	Tailand	no	none	0	2	euploid	homozygous	62,121	0.0	259	292	26. Asian fermentation 		State Research Institute of Genetics and Selection of Industrial Microorganisms (Naumov G.I.)	
+1009	NA	YJM1388	SACE_YCJ	Fermented tapioca	Unknown	Malaya	no	none	0	2	aneu;+1*9;	homozygous	63,677	0.0	782	378	26. Asian fermentation 			2
+1010	OS_1723	YJM1389	SACE_YCK	Sewage	Industrial	Thailand	no	A	1	2	euploid	homozygous	60,836	0.0	98	48	26. Asian fermentation 		Phaff collection	2
+1011	NA	YJM1592	SACE_YDK	Sewage	Industrial	Thailand	no	none	0	2	euploid	homozygous	61,343	0.0	113	49	26. Asian fermentation 			2
