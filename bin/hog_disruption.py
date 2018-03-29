@@ -16,23 +16,26 @@ def main(args):
 
     # Define Hog network
     hog = bp.ProteinNetwork()
-    hog.node(bp.Protein('cdc42'))
     hog.node(bp.ProteinComplex('sho1-hkr1-msb1',
                                [bp.Protein('sho1'), bp.Protein('hkr1'), bp.Protein('msb1')]))
 
     hog.node(bp.Protein('sln1'))
-    hog.node(bp.ProteinComplex('cla4-ste20',
-                               [bp.Protein('cla4'), bp.Protein('ste20')],
-                               inputs=['cdc42']))
 
-    hog.node(bp.Protein('ste11', inputs=['cla4-ste20', 'sho1-hkr1-msb1']))
+    hog.node(bp.ProteinComplex('cla4-ste20-cdc42',
+                               [bp.Protein('cla4'), bp.Protein('ste20'), bp.Protein('cdc42')],
+                               inputs=['sho1-hkr1-msb1']))
+
+    hog.node(bp.ProteinComplex('ste11-ste50',
+                               [bp.Protein('ste11'), bp.Protein('ste50')],
+                               inputs=['cla4-ste20-cdc42']))
+
     hog.node(bp.Protein('ypd1', inputs=['sln1']))
     hog.node(bp.Protein('ssk1', inputs=['ypd1']))
     hog.node(bp.ProteinComplex('ssk2-ssk22',
                                [bp.Protein('ssk2'), bp.Protein('ssk22')],
                                inputs=['ssk1']))
 
-    hog.node(bp.Protein('pbs2', inputs=['ste11', 'ssk2-ssk22']))
+    hog.node(bp.Protein('pbs2', inputs=['ste11-ste50', 'ssk2-ssk22']))
     hog.node(bp.Protein('hog1', inputs=['pbs2']))
     # hog.node(Protein('hot1', inputs=['hog1']))
     # hog.node(Protein('smp1', inputs=['hog1']))
@@ -40,17 +43,17 @@ def main(args):
     # hog.node(Protein('msn2', inputs=['hog1']))
     # hog.node(Protein('msn4', inputs=['hog1']))
 
-    hog.set_input('cdc42', 'sho1-hkr1-msb1', 'sln1')
+    hog.set_input('sho1-hkr1-msb1', 'sln1')
     hog.set_output('hog1') #'hot1', 'smp1', 'msn2', 'msn4')
 
     # Evaluate network in each strain
     with fileinput.input(args.probs) as prob_file:
         header = next(prob_file).strip().split('\t')
-        
+
         # Determine which columns have hog pathway genes
         hog_cols = {meta[header[i]]:i for i in range(len(header))
-                     if header[i] in meta.keys()
-                     and meta[header[i]] in hog.get_protein_names()}
+                    if header[i] in meta.keys()
+                    and meta[header[i]] in hog.get_protein_names()}
 
         print('strain', 'hog_active', sep='\t')
         for line in prob_file:

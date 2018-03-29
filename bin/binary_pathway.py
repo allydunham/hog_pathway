@@ -8,8 +8,9 @@ ToDo
 - easier way to remove outputs
 - deal with loop interactions
 - More complex functionality representation
+- Separate binding/localisation and kinase interactions
 """
-FUNCTIONALITY_THRESHOLD = 0.5
+FUNCTIONALITY_THRESHOLD = 0.6
 
 class ProteinNetwork:
     """Signalling network"""
