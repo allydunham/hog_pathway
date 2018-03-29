@@ -1,7 +1,7 @@
 setwd("~/Projects/hog/")
 library(Biostrings)
 
-genotypes <- t(read.table("data/hog-gene-variants.genotypes", header=TRUE, row.names = 1))
+genotypes <- t(read.table("data/hog-gene-variants.all-genotypes", header=TRUE, row.names = 1))
 
 growth <- read.table("data/raw/bede_2017_parsed.tsv",header=TRUE,sep='\t')
 growth <- growth[,c("sodium.chloride.0.4mM", "sodium.chloride.0.6mM", "Sorbitol.1mM")]
@@ -32,4 +32,4 @@ plot(genetic_distance[upper.tri(genetic_distance)], growth_distance_Sorb[upper.t
      pch=20, xlab="Genetic Distance (Manhatten)", ylab="Difference in S-Score (Sorbitol 1mM)",
      ylim=c(0,7))
 
-
+geno_pca <- prcomp(genotypes)
