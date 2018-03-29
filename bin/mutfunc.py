@@ -4,7 +4,7 @@ Link functionally annotated and genomic mutations with their precalculated conse
 
 ToDo
 - Rework import to be more versatile
-- Add gene filtering
+- move import to function?
 """
 import argparse
 import fileinput
@@ -12,26 +12,32 @@ from Bio.SubsMat.MatrixInfo import blosum62
 
 def main(args):
     """Main script"""
-    mutations = {}
+    # Import gene filter
+    if args.filter:
+        gene_filter = [line.strip() for line in fileinput.input(args.filter)]
 
+    mutations = {}
     # Import functional mutations
     with fileinput.input(args.functional) as fun_file:
         header = next(fun_file).strip().split('\t')
         if args.effect:
             for line in fun_file:
                 line = line.strip().split('\t')
-                line_id = ' '.join(line[:2])
-                mutations[line_id] = {'effect': line[2],
-                                      'gene': line[0],
-                                      'pos_aa': line[1][1:-1],
-                                      'ref_aa': line[1][:1],
-                                      'alt_aa': line[1][-1]}
+                if not args.filter or line[0] in gene_filter:
+                    line_id = ' '.join(line[:2])
+                    mutations[line_id] = {'effect': line[2],
+                                          'gene': line[0],
+                                          'pos_aa': line[1][1:-1],
+                                          'ref_aa': line[1][:1],
+                                          'alt_aa': line[1][-1]}
         else:
             for line in fun_file:
                 line = line.strip().split('\t')
-                line_id = ''.join((line[6], ' ', line[4], line[3], line[5]))
-                mutations[line_id] = {header[i]:line[i] for i in range(8)}
+                if not args.filter or line[6] in gene_filter:
+                    line_id = ''.join((line[6], ' ', line[4], line[3], line[5]))
+                    mutations[line_id] = {header[i]:line[i] for i in range(8)}
 
+    # Remove fil
     # Process SIFT data
     add_to_dict(mutations, ''.join((args.mutfunc, 'sift.tsv')),
                 10, {'acc':0, 'sift_score':4, 'sift_median_ic':5})
@@ -176,6 +182,9 @@ def parse_args():
 
     parser.add_argument('--genes', '-n',
                         help="Table of gene positions")
+
+    parser.add_argument('--filter', '-f',
+                        help="List of gene IDs to include")
 
     parser.add_argument('--effect', '-e', action='store_true',
                         help="Functional file gives a list of mutations and effects")

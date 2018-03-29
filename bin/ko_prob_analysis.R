@@ -1,7 +1,7 @@
 # Script looking at ko probability of genes comparaed to growth rates
 setwd('~/Projects/hog/')
 
-ko_prob <- read.table("data/hog-gene-variants.koProb", header = TRUE, row.names = 1, sep='\t')
+ko_prob <- read.table("data/hog-gene-variants.probs", header = TRUE, row.names = 1, sep='\t')
 hog_meta <- read.table("meta/hog-gene-loci")
 colnames(hog_meta) <- c("chr","start","end","id","gene","strand")
 ko_prob <- ko_prob[,colnames(ko_prob) %in% hog_meta$id]
@@ -34,10 +34,10 @@ ko_prob <- ko_prob[rownames(growth),]
 
 ko_prob$growth <- growth$sodium.chloride.0.6mM
 
-#for (i in colnames(ko_prob)){
-#  plot(ko_prob[,i], ko_prob$growth, xlab="P(Affected)", main=i, ylab = "S-Score", pch=20)
-#  readline(prompt="Press [enter] to continue")
-#}
+for (i in colnames(ko_prob)){
+  plot(ko_prob[,i], ko_prob$growth, xlab="P(Affected)", main=i, ylab = "S-Score", pch=20)
+  readline(prompt="Press [enter] to continue")
+}
 
 fit <- lm(growth ~ ., data = ko_prob)
 
@@ -45,7 +45,7 @@ m <- colMeans(ko_prob)
 names(m) <- sapply(names(m), function(x){hog_meta[hog_meta$id == x, "gene"]})
 
 ### Analyse whole pathway ko prob
-path_active <- read.table('data/hog-gene-variants.pathKO', header = TRUE, sep='\t')
+path_active <- read.table('data/hog-gene-variants.path', header = TRUE, sep='\t')
 path_active <- subset(path_active, strain %in% rownames(growth))
 rownames(path_active) <- path_active$strain
 path_active <- merge(path_active, growth, by='row.names')
@@ -53,4 +53,5 @@ path_active <- merge(path_active, growth, by='row.names')
 boxplot(sodium.chloride.0.4mM ~ hog_active, data = path_active)
 plot(path_active$hog_active, path_active$sodium.chloride.0.4mM)
 
+t.test(sodium.chloride.0.6mM ~ hog_active, data = path_active, alternative='less')
 

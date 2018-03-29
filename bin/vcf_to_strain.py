@@ -32,6 +32,7 @@ def main(args):
     else:
         print('mut_id', *vcf_file.samples, sep='\t')
 
+    num_chroms = 2 * len(vcf_file.samples)
     # Iterate over loci
     for site in vcf_file:
         for i in range(len(site.ALT)):
@@ -43,7 +44,9 @@ def main(args):
             for call in site.samples:
                 gens.append(call.data.GT.count(str(i + 1)))
 
-            print(mut_id, *gens, sep='\t')
+            # Test frequency of variant and print
+            if not args.filter or sum(gens) / num_chroms < args.filter:
+                print(mut_id, *gens, sep='\t')
 
 def parse_args():
     """Process input arguments"""
@@ -52,9 +55,12 @@ def parse_args():
 
     parser.add_argument('vcf', metavar='V', help="Input VCF file")
 
-    parser.add_argument('--meta', '-m', help="File giving strain details to convert\
-                                              strain names to standardized names\
-                                              used in VCF", default='')
+    parser.add_argument('--meta', '-m', default='',
+                        help="File giving strain details to convert strain names to \
+                              standardized names used in VCF")
+
+    parser.add_argument('--filter', '-f', default=0.0, type=float,
+                        help="Filter to genotypes at frequencies lower than the given level")
 
     return parser.parse_args()
 
