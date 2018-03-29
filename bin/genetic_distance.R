@@ -33,9 +33,3 @@ plot(genetic_distance[upper.tri(genetic_distance)], growth_distance_Sorb[upper.t
      ylim=c(0,7))
 
 
-
-
-
-
-
-
