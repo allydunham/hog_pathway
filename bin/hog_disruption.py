@@ -4,7 +4,7 @@ Script to determine probability of hog network disruption based on gene impact p
 """
 import argparse
 import fileinput
-import binary_pathway as bp
+import pathway as path
 
 def main(args):
     """Main script"""
@@ -15,28 +15,33 @@ def main(args):
             meta[pair[1]] = pair[0].lower()
 
     # Define Hog network
-    hog = bp.ProteinNetwork()
-    hog.node(bp.ProteinComplex('sho1-hkr1-msb1',
-                               [bp.Protein('sho1'), bp.Protein('hkr1'), bp.Protein('msb1')]))
+    hog = path.ProteinNetwork()
+    hog.node(path.ProteinComplex('sho1-hkr1-msb1',
+                                 [path.Protein('sho1'), path.Protein('hkr1'),
+                                  path.Protein('msb1')]
+                                ))
 
-    hog.node(bp.Protein('sln1'))
+    hog.node(path.Protein('sln1'))
 
-    hog.node(bp.ProteinComplex('cla4-ste20-cdc42',
-                               [bp.Protein('cla4'), bp.Protein('ste20'), bp.Protein('cdc42')],
-                               inputs=['sho1-hkr1-msb1']))
+    hog.node(path.ProteinComplex('cla4-ste20-cdc42',
+                                 [path.Protein('cla4'), path.Protein('ste20'),
+                                  path.Protein('cdc42')], inputs=['sho1-hkr1-msb1']
+                                ))
 
-    hog.node(bp.ProteinComplex('ste11-ste50',
-                               [bp.Protein('ste11'), bp.Protein('ste50')],
-                               inputs=['cla4-ste20-cdc42']))
+    hog.node(path.ProteinComplex('ste11-ste50',
+                                 [path.Protein('ste11'), path.Protein('ste50')],
+                                 inputs=['cla4-ste20-cdc42']
+                                ))
 
-    hog.node(bp.Protein('ypd1', inputs=['sln1']))
-    hog.node(bp.Protein('ssk1', inputs=['ypd1']))
-    hog.node(bp.ProteinComplex('ssk2-ssk22',
-                               [bp.Protein('ssk2'), bp.Protein('ssk22')],
-                               inputs=['ssk1']))
+    hog.node(path.Protein('ypd1', inputs=['sln1']))
+    hog.node(path.Protein('ssk1', inputs=['ypd1']))
+    hog.node(path.ProteinComplex('ssk2-ssk22',
+                                 [path.Protein('ssk2'), path.Protein('ssk22')],
+                                 inputs=['ssk1']
+                                ))
 
-    hog.node(bp.Protein('pbs2', inputs=['ste11-ste50', 'ssk2-ssk22']))
-    hog.node(bp.Protein('hog1', inputs=['pbs2']))
+    hog.node(path.Protein('pbs2', inputs=['ste11-ste50', 'ssk2-ssk22']))
+    hog.node(path.Protein('hog1', inputs=['pbs2']))
     # hog.node(Protein('hot1', inputs=['hog1']))
     # hog.node(Protein('smp1', inputs=['hog1']))
     # hog.node(Protein('sko1', inputs=['hog1']))
@@ -55,16 +60,19 @@ def main(args):
                     if header[i] in meta.keys()
                     and meta[header[i]] in hog.get_protein_names()}
 
-        print('strain', 'hog_active', sep='\t')
+        print('strain', 'hog_active', 'hog_probability', sep='\t')
         for line in prob_file:
             line = line.strip().split('\t')
             # Set protein functions as P(!impact) then eval network
             for name, col in hog_cols.items():
                 hog.set_probability(name, 1 - float(line[col]))
+
+            hog.calc_activity_probabilities()
             path_activity = hog.get_activity()
+            hog_prob = hog.nodes['hog1'].probability_active
 
             # Print strain, network function and p(impact) for other genes
-            print(line[0], int(path_activity), sep='\t')
+            print(line[0], int(path_activity), hog_prob, sep='\t')
 
 
 def parse_args():

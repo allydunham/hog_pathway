@@ -100,19 +100,50 @@ class ProteinNetwork:
             raise ValueError("Protein(s) not in network")
 
     def set_probability(self, name, probability):
-        """Set a component proteins functionality"""
-        if name in self.nodes:
-            self.nodes[name].probability_active = probability
-        elif name in self.complex_members:
+        """Set a component proteins functionality probability"""
+        if name in self.complex_members: # Set complex first to avoid setting directly
             comp = self.complex_members[name]
-            self.nodes[comp].components[name].probability_active = probability
+            self.nodes[comp].components[name].probability_functional = probability
+        elif name in self.nodes:
+            self.nodes[name].probability_functional = probability
         else:
             raise ValueError("Protein not in network")
 
-    def get_branches(self):
-        """Identify all branches within the network"""
-        pass
+    def calc_activity_probabilities(self):
+        """Determine the probability that each network component is active based\
+           on upstream activity probabilities"""
+        # Reset probabilities
+        for node in self.nodes.values():
+            node.probability_active = np.nan
 
+        # Set input probabilities and initial downstream nodes
+        stack = []
+        for name in self.inputs:
+            node = self.nodes[name]
+            node.probability_active = node.get_probability_functional()
+            stack.extend(node.outputs)
+
+        # Iterate over nodes to get probability
+        while stack:
+            name = stack.pop()
+            node = self.nodes[name]
+            upstream_p = [self.nodes[n].probability_active for n in
+                          node.inputs]
+
+            # if any upstream prob isn't available move node to bottom of stack
+            if any(np.isnan(p) for p in upstream_p):
+                stack.insert(0, name)
+                continue
+
+            else:
+                # Calc active p as p_func * (1 - prod(not outputs active))
+                node.probability_active = (node.get_probability_functional() *
+                                           (1 - np.prod([1 - x for x in upstream_p])))
+
+                # Add outputs to stack
+                for i in node.outputs:
+                    if not i in stack:
+                        stack.insert(0, i)
 
     def get_protein_names(self):
         """Return a list of all proteins in the network"""
@@ -140,14 +171,9 @@ class ProteinNetwork:
 
         return any([active[x] for x in self.outputs])
 
-    def get_probability(self):
-        """Determine the probability that each network output is active based\
-           on upstream activity probabilities"""
-        pass
-
 class Protein:
     """Individual component of a protein network"""
-    def __init__(self, name, inputs=None, outputs=None, probability=0.95):
+    def __init__(self, name, inputs=None, outputs=None, p_functional=0.95):
         if inputs is None:
             inputs = set()
         if outputs is None:
@@ -156,13 +182,13 @@ class Protein:
         self.name = name
         self.inputs = set(inputs)
         self.outputs = set(outputs)
-        self.probability_active = probability
+        self.probability_functional = p_functional
+        self.probability_active = np.nan
 
 
     def __repr__(self):
-        return "Protein('{}', inputs={}, outputs={}, probability={})".format(
-            self.name, self.inputs, self.outputs, self.probability_active
-            )
+        return "Protein('{}', inputs={}, outputs={}, p_functional={})".format(
+            self.name, self.inputs, self.outputs, self.probability_functional)
 
     def __str__(self):
         return self.__repr__()
@@ -177,11 +203,11 @@ class Protein:
 
     def get_activity(self, threshold=FUNCTIONALITY_THRESHOLD):
         """Test if the protein is functional"""
-        return self.probability_active > threshold
+        return self.probability_functional > threshold
 
-    def get_probability(self):
-        """Get the probability of the protein being active"""
-        return self.probability_active
+    def get_probability_functional(self):
+        """Get the probability of the protein being functional"""
+        return self.probability_functional
 
 class ProteinComplex(Protein):
     """Protein network component made up of multiple individual components"""
@@ -190,38 +216,41 @@ class ProteinComplex(Protein):
         self.components = {x.name: x for x in components}
 
     def __repr__(self):
-        return "ProteinComplex('{}', {},inputs={}, outputs={})".format(
-            self.name, [x for x in self.components.values()], self.inputs, self.outputs
-            )
+        return "ProteinComplex('{}', {}, inputs={}, outputs={})".format(
+            self.name, [x for x in self.components.values()], self.inputs, self.outputs)
 
     def get_activity(self, threshold=FUNCTIONALITY_THRESHOLD):
         """Test if the complex is active"""
         return all([x.get_activity(threshold) for x in self.components.values()])
 
-    def get_probability(self):
-        return np.prod([x.get_probability() for x in self.components])
+    def get_probability_functional(self):
+        """Get the probability of the complex being functional"""
+        return np.prod([x.get_probability_functional() for x in self.components.values()])
 
 
 if __name__ == "__main__":
     ## Can implement reduced version of hog without negative regulators (e.g. phosphatases)
     hog = ProteinNetwork()
-    hog.node(Protein('cdc42'))
     hog.node(ProteinComplex('sho1-hkr1-msb1',
                             [Protein('sho1'), Protein('hkr1'), Protein('msb1')]))
 
     hog.node(Protein('sln1'))
-    hog.node(ProteinComplex('cla4-ste20',
-                            [Protein('cla4'), Protein('ste20')],
-                            inputs=['cdc42']))
 
-    hog.node(Protein('ste11', inputs=['cla4-ste20', 'sho1-hkr1-msb1']))
+    hog.node(ProteinComplex('cla4-ste20-cdc42',
+                            [Protein('cla4'), Protein('ste20'), Protein('cdc42')],
+                            inputs=['sho1-hkr1-msb1']))
+
+    hog.node(ProteinComplex('ste11-ste50',
+                            [Protein('ste11'), Protein('ste50')],
+                            inputs=['cla4-ste20-cdc42']))
+
     hog.node(Protein('ypd1', inputs=['sln1']))
     hog.node(Protein('ssk1', inputs=['ypd1']))
     hog.node(ProteinComplex('ssk2-ssk22',
                             [Protein('ssk2'), Protein('ssk22')],
                             inputs=['ssk1']))
 
-    hog.node(Protein('pbs2', inputs=['ste11', 'ssk2-ssk22']))
+    hog.node(Protein('pbs2', inputs=['ste11-ste50', 'ssk2-ssk22']))
     hog.node(Protein('hog1', inputs=['pbs2']))
     hog.node(Protein('hot1', inputs=['hog1']))
     hog.node(Protein('smp1', inputs=['hog1']))
@@ -229,5 +258,8 @@ if __name__ == "__main__":
     hog.node(Protein('msn2', inputs=['hog1']))
     hog.node(Protein('msn4', inputs=['hog1']))
 
-    hog.set_input('cdc42', 'sho1-hkr1-msb1', 'sln1')
+    hog.set_input('sho1-hkr1-msb1', 'sln1')
     hog.set_output('hot1', 'smp1', 'msn2', 'msn4')
+
+    print(hog)
+    hog.calc_activity_probabilities()
