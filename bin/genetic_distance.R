@@ -33,3 +33,9 @@ plot(genetic_distance[upper.tri(genetic_distance)], growth_distance_Sorb[upper.t
      ylim=c(0,7))
 
 geno_pca <- prcomp(genotypes)
+
+
+## Whole genome genetic distance
+load('data/genetic_distance.Rdata')
+library(gplots)
+heatmap.2(genetic_distance)
