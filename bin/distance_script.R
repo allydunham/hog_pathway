@@ -34,13 +34,13 @@ save(genetic_distance, genetic_distance_growth, growth_distance_NaCl4, growth_di
 
 # Save diagnostic plots
 pdf('genetic_dist_nacl0.4mM.pdf', 12, 8)
-plot(genetic_distance_growth[upper.tri(genetic_distance)], growth_distance_NaCl4[upper.tri(growth_distance_NaCl4)],
+plot(genetic_distance_growth[upper.tri(genetic_distance_growth)], growth_distance_NaCl4[upper.tri(growth_distance_NaCl4)],
      pch=20, xlab="Genetic Distance (Manhatten)", ylab="Difference in S-Score (NaCl 0.4mM)",
      ylim=c(0,7), main='Effect of genetic distance on growth rate in 0.4mM NaCl')
 dev.off()
 
 pdf('genetic_dist_nacl0.6mM.pdf', 12, 8)
-plot(genetic_distance_growth[upper.tri(genetic_distance)], growth_distance_NaCl6[upper.tri(growth_distance_NaCl6)],
+plot(genetic_distance_growth[upper.tri(genetic_distance_growth)], growth_distance_NaCl6[upper.tri(growth_distance_NaCl6)],
      pch=20, xlab="Genetic Distance (Manhatten)", ylab="Difference in S-Score (NaCl 0.6mM)",
      ylim=c(0,7), main='Effect of genetic distance on growth rate in 0.6mM NaCl')
 dev.off()
