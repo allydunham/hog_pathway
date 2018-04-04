@@ -1,7 +1,7 @@
 # Script looking at ko probability of genes comparaed to growth rates
 setwd('~/Projects/hog/')
 
-ko_prob <- read.table("data/hog-gene-variants.probs", header = TRUE, row.names = 1, sep='\t')
+ko_prob <- read.table("data/hog-gene-variants.probs.blosum", header = TRUE, row.names = 1, sep='\t')
 hog_meta <- read.table("meta/hog-gene-loci")
 colnames(hog_meta) <- c("chr","start","end","id","gene","strand")
 ko_prob <- ko_prob[,colnames(ko_prob) %in% hog_meta$id]
@@ -52,14 +52,14 @@ m <- colMeans(ko_prob)
 names(m) <- sapply(names(m), function(x){hog_meta[hog_meta$id == x, "gene"]})
 
 ### Analyse whole pathway ko prob
-path_active <- read.table('data/hog-gene-variants.path', header = TRUE, sep='\t')
+path_active <- read.table('data/hog-gene-variants.path.blosum', header = TRUE, sep='\t')
 path_active <- subset(path_active, strain %in% rownames(growth))
 rownames(path_active) <- path_active$strain
 path_active <- merge(path_active, growth, by='row.names')
 path_active$Row.names <- NULL
 
 pdf('figures/bin-path-vs-growth.pdf', width = 12, height = 10)
-boxplot(sodium.chloride.0.4mM ~ hog_active, data = path_active, ylab = 'S-Score', xlab = 'HOG Path Active',
+boxplot(sodium.chloride.0.6mM ~ hog_active, data = path_active, ylab = 'S-Score', xlab = 'HOG Path Active',
         main = 'Binary pathway activty impact on growth')
 dev.off()
 

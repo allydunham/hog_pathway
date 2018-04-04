@@ -4,7 +4,6 @@ Link functionally annotated and genomic mutations with their precalculated conse
 
 ToDo
 - Rework import to be more versatile
-- move import to function?
 """
 import argparse
 import fileinput
@@ -15,29 +14,12 @@ def main(args):
     # Import gene filter
     if args.filter:
         gene_filter = [line.strip() for line in fileinput.input(args.filter)]
+    else:
+        gene_filter = None
 
-    mutations = {}
-    # Import functional mutations
-    with fileinput.input(args.functional) as fun_file:
-        header = next(fun_file).strip().split('\t')
-        if args.effect:
-            for line in fun_file:
-                line = line.strip().split('\t')
-                if not args.filter or line[0] in gene_filter:
-                    line_id = ' '.join(line[:2])
-                    mutations[line_id] = {'effect': line[2],
-                                          'gene': line[0],
-                                          'pos_aa': line[1][1:-1],
-                                          'ref_aa': line[1][:1],
-                                          'alt_aa': line[1][-1]}
-        else:
-            for line in fun_file:
-                line = line.strip().split('\t')
-                if not args.filter or line[6] in gene_filter:
-                    line_id = ''.join((line[6], ' ', line[4], line[3], line[5]))
-                    mutations[line_id] = {header[i]:line[i] for i in range(8)}
+    # Import mutations
+    mutations = import_muts(args.functional, effect=args.effect, gene_filter=gene_filter)
 
-    # Remove fil
     # Process SIFT data
     add_to_dict(mutations, ''.join((args.mutfunc, 'sift.tsv')),
                 10, {'acc':0, 'sift_score':4, 'sift_median_ic':5})
@@ -130,6 +112,30 @@ def main(args):
     print('id', *values, sep='\t')
     for key, value in mutations.items():
         print(key, *(value[k] for k in values), sep='\t')
+
+def import_muts(path, effect=False, gene_filter=None):
+    """Import mutations into a dictionary"""
+    mutations = {}
+    with fileinput.input(path) as fun_file:
+        header = next(fun_file).strip().split('\t')
+        if effect:
+            for line in fun_file:
+                line = line.strip().split('\t')
+                if gene_filter is None or line[0] in gene_filter:
+                    line_id = ' '.join(line[:2])
+                    mutations[line_id] = {'effect': line[2],
+                                          'gene': line[0],
+                                          'pos_aa': line[1][1:-1],
+                                          'ref_aa': line[1][:1],
+                                          'alt_aa': line[1][-1]}
+        else:
+            for line in fun_file:
+                line = line.strip().split('\t')
+                if gene_filter is None or line[6] in gene_filter:
+                    line_id = ''.join((line[6], ' ', line[4], line[3], line[5]))
+                    mutations[line_id] = {header[i]:line[i] for i in range(8)}
+
+    return mutations
 
 def import_loci(path):
     """Import a bed style loci file and return a dict of dicts of the loci"""

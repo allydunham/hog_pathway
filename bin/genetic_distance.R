@@ -6,9 +6,11 @@ genotypes <- t(read.table("data/hog-gene-variants.all-genotypes", header=TRUE, r
 growth <- read.table("data/raw/bede_2017_parsed.tsv",header=TRUE,sep='\t')
 growth <- growth[,c("sodium.chloride.0.4mM", "sodium.chloride.0.6mM", "Sorbitol.1mM")]
 
-meta <- read.table('meta/strain_information.tsv', sep = '\t', header=TRUE, fill=TRUE, quote = "")
+meta <- read.table('meta/strain_information.tsv', sep = '\t', header=TRUE, fill=TRUE, quote = "", comment.char = '')
 strain_to_sys <- meta$Standardized.name
 names(strain_to_sys) <- meta$Isolate.name
+sys_to_strain <- names(strain_to_sys)
+names(sys_to_strain) <- strain_to_sys
 
 growth <- growth[!is.na(strain_to_sys[rownames(growth)]),]
 rownames(growth) <- strain_to_sys[rownames(growth)]
@@ -38,4 +40,12 @@ geno_pca <- prcomp(genotypes)
 ## Whole genome genetic distance
 load('data/genetic_distance.Rdata')
 library(gplots)
-heatmap.2(genetic_distance)
+cols <- colorRampPalette(c("white","red"))(256)
+
+rownames(genetic_distance) <- sys_to_strain[rownames(genetic_distance)]
+
+pdf('figures/genetic_dist_heatmap_small.pdf', width = 20, height = 20)
+heatmap.2(genetic_distance, symm = TRUE, revC = TRUE, col=cols,
+          breaks=seq(0,max(genetic_distance),max(genetic_distance)/256), trace = "none")
+dev.off()
+

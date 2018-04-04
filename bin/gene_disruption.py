@@ -4,8 +4,7 @@ Process per mutation genotypes to group them by gene and assign per gene disrupt
 
 ToDo
 - Currently nothing takes account of heterozygotes
-- Option to print mutations in each gene in each strain (before/instead of collating them to probs)
-- Add blosum where values are missing
+- blosum integration
 - deal with start codons
 """
 import argparse
@@ -17,41 +16,16 @@ import pandas as pd
 
 def main(args):
     """Main script"""
+    # Import impact table
     impacts = pd.read_table(args.mutations)
 
+    # Extract list of affected genes
     genes = impacts.gene.dropna().unique()
 
-    # Read in and filter strains
-    if args.strains:
-        try:
-            strains = []
-            with fileinput.input(args.strains) as strain_file:
-                for line in strain_file:
-                    strains.append(line.strip())
+    # Import genotype data
+    strain_muts = import_genotypes(args.genotypes, genes, impacts, args.strains)
 
-        except FileNotFoundError:
-            strains = args.strains.strip().split(',')
-
-    with fileinput.input(args.genotypes) as geno_file:
-        header = next(geno_file).strip().split('\t')
-
-        if not args.strains:
-            strains = header[1:]
-
-        indeces = [i for i in range(len(header)) if header[i] in strains]
-        strain_muts = {s:{g:[] for g in genes} for s in strains}
-
-        # Extract per gene per strain mutations
-        for line in geno_file:
-            line = line.strip().split('\t')
-            mut_id = line[0]
-            # Identify impacted genes
-            affected_genes = impacts[impacts['mut_id'] == mut_id].gene.dropna().values
-            for i in indeces:
-                if not line[i] == '0':
-                    for gene in affected_genes:
-                        strain_muts[header[i]][gene].append(mut_id)
-
+    # Print set of files with mutations in each gene - dir: args.print/strain/gene_file
     if args.print:
         for strain, genes in strain_muts.items():
             for gene, muts in genes.items():
@@ -65,7 +39,7 @@ def main(args):
 
         sys.exit(0)
 
-    # Determine per gene mutation probabilities
+    # Determine per gene mutation probabilities and print table
     print("strain", *genes, sep='\t')
     for strain, genes in strain_muts.items():
         probs = {}
@@ -107,7 +81,46 @@ def snp_neutral(impact):
     """Determine the probability that a mutation is functionally neutral"""
     sift = 1/(1 + np.exp(-1.312424 * np.log(impact.sift_score.item() + 1.598027e-05) - 4.103955))
     foldx = 1/(1 + np.exp(0.21786182 * impact.foldx_ddG.item() + 0.07351653))
-    return min(1, sift, foldx)
+    #blosum = 0.66660 + 0.08293 * impact.blosum62.item()
+    return min(1, sift, foldx) #, blosum) Better way to do blosum?
+
+def import_genotypes(genotype_file, genes, impacts, strains=''):
+    """Import a table of genotypes into a nested dictionary
+       With optional strain filtering"""
+    # Import genotypes and split into genes
+    with fileinput.input(genotype_file) as geno_file:
+        header = next(geno_file).strip().split('\t')
+
+        # Read in strains to filter
+        if strains:
+            try:
+                strains = [line.strip() for line in fileinput.input(strains)]
+            except FileNotFoundError:
+                strains = strains.strip().split(',')
+        else:
+            strains = header[1:]
+
+        # Get column indeces for desired strains
+        indeces = [i for i in range(len(header)) if header[i] in strains]
+
+        # Set up storage dict - strain_muts[strain][gene][muts]
+        strain_muts = {s:{g:[] for g in genes} for s in strains}
+
+        # Extract mutations per gene per strain
+        for line in geno_file:
+            line = line.strip().split('\t')
+            mut_id = line[0]
+
+            # Identify impacted genes
+            affected_genes = impacts[impacts['mut_id'] == mut_id].gene.dropna().values
+
+            # Add mutations to appropriate strain/gene
+            for i in indeces:
+                if not line[i] == '0':
+                    for gene in affected_genes:
+                        strain_muts[header[i]][gene].append(mut_id)
+
+    return strain_muts
 
 def parse_args():
     """Process input arguments"""
