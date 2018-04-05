@@ -37,7 +37,7 @@ plot(genetic_distance[upper.tri(genetic_distance)], growth_distance_Sorb[upper.t
 geno_pca <- prcomp(genotypes)
 
 
-## Whole genome genetic distance
+#### Whole genome genetic distance ####
 load('data/genetic_distance.Rdata')
 library(gplots)
 cols <- colorRampPalette(c("white","red"))(256)
@@ -49,3 +49,11 @@ heatmap.2(genetic_distance, symm = TRUE, revC = TRUE, col=cols,
           breaks=seq(0,max(genetic_distance),max(genetic_distance)/256), trace = "none")
 dev.off()
 
+# Genetic distance vs growth across all conds
+growth_distance <- lapply(colnames(growth), function(x){as.matrix(dist(growth[,x]))})
+names(growth_distance) <- colnames(growth)
+
+for (i in 1:length(growth_distance)){
+  colnames(growth_distance[[i]]) <- rownames(growth)
+  rownames(growth_distance[[i]]) <- rownames(growth)
+}

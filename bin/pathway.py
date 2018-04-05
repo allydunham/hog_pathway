@@ -33,7 +33,6 @@ class ProteinNetwork:
 
         self.verify_all_edges()
 
-
     def __repr__(self):
         return "ProteinNetwork(proteins={}, inputs={}, outputs={})".format(
             self.nodes, self.inputs, self.outputs

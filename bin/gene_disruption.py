@@ -76,7 +76,6 @@ def gene_impact_prob(muts, impacts, gene):
             break
     return 1 - np.prod(probs)
 
-
 def snp_neutral(impact):
     """Determine the probability that a mutation is functionally neutral"""
     sift = 1/(1 + np.exp(-1.312424 * np.log(impact.sift_score.item() + 1.598027e-05) - 4.103955))
