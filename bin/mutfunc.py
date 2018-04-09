@@ -146,7 +146,7 @@ def import_loci(path):
             line = line.strip().split()
             gene = {'chr':line[0], 'start':int(line[1]),
                     'stop':int(line[2]), 'name':line[4],
-                    'strand':int(line[5])}
+                    'strand':line[5]}
 
             gene['length'] = (gene['stop'] - gene['start']) / 3
             # Would need to correct for strand/base in some cases, but not with ensembl output
