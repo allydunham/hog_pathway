@@ -1,4 +1,5 @@
 # Script looking at ko probability of genes comparaed to growth rates
+library(ggplot2)
 setwd('~/Projects/hog/')
 
 ko_prob <- read.table("data/hog-gene-variants.probs.blosum", header = TRUE, row.names = 1, sep='\t')
@@ -89,4 +90,17 @@ fitG <- lm(sodium.chloride.0.4mM ~ sodium.chloride.0.6mM, data = path_active)
 abline(a = fitG$coefficients[1], b = fitG$coefficients[2])
 dev.off()
 
+## Test number of ko'd genes
+thresh <- 0.25
+ko_thresh <- ko_prob > thresh
 
+growth$ko_count <- rowSums(ko_thresh)
+growth$strain <- rownames(growth)
+
+growth_melt <- melt(growth, id.vars = c('strain', 'ko_count'), variable.name = 'Condition', value.name = 'SScore')
+
+p_ko_count <- ggplot(growth_melt, aes(x=ko_count, y=SScore, col=Condition)) + geom_point() + geom_smooth(method='lm', formula = y~x)
+p_ko_count
+
+fit <- lm(SScore ~ ko_count, data = subset(growth_melt, Condition=='sodium.chloride.0.6mM'))
+# Correlation is observed but not significant
