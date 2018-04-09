@@ -60,7 +60,7 @@ for (i in 1:length(growth_distance)){
   dimnames(growth_distance[[i]]) <- list(rownames(growth), rownames(growth))
 }
 
-growth_melt <- melt(growth, variable.name = 'Condition', value.name = 'SScore')
+growth_melt <- melt(as.matrix(growth), variable.name = 'Condition', value.name = 'SScore')
 
 # Set up data frame for all pairs over all conditions (excluding matching strains)
 gen_growth_dist <- genetic_distance_growth
@@ -83,9 +83,26 @@ gen_growth_dist_melt <- melt(gen_growth_dist, id.vars = c('Strain1', 'Strain2', 
 p_gen_dist <- ggplot(gen_growth_dist_melt, aes(x=GeneticDistance, y=SScoreDiff, col=Condition)) + 
   geom_point() + geom_smooth(method='lm', formula = y~x + 0)
 
+#[gen_growth_dist_melt$Condition %in% grep('glucose', unique(gen_growth_dist_melt$Condition), value = TRUE), ]
+
 fits <- lapply(unique(gen_growth_dist_melt$Condition), function(x){
   lm(SScoreDiff ~ GeneticDistance + 0, data = subset(gen_growth_dist_melt, Condition==x))
   })
+
+fit_df <- data.frame(condition = unique(gen_growth_dist_melt$Condition),
+                     coef = sapply(fits, function(x){x$coefficients}))
+
+# Lm coefficients are not normally distributed
+shapiro.test(fit_df$coef) 
+# Shapiro-Wilk normality test
+# 
+# data:  fit_df$coef
+# W = 0.9171, p-value = 0.004311
+
+## Test high genetic difference strains only
+gen_growth_dist_melt_far <- subset(gen_growth_dist_melt, GeneticDistance > 100000)
+
+p_far_growth_distribution <- ggplot(gen_growth_dist_melt_far, aes(x=Condition, y=SScoreDiff)) + geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 # S-Score normalises to condition
 p_growth_box <- ggplot(growth_melt, aes(reorder(Condition, SScore, sd), SScore)) + geom_boxplot() +
