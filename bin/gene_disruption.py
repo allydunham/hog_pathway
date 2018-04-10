@@ -40,13 +40,26 @@ def main(args):
         sys.exit(0)
 
     # Determine per gene mutation probabilities and print table
+    if args.conf:
+        impacts['high_conf'] = ((impacts['prop_aa'] < args.conf) &
+                                (impacts['type'].isin(['frameshift', 'nonsense'])))
+
+        gene_eval_func = high_conf_gene_ko
+    else:
+        gene_eval_func = gene_impact_prob
+
     print("strain", *genes, sep='\t')
     for strain, genes in strain_muts.items():
         probs = {}
         for gene, muts in genes.items():
-            probs[gene] = gene_impact_prob(muts, impacts, gene)
+            probs[gene] = gene_eval_func(muts, impacts, gene)
 
         print(strain, *[probs[i] for i in genes], sep='\t')
+
+def high_conf_gene_ko(muts, impacts, gene):
+    """Determine if a gene is very likely knocked out"""
+    return int(impacts.loc[(impacts['mut_id'].isin(muts)) &
+                           (impacts['gene'] == gene)].high_conf.any())
 
 def gene_impact_prob(muts, impacts, gene):
     """Determine the probability that a gene carrying a series of variants is neutral"""
@@ -136,6 +149,10 @@ def parse_args():
     parser.add_argument('--print', '-p', default='',
                         help="Print the impact of variants in each gene per\
                               species in a specified folder")
+
+    parser.add_argument('--conf', '-c', default=0, type=float,
+                        help="Only consider high confidence variants (frameshift and\
+                              early stop occuring in the first X portion of the protein)")
 
     return parser.parse_args()
 
