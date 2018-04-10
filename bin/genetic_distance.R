@@ -81,24 +81,47 @@ gen_growth_dist_melt <- melt(gen_growth_dist, id.vars = c('Strain1', 'Strain2', 
                         variable.name = 'Condition', value.name = 'SScoreDiff')
 
 p_gen_dist <- ggplot(gen_growth_dist_melt, aes(x=GeneticDistance, y=SScoreDiff, col=Condition)) + 
-  geom_point() + geom_smooth(method='lm', formula = y~x + 0)
+  geom_point() #+ geom_smooth(method='lm', formula = y~x)
 
 #[gen_growth_dist_melt$Condition %in% grep('glucose', unique(gen_growth_dist_melt$Condition), value = TRUE), ]
 
 fits <- lapply(unique(gen_growth_dist_melt$Condition), function(x){
-  lm(SScoreDiff ~ GeneticDistance + 0, data = subset(gen_growth_dist_melt, Condition==x))
+  lm(SScoreDiff ~ GeneticDistance, data = subset(gen_growth_dist_melt, Condition==x))
   })
 
 fit_df <- data.frame(condition = unique(gen_growth_dist_melt$Condition),
-                     coef = sapply(fits, function(x){x$coefficients}))
+                     slope = sapply(fits, function(x){x$coefficients[2]}),
+                     int = sapply(fits, function(x){x$coefficients[1]}))
 
 # Lm coefficients are not normally distributed
-shapiro.test(fit_df$coef) 
+shapiro.test(fit_df$slope) 
 # Shapiro-Wilk normality test
 # 
 # data:  fit_df$coef
-# W = 0.9171, p-value = 0.004311
+# W = 0.94616, p-value = 0.04324
+shapiro.test(fit_df$int) 
+# Shapiro-Wilk normality test
+# 
+# data:  fit_df$int
+# W = 0.94483, p-value = 0.03868
 
+# Model variance of scorediff
+bins=50
+gen_growth_dist_melt$bins <- cut(gen_growth_dist_melt$GeneticDistance, bins, labels = FALSE)
+
+gen_growth_binned <- matrix(data = 1:bins, nrow = bins, ncol = length(unique(gen_growth_dist_melt$Condition)))
+colnames(gen_growth_binned) <- unique(gen_growth_dist_melt$Condition)
+gen_growth_binned <- melt(gen_growth_binned)[,c(1,2)]
+colnames(gen_growth_binned) <- c('Bin', 'Condition')
+
+gen_growth_binned$varSScoreDiff <- NA
+for (con in unique(gen_growth_binned$Condition)){
+  for (bin in 1:bins){
+    gen_growth_binned[gen_growth_binned$Condition == con & gen_growth_binned$Bin == bin, 'varSScoreDiff'] = 
+      var(gen_growth_dist_melt[gen_growth_dist_melt$bins == bin & gen_growth_dist_melt$Condition == con, 'SScoreDiff'])
+  }
+}
+  
 ## Test high genetic difference strains only
 gen_growth_dist_melt_far <- subset(gen_growth_dist_melt, GeneticDistance > 100000)
 

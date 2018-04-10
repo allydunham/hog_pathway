@@ -1,5 +1,6 @@
 # Script looking at ko probability of genes comparaed to growth rates
 library(ggplot2)
+library(reshape2)
 setwd('~/Projects/hog/')
 
 ko_prob <- read.table("data/hog-gene-variants.probs.blosum", header = TRUE, row.names = 1, sep='\t')
@@ -91,16 +92,59 @@ abline(a = fitG$coefficients[1], b = fitG$coefficients[2])
 dev.off()
 
 ## Test number of ko'd genes
-thresh <- 0.25
+thresh <- 0.5
 ko_thresh <- ko_prob > thresh
 
 growth$ko_count <- rowSums(ko_thresh)
+growth$ko_sum <- rowSums(ko_prob)
+
 growth$strain <- rownames(growth)
 
-growth_melt <- melt(growth, id.vars = c('strain', 'ko_count'), variable.name = 'Condition', value.name = 'SScore')
+growth_melt <- melt(growth, id.vars = c('strain', 'ko_count', 'ko_sum'), variable.name = 'Condition', value.name = 'SScore')
 
-p_ko_count <- ggplot(growth_melt, aes(x=ko_count, y=SScore, col=Condition)) + geom_point() + geom_smooth(method='lm', formula = y~x)
-p_ko_count
+p_ko_count <- ggplot(growth_melt, aes(x=ko_count, y=SScore, col=Condition)) + geom_point() + geom_smooth(method='lm', formula = y~x) + 
+  ggtitle(paste0('Effect of number of likely KOs on growth (Threshold: p(Aff) = ', thresh,')')) + xlab('KO Count') + ylab('S Score')
+
+ggsave('figures/ko-count-vs-growth.pdf', p_ko_count, width = 12, height = 10)
 
 fit <- lm(SScore ~ ko_count, data = subset(growth_melt, Condition=='sodium.chloride.0.6mM'))
 # Correlation is observed but not significant
+
+p_ko_sum <- ggplot(growth_melt, aes(x=ko_sum, y=SScore, col=Condition)) + geom_point() + geom_smooth(method='lm', formula = y~x)
+
+
+## Test association against high probability ko
+high_conf_ko <- read.table('data/hog-gene-variants.conf-ko0.9', header = TRUE, row.names = 1)
+colnames(high_conf_ko) <- sapply(colnames(high_conf_ko), function(x){hog_meta[hog_meta$id == x, 'gene']})
+
+high_conf_ko_growth <- high_conf_ko[rownames(growth),]
+
+growth$ko_count <- rowSums(high_conf_ko_growth)
+
+growth_melt <- melt(growth, id.vars = c('strain', 'ko_count'), variable.name = 'Condition', value.name = 'SScore')
+
+p_conf_ko_count <- ggplot(growth_melt, aes(x=ko_count, y=SScore, col=Condition)) + geom_point() + geom_smooth(method='lm', formula = y~x) + 
+  ggtitle('Effect of number of high confidence KOs on growth (Threshold: Proportion = 0.9)') + xlab('KO Count') + ylab('S Score')
+
+ggsave('figures/conf_ko-count-vs-growth.pdf', p_conf_ko_count, width = 12, height = 10)
+
+growth_melt$any <- growth_melt$ko_count > 0
+
+p_conf_ko_box <- ggplot(growth_melt, aes(x=any, y=SScore)) + geom_boxplot() + 
+  ggtitle('Distribution of S Score with HOG knockouts') + xlab('KOs') + ylab('S Score')
+
+ggsave('figures/conf-kos-vs-growth-box.pdf', p_conf_ko_box, width = 12, height = 10)
+
+t.test(SScore~any, data = growth_melt, alternative='t')
+# Welch Two Sample t-test
+# 
+# data:  SScore by any
+# t = 0.76824, df = 28.774, p-value = 0.4486
+# alternative hypothesis: true difference in means is not equal to 0
+# 95 percent confidence interval:
+#   -0.2528098  0.5568282
+# sample estimates:
+#   mean in group FALSE  mean in group TRUE 
+# -0.1026670          -0.2546762 
+
+                                 
