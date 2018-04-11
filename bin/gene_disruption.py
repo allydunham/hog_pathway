@@ -17,7 +17,8 @@ import pandas as pd
 def main(args):
     """Main script"""
     # Import impact table
-    impacts = pd.read_table(args.mutations)
+    impacts = pd.read_table(args.mutations, sep='\t', header=0, true_values=['True'],
+                            false_values=['False'], low_memory=False)
 
     # Extract list of affected genes
     genes = impacts.gene.dropna().unique()
@@ -64,6 +65,9 @@ def high_conf_gene_ko(muts, impacts, gene):
 def gene_impact_prob(muts, impacts, gene):
     """Determine the probability that a gene carrying a series of variants is neutral"""
     # Sort mutations
+    if not muts:
+        return 0
+
     muts = sorted(muts, key=lambda x: impacts[(impacts['mut_id'] == x) &
                                               (impacts['gene'] == gene)]['pos_aa'].item())
 
