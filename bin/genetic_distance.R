@@ -81,7 +81,7 @@ gen_growth_dist_melt <- melt(gen_growth_dist, id.vars = c('Strain1', 'Strain2', 
                         variable.name = 'Condition', value.name = 'SScoreDiff')
 
 p_gen_dist <- ggplot(gen_growth_dist_melt, aes(x=GeneticDistance, y=SScoreDiff, col=Condition)) + 
-  geom_point() #+ geom_smooth(method='lm', formula = y~x)
+  geom_point() + geom_smooth(method='lm', formula = y~x, level = 0)
 
 #[gen_growth_dist_melt$Condition %in% grep('glucose', unique(gen_growth_dist_melt$Condition), value = TRUE), ]
 
@@ -118,10 +118,23 @@ gen_growth_binned$varSScoreDiff <- NA
 for (con in unique(gen_growth_binned$Condition)){
   for (bin in 1:bins){
     gen_growth_binned[gen_growth_binned$Condition == con & gen_growth_binned$Bin == bin, 'varSScoreDiff'] = 
-      var(gen_growth_dist_melt[gen_growth_dist_melt$bins == bin & gen_growth_dist_melt$Condition == con, 'SScoreDiff'])
+      sd(gen_growth_dist_melt[gen_growth_dist_melt$bins == bin & gen_growth_dist_melt$Condition == con, 'SScoreDiff'])
   }
 }
-  
+r <- range(gen_growth_dist_melt$GeneticDistance)
+gen_growth_binned$Midpoint <- r[1] + gen_growth_binned$Bin * (r[2] - r[1])/(bins * 2)
+
+p_binned_var <- ggplot(gen_growth_binned, aes(x=Midpoint, y=varSScoreDiff, col=Condition)) + geom_point() + 
+  geom_smooth(method = 'lm', formula = y~x, level=0) + xlab('Genetic Distance') + ylab("Standard Deviation of S-Score Differences")
+
+fit <- lm(formula = varSScoreDiff ~ Midpoint:Condition, data = gen_growth_binned)
+
+p_binned_sd_box <- ggplot(gen_growth_binned, aes(x=Condition, y=varSScoreDiff)) + geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylab("Standard Deviation of S-Score Differences")
+
+ggsave('figures/condition-growth-diff-sd-box.pdf', device = 'pdf', plot = p_binned_sd_box, width = 12, height = 10)
+ggsave('figures/condition-growth-diff-sd.pdf', device = 'pdf', plot = p_binned_var, width = 12, height = 10)
+
 ## Test high genetic difference strains only
 gen_growth_dist_melt_far <- subset(gen_growth_dist_melt, GeneticDistance > 100000)
 
