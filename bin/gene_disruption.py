@@ -20,6 +20,9 @@ def main(args):
     impacts = pd.read_table(args.mutations, sep='\t', header=0, true_values=['True'],
                             false_values=['False'], low_memory=False)
 
+    # Remove all synonymous entries which are not of interest
+    impacts = impacts[impacts['type'] != 'synonymous']
+
     # Extract list of affected genes
     genes = impacts.gene.dropna().unique()
 
@@ -127,14 +130,15 @@ def import_genotypes(genotype_file, genes, impacts, strains=''):
             line = line.strip().split('\t')
             mut_id = line[0]
 
-            # Identify impacted genes
-            affected_genes = impacts[impacts['mut_id'] == mut_id].gene.dropna().values
+            if mut_id in impacts['mut_id'].values:
+                # Identify impacted genes
+                affected_genes = impacts[impacts['mut_id'] == mut_id].gene.dropna().values
 
-            # Add mutations to appropriate strain/gene
-            for i in indeces:
-                if not line[i] == '0':
-                    for gene in affected_genes:
-                        strain_muts[header[i]][gene].append(mut_id)
+                # Add mutations to appropriate strain/gene
+                for i in indeces:
+                    if not line[i] == '0':
+                        for gene in affected_genes:
+                            strain_muts[header[i]][gene].append(mut_id)
 
     return strain_muts
 
