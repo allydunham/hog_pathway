@@ -1,3 +1,4 @@
+# Script examining bede growth data
 setwd('Projects/pathways/variation/')
 
 growth <- read.table("raw_data/bede_2017_parsed.tsv",sep='\t',header = TRUE)

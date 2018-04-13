@@ -1,5 +1,4 @@
 #!/usr/bin/env Rscript
-
 library(VariantAnnotation)
 library(BSgenome.Scerevisiae.UCSC.sacCer3)
 library(TxDb.Scerevisiae.UCSC.sacCer3.sgdGene)
