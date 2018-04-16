@@ -64,7 +64,7 @@ p_ko_count <- ggplot(growth, aes(x=ko_count, y=sscore, col=condition)) +
                        ggtitle(paste0('Effect of number of likely KOs on growth (Threshold: p(Aff) = ', thresh,')')) + 
                        xlab('KO Count') + ylab('S Score')
 
-ggsave('figures/ko-count-vs-growth.pdf', p_ko_count, width = 12, height = 10)
+ggsave('figures/bede_growth_data/ko-count-vs-growth.pdf', p_ko_count, width = 12, height = 10)
 
 fit <- lm(sscore ~ ko_count, data = filter(growth, condition=='sodium chloride 0.6mM'))
 # Residuals:
@@ -87,7 +87,7 @@ p_ko_sum <- ggplot(growth, aes(x=p_aff_sum, y=sscore, col=condition)) +
   geom_smooth(method='lm', formula = y~x) + 
   xlab('Sum(P(Aff))') + ylab('S-Score')
 
-ggsave('figures/sum_p_aff-vs-growth.pdf', p_ko_sum, width = 12, height = 10)
+ggsave('figures/bede_growth_data/sum_p_aff-vs-growth.pdf', p_ko_sum, width = 12, height = 10)
 
 
 #### Test association against high probability ko ####
@@ -108,7 +108,7 @@ p_conf_ko_count <- ggplot(growth, aes(x=high_conf_ko_count, y=sscore, col=condit
   ggtitle('Effect of number of high confidence KOs on growth (Threshold: Proportion = 0.9)') + 
   xlab('KO Count') + ylab('S Score')
 
-ggsave('figures/conf_ko-count-vs-growth.pdf', p_conf_ko_count, width = 12, height = 10)
+ggsave('figures/bede_growth_data/conf-ko-count-vs-growth.pdf', p_conf_ko_count, width = 12, height = 10)
 
 # Test if presence of any high conf is important
 growth %<>% mutate(any = high_conf_ko_count > 0)
@@ -118,7 +118,7 @@ p_conf_ko_box <- ggplot(growth, aes(x=any, y=sscore)) +
   ggtitle('Distribution of S Score with HOG knockouts') + 
   xlab('KOs') + ylab('S Score')
 
-ggsave('figures/conf-kos-vs-growth-box.pdf', p_conf_ko_box, width = 12, height = 10)
+ggsave('figures/bede_growth_data/conf-kos-vs-growth-box.pdf', p_conf_ko_box, width = 12, height = 10)
 
 t.test(sscore~any, data = growth, alternative='l')
 # Welch Two Sample t-test
@@ -144,7 +144,7 @@ p_bin_path_growth <- ggplot(path_active, aes(x=hog_active, y=sscore)) +
   facet_wrap(~condition) + 
   xlab('HOG Path Active') + ylab('S-Score')
 
-ggsave('figures/bin-path-vs-growth.pdf', width = 12, height = 10, plot = p_bin_path_growth)
+ggsave('figures/bede_growth_data/bin-path-vs-growth.pdf', width = 12, height = 10, plot = p_bin_path_growth)
 
 t.test(sscore ~ hog_active, data = path_active, alternative='less')
 
@@ -155,7 +155,7 @@ p_prob_path_growth <- ggplot(path_active, aes(x=hog_probability, y=sscore, colou
   xlab('Hog1 Activity Probability') + 
   ylab('S-Score')
 
-ggsave('figures/path-probability-vs-growth.pdf', width = 12, height = 10, plot = p_prob_path_growth)
+ggsave('figures/bede_growth_data/path-probability-vs-growth.pdf', width = 12, height = 10, plot = p_prob_path_growth)
 
 fit <- lm(sscore~hog_probability, data = path_active, subset = path_active$condition == 'sodium chloride 0.6mM')
 
@@ -166,7 +166,7 @@ p_growth_cor <- ggplot(spread(path_active, key = 'condition', value = 'sscore'),
   xlab('S-Score (NaCl 0.4mM)') + 
   ylab('S-Score (NaCl 0.6mM)')
 
-ggsave('figures/growth_correlation_nacl.pdf', width = 12, height = 10, plot = p_growth_cor)
+ggsave('figures/bede_growth_data/growth_correlation_nacl.pdf', width = 12, height = 10, plot = p_growth_cor)
 
 # Strong correlation, increase in .6mM is slower
 fit <- lm(`sodium chloride 0.6mM` ~ `sodium chloride 0.4mM`, spread(path_active, key = 'condition', value = 'sscore'))

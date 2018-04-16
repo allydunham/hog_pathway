@@ -6,11 +6,21 @@ library(magrittr)
 #### Import Data ####
 ## Import new growth data
 growth <- read_tsv(file = 'data/raw/phenoMatrix_35ConditionsNormalizedByYPD.tab', col_names = TRUE) %>% 
-  rename(strain=X1)
-names(growth) <- str_to_lower(names(growth))
+  rename(strain=X1) %>%
+  set_names(str_to_lower(names(.)))
+
+# initial growth distribution plot
+p_con_growth_distribution <- ggplot(gather(growth, key = 'condition', value = 'growth', -strain), aes(x=condition, y=growth)) + 
+  geom_boxplot() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+p_strain_growth_distribution <- ggplot(gather(growth, key = 'condition', value = 'growth', -strain), aes(x=strain, y=growth)) + 
+  geom_boxplot() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
 
 # Normalise growth between strains?
-# initial growth distribution plot
+# Currently normalised relative to growth in unstressed media
 
 ## Calculate distance data
 load('data/genetic_distance_old.Rdata')
@@ -68,25 +78,71 @@ meta <- read_tsv('meta/strain_information.tsv', col_names = TRUE)
 filtered_strains <- filter(meta, Ploidy == 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
 
 distance <- filter(distance, strain %in% filtered_strains & strain2 %in% filtered_strains)
-path <- filter(path, strain %in% filtered_strains)
-
-#### Initial Analysis ####
-p_con_growth_box <- ggplot(path, aes(x=condition, y=growth)) + geom_boxplot()
-p_strain_growth_box <- ggplot(path, aes(x=strain, y=growth)) + geom_boxplot()
-
+path <- filter(path, strain %in% filtered_strains, condition %in% c("ypdnacl1m", "ypdnacl15m"))
 
 #### NaCl Growth Against Hog Pathway ####
-p_nacl_growth_vs_hog_prob <- ggplot(path, aes(x=hog_probability)) + 
-  geom_point(aes(y = growth_NaCl1mM, col='NaCl 1mM')) + geom_smooth(method = 'lm', aes(y = growth_NaCl1mM, col='NaCl 1mM')) + 
-  geom_point(aes(y = growth_NaCl1.5mM, col='NaCl 1.5mM')) + geom_smooth(method = 'lm', aes(y = growth_NaCl1.5mM, col='NaCl 1.5mM'))
+p_nacl_growth_vs_hog_prob <- ggplot(path, aes(x=hog_probability, y=growth, colour=condition)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm')
 
-fit1 <- lm(growth_NaCl1mM ~ hog_probability, data = path)
-fit15 <- lm(growth_NaCl1.5mM ~ hog_probability, data = path)
+ggsave('figures/liti_growth_data/hog_prob_growth.pdf', width = 12, height = 10, plot = p_nacl_growth_vs_hog_prob)
 
-p_nacl_growth_vs_hog_sum <- ggplot(path, aes(x=count, y=growth_NaCl1mM)) + geom_point() + geom_smooth(method = 'lm')
-  
+fit1 <- lm(growth ~ hog_probability, data = path, subset = path$condition == "ypdnacl1m")
+fit15 <- lm(growth ~ hog_probability, data = path, subset = path$condition == "ypdnacl15m")
+
+p_nacl_growth_vs_hog_sum <- ggplot(path, aes(x=count, y=growth, colour=condition)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm')
+
+ggsave('figures/liti_growth_data/hog_ko_count_growth.pdf', width = 12, height = 10, plot = p_nacl_growth_vs_hog_sum)
+
+fit1 <- lm(growth ~ count, data = path, subset = path$condition == "ypdnacl1m")
+fit15 <- lm(growth ~ count, data = path, subset = path$condition == "ypdnacl15m")
+
 #### Distance plots
-p_growth_genetic_distance <- ggplot(distance, aes(x=genetic_distance, y=ypdnacl15m_distance)) + geom_den
+p_growth_genetic_distance <- ggplot(distance, aes(x=genetic_distance, y=ypdnacl15m_distance)) + geom_point()
 
+
+#### Use ratio for distance ####
+load('data/genetic_distance_old.Rdata')
+
+# remove old growth records
+rm(growth_distance_NaCl4, growth_distance_NaCl6, genetic_distance_growth)
+
+growth_filtered <- filter(growth, strain %in% filtered_strains) %>%
+  select(strain, ypdnacl15m, ypdnacl1m)
+
+# filter strains with no growth data
+genetic_distance <- as_tibble(genetic_distance, rownames = 'strain') %>%
+  select(strain, growth_filtered$strain) %>%
+  filter(strain %in% growth_filtered$strain) %>%
+  gather(key = 'strain2', value = 'genetic_distance', -strain)
+
+growth_ratio <- function(x){
+  name <- paste0(x, '_ratio')
+  gro <- structure(growth_filtered[[x]], names=growth_filtered$strain)
+
+  t <- sapply(gro, function(i){
+    sapply(gro, function(j){
+      i/j # Gives col/row in matrix
+    })
+  })
   
+  t <- as_tibble(t) %>%
+    add_column(strain = growth_filtered$strain, .before = 1) %>%
+    gather(key = 'strain2', value = !!name, -strain) %>%
+    select(!!name)
+  
+  return(t)
+}
+
+ratios <- lapply(names(growth_filtered)[-1], growth_ratio) %>% 
+  bind_cols(genetic_distance, .) %>%
+  gather(key = 'condition', value = 'ratio', -strain, -strain2, -genetic_distance)
+
+p_dist_growth_ratio <- ggplot(ratios, aes(x=genetic_distance, y=ratio, colour=condition)) + 
+  geom_point()
+
+
+
   
