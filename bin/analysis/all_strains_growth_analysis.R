@@ -9,6 +9,9 @@ growth <- read_tsv(file = 'data/raw/phenoMatrix_35ConditionsNormalizedByYPD.tab'
   rename(strain=X1)
 names(growth) <- str_to_lower(names(growth))
 
+# Normalise growth between strains?
+# initial growth distribution plot
+
 ## Calculate distance data
 load('data/genetic_distance_old.Rdata')
 
