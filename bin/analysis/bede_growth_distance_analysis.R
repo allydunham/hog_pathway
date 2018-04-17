@@ -74,9 +74,10 @@ p_gen_growth_dist_hog <- ggplot(filter(distance, condition %in% c("sodium chlori
   geom_point() +
   xlab("Genetic Distance (Manhatten)") +
   ylab("Difference in S-Score")
+ggsave('figures/genetic_dist/genetic_dist_nacl.pdf', width = 14, height = 10, plot = p_gen_growth_dist_hog)
 
 # Analyse whole genome distance structure
-pdf('figures/genetic_dist_heatmap_small.pdf', width = 20, height = 20)
+pdf('figures/genetic_dist/genetic_dist_heatmap_small.pdf', width = 20, height = 20)
 heatmap.2(genetic_distance, symm = TRUE, revC = TRUE, col=cols,
           breaks=seq(0,max(genetic_distance),max(genetic_distance)/256), trace = "none")
 dev.off()
@@ -87,16 +88,12 @@ p_gen_growth_dist_full <- ggplot(distance,
   geom_point() +
   xlab("Genetic Distance (Manhatten)") +
   ylab("Difference in S-Score")
-
+ggsave('figures/genetic_dist/genetic_dist_all.pdf', width = 28, height = 10, plot = p_gen_growth_dist_full)
 
 # Try to determine difference between distribution of distances
-fits <- lapply(unique(gen_growth_dist_melt$Condition), function(x){
-  lm(SScoreDiff ~ GeneticDistance, data = subset(gen_growth_dist_melt, Condition==x))
-  })
+fit <- lm(sscore_diff ~ genetic_distance_full:condition + 0, data = distance)
+condition_effects <- summary(fit)$coefficients
 
-fit_df <- data.frame(condition = unique(gen_growth_dist_melt$Condition),
-                     slope = sapply(fits, function(x){x$coefficients[2]}),
-                     int = sapply(fits, function(x){x$coefficients[1]}))
 
 # Lm coefficients are not normally distributed
 shapiro.test(fit_df$slope) 
@@ -129,16 +126,19 @@ for (con in unique(gen_growth_binned$condition)){
 r <- range(distance$genetic_distance_full)
 gen_growth_binned$midpoint <- r[1] + gen_growth_binned$bin * (r[2] - r[1])/(bins * 2)
 
-p_binned_var <- ggplot(gen_growth_binned, aes(x=midpoint, y=sd_sscore_diff, col=condition)) + geom_point() + 
-  geom_smooth(method = 'lm', formula = y~x, level=0) + xlab('Genetic Distance') + ylab("Standard Deviation of S-Score Differences")
+p_binned_var <- ggplot(filter(gen_growth_binned, condition %in% c("sodium chloride 0.4mM","sodium chloride 0.6mM")),
+                       aes(x=midpoint, y=sd_sscore_diff, col=condition)) +
+  geom_point() + 
+  geom_smooth(method = 'lm', formula = y~x, level=0) +
+  xlab('Genetic Distance') + ylab("Standard Deviation of S-Score Differences")
 
-fit <- lm(formula = sd_sscore_diff ~ midpoint:condition, data = gen_growth_binned)
+fit <- lm(formula = sd_sscore_diff ~ midpoint, data = filter(gen_growth_binned, condition %in% c("sodium chloride 0.4mM")))
 
 p_binned_sd_box <- ggplot(gen_growth_binned, aes(x=condition, y=sd_sscore_diff)) + geom_boxplot() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylab("Standard Deviation of S-Score Differences")
 
-ggsave('figures/condition-growth-diff-sd-box.pdf', device = 'pdf', plot = p_binned_sd_box, width = 12, height = 10)
-ggsave('figures/condition-growth-diff-sd.pdf', device = 'pdf', plot = p_binned_var, width = 12, height = 10)
+ggsave('figures/genetic_dist/genetic_dist_sd_growth_box.pdf', device = 'pdf', plot = p_binned_sd_box, width = 12, height = 10)
+ggsave('figures/genetic_dist/genetic_dist_sd_growth.pdf', device = 'pdf', plot = p_binned_var, width = 12, height = 10)
 
 # # S-Score normalises to condition
 # p_growth_box <- ggplot(growth_melt, aes(reorder(Condition, SScore, sd), SScore)) + geom_boxplot() +

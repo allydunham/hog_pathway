@@ -89,6 +89,8 @@ p_ko_sum <- ggplot(growth, aes(x=p_aff_sum, y=sscore, col=condition)) +
 
 ggsave('figures/bede_growth_data/sum_p_aff-vs-growth.pdf', p_ko_sum, width = 12, height = 10)
 
+fit <- lm(sscore ~ p_aff_sum, data = filter(growth, condition=='sodium chloride 0.6mM'))
+
 
 #### Test association against high probability ko ####
 high_conf_ko <- read_tsv('data/hog-gene-variants.conf-ko0.9', col_names = TRUE) %>%
@@ -138,6 +140,10 @@ path_active <- read_tsv('data/hog-gene-variants.path.blosum', col_names = TRUE) 
   filter(strain %in% growth$strain) %>%
   left_join(., growth, by = 'strain') %>%
   mutate(hog_active=as.logical(hog_active))
+
+count_categories <- function(x){
+  return(c(y = -3.5, label=length(x)))
+}
 
 p_bin_path_growth <- ggplot(path_active, aes(x=hog_active, y=sscore)) + 
   geom_boxplot() + 

@@ -2,6 +2,7 @@
 setwd('~/Projects/hog/')
 library(tidyverse)
 library(magrittr)
+library(preprocessCore)
 
 #### Import Data ####
 ## Import new growth data
@@ -17,7 +18,6 @@ p_con_growth_distribution <- ggplot(gather(growth, key = 'condition', value = 'g
 p_strain_growth_distribution <- ggplot(gather(growth, key = 'condition', value = 'growth', -strain), aes(x=strain, y=growth)) + 
   geom_boxplot() + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
 
 # Normalise growth between strains?
 # Currently normalised relative to growth in unstressed media
@@ -53,7 +53,9 @@ growth_dist <- function(x){
   return(t)
 }
 
-distance <- lapply(names(growth)[-1], growth_dist) %>% bind_cols(genetic_distance, .)
+distance <- lapply(names(growth)[-1], growth_dist) %>% 
+  bind_cols(genetic_distance, .) %>%
+  gather(key = 'condition', value = 'growth', -strain, -strain2, -genetic_distance)
 # saveRDS(distance, file = 'data/distances-growth-strains.Rdata')
 
 # distance <- readRDS('data/distances-growth-strains.Rdata')
@@ -100,17 +102,61 @@ fit1 <- lm(growth ~ count, data = path, subset = path$condition == "ypdnacl1m")
 fit15 <- lm(growth ~ count, data = path, subset = path$condition == "ypdnacl15m")
 
 #### Distance plots
-p_growth_genetic_distance <- ggplot(distance, aes(x=genetic_distance, y=ypdnacl15m_distance)) + geom_point()
+p_growth_genetic_distance <- ggplot(filter(distance, condition %in% c("ypdnacl1m_distance", "ypdnacl15m_distance")),
+                                    aes(x=genetic_distance, y=growth)) + 
+  geom_point() + facet_wrap(~condition) + 
+  xlab("Genetic Distance") + ylab("Growth")
+
+ggsave('figures/genetic_dist/genetic_dist_nacl_liti.pdf', plot = p_growth_genetic_distance, width = 16, height = 10)
+
+fit <- lm(growth ~ genetic_distance, filter(distance, condition %in% c("ypdnacl15m_distance")))
+
+# Binned SD analysis
+bins = 40
+distance %<>% mutate(bin=cut(distance$genetic_distance, bins, labels = FALSE))
+
+gen_growth_binned <- as_tibble(matrix(data = 1:bins, nrow = bins, ncol = length(unique(distance$condition)))) %>%
+  set_names(unique(distance$condition)) %>%
+  gather(key = 'condition', value = 'bin')
+
+gen_growth_binned$sd_growth_diff <- NA
+
+for (con in unique(gen_growth_binned$condition)){
+  for (bi in 1:bins){
+    gen_growth_binned[gen_growth_binned$condition == con & gen_growth_binned$bin==bi, 'sd_sscore_diff'] <- sd(
+      filter(distance, condition==con, bin==bi)$growth
+    )
+  }
+}
+
+r <- range(distance$genetic_distance)
+gen_growth_binned$midpoint <- r[1] + gen_growth_binned$bin * (r[2] - r[1])/(bins * 2)
+
+p_binned_var <- ggplot(filter(gen_growth_binned, condition %in% c("ypdnacl1m_distance","ypdnacl15m_distance")),
+                       aes(x=midpoint, y=sd_growth_diff, col=condition)) +
+  geom_point() + 
+  geom_smooth(method = 'lm', formula = y~x, level=0) +
+  xlab('Genetic Distance') + ylab("Standard Deviation of Growth Differences")
+
+fit <- lm(formula = sd_sscore_diff ~ midpoint, data = filter(gen_growth_binned, condition %in% c("sodium chloride 0.4mM")))
+
+p_binned_sd_box <- ggplot(gen_growth_binned, aes(x=condition, y=sd_growth_diff)) + geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylab("Standard Deviation of Growth Differences")
+
+ggsave('figures/genetic_dist/genetic_dist_sd_growth_box_liti.pdf', device = 'pdf', plot = p_binned_sd_box, width = 12, height = 10)
+ggsave('figures/genetic_dist/genetic_dist_sd_growth_liti.pdf', device = 'pdf', plot = p_binned_var, width = 12, height = 10)
 
 
 #### Use ratio for distance ####
+growth_filtered <- filter(growth, strain %in% filtered_strains) %>%
+  select(strain, ypdnacl15m, ypdnacl1m) %>%
+  filter(!(ypdnacl15m == 0), !(ypdnacl1m == 0))
+
+# Reload genetic distance info
 load('data/genetic_distance_old.Rdata')
 
 # remove old growth records
 rm(growth_distance_NaCl4, growth_distance_NaCl6, genetic_distance_growth)
-
-growth_filtered <- filter(growth, strain %in% filtered_strains) %>%
-  select(strain, ypdnacl15m, ypdnacl1m)
 
 # filter strains with no growth data
 genetic_distance <- as_tibble(genetic_distance, rownames = 'strain') %>%
