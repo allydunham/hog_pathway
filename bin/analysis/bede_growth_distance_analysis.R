@@ -9,17 +9,20 @@ meta <- read_tsv('meta/strain_information.tsv', col_names = TRUE)
 strain_to_sys <- structure(meta$`Standardized name`, names=meta$`Isolate name`)
 sys_to_strain <- structure(names(strain_to_sys), names = strain_to_sys)
 
+filtered_strains <- filter(meta, Ploidy == 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
+
 # Import growth data
 growth <- read_tsv("data/raw/bede_2017_parsed.tsv", col_names = TRUE) %>%
   mutate(strain=strain_to_sys[strain]) %>%
-  filter(!is.na(strain)) %>%
+  drop_na(strain) %>%
+#  filter(strain %in% filtered_strains) %>%
   arrange(strain)
 
 # Import genotype data
 genotypes <- read_tsv("data/hog-gene-variants.all-genotypes", col_names = TRUE) %>%
   gather(strain, val, -mut_id) %>%
   spread(mut_id, val) %>%
-  filter(strain %in% growth$strain) %>%
+  filter(strain %in% growth$strain) %>% # & strain %in% filtered_strains)
   arrange(strain)
 
 # Calculate genetic distance between strains with growth data
@@ -31,6 +34,7 @@ genetic_distance <- as_tibble(genetic_distance) %>%
   add_column(strain=genotypes$strain, .before = 1) %>%
   gather(key = 'strain2', value = 'genetic_distance', -strain) %>%
   drop_na(genetic_distance)
+#  filter(strain %in% filtered_strains & strain2 %in% filtered_strains)
   
 # Calculate growth distances and create distance table
 growth_dist <- function(x){
@@ -51,7 +55,9 @@ distance <- lapply(names(growth)[-1], growth_dist) %>% bind_cols(genetic_distanc
 
 ## Load whole genome genetic distance
 load('data/genetic_distance_old.Rdata')
-cols <- colorRampPalette(c("white","red"))(256)
+#genetic_distance <- genetic_distance[rownames(genetic_distance) %in% filtered_strains,
+#                                     colnames(genetic_distance) %in% filtered_strains]
+
 rownames(genetic_distance) <- sys_to_strain[rownames(genetic_distance)]
 
 gen_dist <- genetic_distance
@@ -76,8 +82,10 @@ p_gen_growth_dist_hog <- ggplot(filter(distance, condition %in% c("sodium chlori
   ylab("Difference in S-Score")
 ggsave('figures/genetic_dist/genetic_dist_nacl.pdf', width = 14, height = 10, plot = p_gen_growth_dist_hog)
 
+
 # Analyse whole genome distance structure
 pdf('figures/genetic_dist/genetic_dist_heatmap_small.pdf', width = 20, height = 20)
+cols <- colorRampPalette(c("white","red"))(256)
 heatmap.2(genetic_distance, symm = TRUE, revC = TRUE, col=cols,
           breaks=seq(0,max(genetic_distance),max(genetic_distance)/256), trace = "none")
 dev.off()
@@ -93,6 +101,20 @@ ggsave('figures/genetic_dist/genetic_dist_all.pdf', width = 28, height = 10, plo
 # Try to determine difference between distribution of distances
 fit <- lm(sscore_diff ~ genetic_distance_full:condition + 0, data = distance)
 condition_effects <- summary(fit)$coefficients
+
+p_gen_growth_dist_full_smooth <- ggplot(distance,
+                                 aes(x=genetic_distance_full, y=sscore_diff, colour=condition)) +
+  geom_smooth(method = 'lm', formula = y~x+0) +
+  xlab("Genetic Distance (Manhatten)") +
+  ylab("Difference in S-Score")
+ggsave('figures/genetic_dist/genetic_dist_all_smooth.pdf', width = 28, height = 10, plot = p_gen_growth_dist_full_smooth)
+
+p_gen_growth_dist_full_nacl <- ggplot(filter(distance, condition %in% c("sodium chloride 0.4mM", "sodium chloride 0.6mM")),
+                                 aes(x=genetic_distance_full, y=sscore_diff, colour=condition)) +
+  geom_point() +
+  xlab("Genetic Distance (Manhatten)") +
+  ylab("Difference in S-Score")
+ggsave('figures/genetic_dist/genetic_dist_full_nacl.pdf', width = 14, height = 10, plot = p_gen_growth_dist_full_nacl)
 
 
 # Lm coefficients are not normally distributed
