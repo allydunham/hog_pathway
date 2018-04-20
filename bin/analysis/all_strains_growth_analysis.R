@@ -87,7 +87,7 @@ p_nacl_growth_vs_hog_prob <- ggplot(path, aes(x=hog_probability, y=growth, colou
   geom_point() + 
   geom_smooth(method = 'lm')
 
-ggsave('figures/liti_growth_data/hog_prob_growth.pdf', width = 12, height = 10, plot = p_nacl_growth_vs_hog_prob)
+ggsave('figures/liti_growth/hog_prob_growth.pdf', width = 12, height = 10, plot = p_nacl_growth_vs_hog_prob)
 
 fit1 <- lm(growth ~ hog_probability, data = path, subset = path$condition == "ypdnacl1m")
 fit15 <- lm(growth ~ hog_probability, data = path, subset = path$condition == "ypdnacl15m")
@@ -96,7 +96,7 @@ p_nacl_growth_vs_hog_sum <- ggplot(path, aes(x=count, y=growth, colour=condition
   geom_point() + 
   geom_smooth(method = 'lm')
 
-ggsave('figures/liti_growth_data/hog_ko_count_growth.pdf', width = 12, height = 10, plot = p_nacl_growth_vs_hog_sum)
+ggsave('figures/liti_growth/hog_ko_count_growth.pdf', width = 12, height = 10, plot = p_nacl_growth_vs_hog_sum)
 
 fit1 <- lm(growth ~ count, data = path, subset = path$condition == "ypdnacl1m")
 fit15 <- lm(growth ~ count, data = path, subset = path$condition == "ypdnacl15m")
@@ -107,11 +107,11 @@ p_growth_genetic_distance <- ggplot(filter(distance, condition %in% c("ypdnacl1m
   geom_point() + facet_wrap(~condition) + 
   xlab("Genetic Distance") + ylab("Growth")
 
-ggsave('figures/genetic_dist/genetic_dist_nacl_liti.pdf', plot = p_growth_genetic_distance, width = 16, height = 10)
+ggsave('figures/liti_dist/genetic_dist_nacl_liti.pdf', plot = p_growth_genetic_distance, width = 16, height = 10)
 
 fit <- lm(growth ~ genetic_distance, filter(distance, condition %in% c("ypdnacl15m_distance")))
 
-# Binned SD analysis
+# Binned analysis
 bins = 40
 distance %<>% mutate(bin=cut(distance$genetic_distance, bins, labels = FALSE))
 
@@ -123,7 +123,7 @@ gen_growth_binned$sd_growth_diff <- NA
 
 for (con in unique(gen_growth_binned$condition)){
   for (bi in 1:bins){
-    gen_growth_binned[gen_growth_binned$condition == con & gen_growth_binned$bin==bi, 'sd_sscore_diff'] <- sd(
+    gen_growth_binned[gen_growth_binned$condition == con & gen_growth_binned$bin==bi, 'sd_growth_diff'] <- sd(
       filter(distance, condition==con, bin==bi)$growth
     )
   }
@@ -138,13 +138,41 @@ p_binned_var <- ggplot(filter(gen_growth_binned, condition %in% c("ypdnacl1m_dis
   geom_smooth(method = 'lm', formula = y~x, level=0) +
   xlab('Genetic Distance') + ylab("Standard Deviation of Growth Differences")
 
-fit <- lm(formula = sd_sscore_diff ~ midpoint, data = filter(gen_growth_binned, condition %in% c("sodium chloride 0.4mM")))
+fit <- lm(formula = sd_growth_diff ~ midpoint, data = filter(gen_growth_binned, condition %in% c("ypdnacl1m_distance")))
 
 p_binned_sd_box <- ggplot(gen_growth_binned, aes(x=condition, y=sd_growth_diff)) + geom_boxplot() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylab("Standard Deviation of Growth Differences")
 
-ggsave('figures/genetic_dist/genetic_dist_sd_growth_box_liti.pdf', device = 'pdf', plot = p_binned_sd_box, width = 12, height = 10)
-ggsave('figures/genetic_dist/genetic_dist_sd_growth_liti.pdf', device = 'pdf', plot = p_binned_var, width = 12, height = 10)
+ggsave('figures/liti_dist/genetic_dist_sd_growth_box_liti.pdf', device = 'pdf', plot = p_binned_sd_box, width = 12, height = 10)
+ggsave('figures/liti_dist/genetic_dist_sd_growth_liti.pdf', device = 'pdf', plot = p_binned_var, width = 12, height = 10)
+
+# Using Median
+gen_growth_median_binned <- as_tibble(matrix(data = 1:bins, nrow = bins, ncol = length(unique(distance$condition)))) %>%
+  set_names(unique(distance$condition)) %>%
+  gather(key = 'condition', value = 'bin')
+
+gen_growth_median_binned$med_growth_diff <- NA
+
+for (con in unique(gen_growth_median_binned$condition)){
+  for (bi in 1:bins){
+    gen_growth_median_binned[gen_growth_median_binned$condition == con & gen_growth_median_binned$bin==bi, 'med_growth_diff'] <- median(
+      filter(distance, condition==con, bin==bi)$growth
+    )
+  }
+}
+
+r <- range(distance$genetic_distance)
+gen_growth_median_binned$midpoint <- r[1] + gen_growth_median_binned$bin * (r[2] - r[1])/(bins * 2)
+
+p_binned_med <- ggplot(filter(gen_growth_median_binned, condition %in% c("ypdnacl1m_distance","ypdnacl15m_distance")),
+                       aes(x=midpoint, y=med_growth_diff, col=condition)) +
+  geom_point() + 
+  geom_smooth(method = 'lm', formula = y~x, level=0) +
+  xlab('Genetic Distance') + ylab("Median of Growth Difference")
+
+fit <- lm(formula = med_growth_diff ~ midpoint, data = filter(gen_growth_median_binned, condition %in% c("ypdnacl15m_distance")))
+
+ggsave('figures/liti_dist/genetic_dist_median_growth_liti.pdf', device = 'pdf', plot = p_binned_med, width = 12, height = 10)
 
 
 #### Use ratio for distance ####

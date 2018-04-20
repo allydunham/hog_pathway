@@ -1,6 +1,7 @@
 # Script looking at ko probability of genes comparaed to growth rates
 library(tidyverse)
 library(magrittr)
+library(purrr)
 library(gplots)
 setwd('~/Projects/hog/')
 
@@ -15,11 +16,16 @@ meta <- read_tsv('meta/strain_information.tsv', col_names = TRUE, comment = "") 
 strain_to_sys <- structure(meta$`Standardized name`, names=meta$`Isolate name`)
 
 # Import ko probabilities
-prob_aff <- read_tsv("data/hog-gene-variants.probs.blosum", col_names = TRUE) %>%
+prob_aff_hog <- read_tsv("data/hog-gene-variants.probs.blosum", col_names = TRUE) %>%
   select(strain, hog_meta$id) %>%
   set_names(c('strain', hog_meta$name)) %>%
   gather(key = 'gene', value = 'p_aff', -strain)
 
+prob_aff_not_hog <- read_tsv('data/all-genes-no-missing.koprob', col_names = TRUE) %>% 
+  filter(strain %in% growth$strain) %>%
+  select(-one_of(hog_meta$id)) %>%
+  gather(key = 'gene', value = 'p_aff', -strain)
+  
 # Import growth data
 growth <- read_tsv("data/raw/bede_2017_parsed.tsv", col_names = TRUE) %>%
   mutate(strain=str_to_upper(strain)) %>%
@@ -28,35 +34,86 @@ growth <- read_tsv("data/raw/bede_2017_parsed.tsv", col_names = TRUE) %>%
   mutate(strain=strain_to_sys[strain]) %>%
   gather(key = 'condition', value = 'sscore', -strain)
 
-p_paff_box <- ggplot(prob_aff, aes(x=gene, y=p_aff)) + geom_boxplot() + ylab('P(Aff)') + xlab('Gene')
+p_paff_box <- ggplot(prob_aff_hog, aes(x=gene, y=p_aff)) + geom_boxplot() + ylab('P(Aff)') + xlab('Gene')
 
 ggsave('figures/p_affected_genes_box_corrected.pdf', width = 12, height = 10, plot = p_paff_box)
 
 #### Gene Correlations ####
-gene_cor <- cor(as.matrix(spread(prob_aff, key = gene, value = p_aff) %>% select(-strain)))
+gene_cor <- cor(as.matrix(spread(prob_aff_hog, key = gene, value = p_aff) %>% select(-strain)))
 #colnames(gene_cor) <- sapply(colnames(gene_cor), function(x){hog_meta[hog_meta$id == x, "gene"]})
 #rownames(gene_cor) <- sapply(rownames(gene_cor), function(x){hog_meta[hog_meta$id == x, "gene"]})
 
-pdf('figures/gene_ko_probs_heatmap_corrected.pdf', width = 12, height = 12)
+pdf('figures/heatmaps/gene_ko_probs_heatmap_corrected.pdf', width = 12, height = 12)
 cols <- colorRampPalette(c("red","white","blue"))(256)
-heatmap.2(gene_cor, symm=TRUE, col=cols, breaks=seq(-1,1,2/256), trace = "none")
+heatmap.2(gene_cor, symm=TRUE, col=cols, breaks=seq(-1,1,2/256), trace = "none", revC = TRUE, cellnote = round(gene_cor, 2))
 dev.off()
 
+# # Generate lists with all interaction/no interaction correlations
+# interactions <- matrix(FALSE, nrow = dim(gene_cor)[1], ncol = dim(gene_cor)[2], dimnames = list(colnames(gene_cor),rownames(gene_cor)))
+# 
+# get_pairs <- function(x){
+#   # function to create a list of all combinations of a list
+#   t <- expand.grid(x, x)
+#   return(unname(split(t, seq(nrow(t))), force = TRUE))
+# }
+# 
+# for (i in list(c('SLN1','YPD1'),
+#                c('YPD1','SSK1'),
+#                c('SSK2','SSK1'),
+#                c('SSK22','SSK1'),
+#                c('SSK2','SSK22'),
+#                c('SSK2','PBS2'),
+#                c('SSK22','PBS2'),
+#                c('STE11','PBS2'),
+#                c('PBS2','HOG1'),
+#                c('PTC1','HOG1'),
+#                c('PTC1','PBS2'),
+#                c('PTP3','HOG1'),
+#                c('PTP3','PBS2'),
+#                c('PTP2','HOG1'),
+#                c('HOG1','HOT1'),
+#                c('HOG1','SMP1'),
+#                c('HOG1','SKO1'),
+#                c('HOG1','MSN2'),
+#                c('HOG1','MSN4'),
+#                c('HOG1','FPS1'),
+#                c('FPS1','SHO1')
+#                )){
+#   interactions[i, rev(i)] <- TRUE
+# }
+# 
+# no_interactions <- !interactions
+# 
+# interactions[lower.tri(interactions, diag=TRUE)] <- FALSE
+# no_interactions[lower.tri(no_interactions, diag=TRUE)] <- FALSE
+# 
+# hist(gene_cor[interactions], freq = FALSE, xlim = c(-0.1,0.6), col='red')
+# hist(gene_cor[no_interactions], freq = FALSE, add=TRUE, col='blue')
 
 #### Analyse p(aff) against growth ####
 # Filter to strains with growth data
-prob_aff %<>% filter(strain %in% growth$strain)
+prob_aff_hog %<>% filter(strain %in% growth$strain)
 
 ## Test number of ko'd genes
 thresh <- 0.5
-prob_aff %<>% mutate(thresh=p_aff>thresh)
+prob_aff_hog %<>% mutate(thresh=p_aff>thresh)
 
 growth$ko_count <- NA
-growth$p_aff_sum <- NA
+growth$p_aff_hog_sum <- NA
+growth$p_aff_non_hog_sum <- NA
+growth$p_aff_hog_mean <- NA
+growth$p_aff_non_hog_mean <- NA
 for (strain in unique(growth$strain)){
-  growth[growth$strain == strain, 'ko_count'] <- sum(filter(prob_aff, strain == !!strain)$thresh)
-  growth[growth$strain == strain, 'p_aff_sum'] <- sum(filter(prob_aff, strain == !!strain)$p_aff)
+  growth[growth$strain == strain, 'ko_count'] <- sum(filter(prob_aff_hog, strain == !!strain)$thresh)
+  growth[growth$strain == strain, 'p_aff_hog_sum'] <- sum(filter(prob_aff_hog, strain == !!strain)$p_aff)
+  growth[growth$strain == strain, 'p_aff_non_hog_sum'] <- sum(filter(prob_aff_not_hog, strain == !!strain)$p_aff)
+  growth[growth$strain == strain, 'p_aff_hog_mean'] <- mean(filter(prob_aff_hog, strain == !!strain)$p_aff)
+  growth[growth$strain == strain, 'p_aff_non_hog_mean'] <- mean(filter(prob_aff_not_hog, strain == !!strain)$p_aff)
 }
+
+# Normalise to the number of genes
+growth %<>% mutate(p_aff_hog_sum_norm = p_aff_hog_sum/length(unique(prob_aff_hog$gene)),
+                   p_aff_non_hog_sum_norm = p_aff_non_hog_sum/length(unique(prob_aff_not_hog$gene)))
 
 p_ko_count <- ggplot(growth, aes(x=ko_count, y=sscore, col=condition)) +
                        geom_point() + 
@@ -64,7 +121,7 @@ p_ko_count <- ggplot(growth, aes(x=ko_count, y=sscore, col=condition)) +
                        ggtitle(paste0('Effect of number of likely KOs on growth (Threshold: p(Aff) = ', thresh,')')) + 
                        xlab('KO Count') + ylab('S Score')
 
-ggsave('figures/bede_growth_data/ko-count-vs-growth.pdf', p_ko_count, width = 12, height = 10)
+ggsave('figures/bede_growth/ko-count-vs-growth.pdf', p_ko_count, width = 12, height = 10)
 
 fit <- lm(sscore ~ ko_count, data = filter(growth, condition=='sodium chloride 0.6mM'))
 # Residuals:
@@ -82,14 +139,21 @@ fit <- lm(sscore ~ ko_count, data = filter(growth, condition=='sodium chloride 0
 # Multiple R-squared:  0.07661,	Adjusted R-squared:  0.06612 
 # F-statistic: 7.301 on 1 and 88 DF,  p-value: 0.008267
 
-p_ko_sum <- ggplot(growth, aes(x=p_aff_sum, y=sscore, col=condition)) + 
+p_ko_sum <- ggplot(growth, aes(x=p_aff_hog_sum, y=sscore, col=condition)) + 
   geom_point() + 
   geom_smooth(method='lm', formula = y~x) + 
   xlab('Sum(P(Aff))') + ylab('S-Score')
 
-ggsave('figures/bede_growth_data/sum_p_aff-vs-growth.pdf', p_ko_sum, width = 12, height = 10)
+ggsave('figures/bede_growth/sum_p_aff-vs-growth.pdf', p_ko_sum, width = 12, height = 10)
 
-fit <- lm(sscore ~ p_aff_sum, data = filter(growth, condition=='sodium chloride 0.6mM'))
+fit <- lm(sscore ~ p_aff_hog_sum, data = filter(growth, condition=='sodium chloride 0.6mM'))
+
+p_ko_sum_hog <- ggplot(growth, aes(y=sscore)) + 
+  geom_point(aes(x=p_aff_non_hog_mean, colour='Not Hog')) + 
+  geom_smooth(aes(x=p_aff_non_hog_mean, colour='Not Hog'), method='lm', formula = y~x) + 
+  geom_point(aes(x=p_aff_hog_mean, colour='Hog')) + 
+  geom_smooth(aes(x=p_aff_hog_mean, colour='Hog'), method='lm', formula = y~x) +
+  xlab('Sum(P(Aff))') + ylab('S-Score')
 
 
 #### Test association against high probability ko ####
@@ -110,7 +174,7 @@ p_conf_ko_count <- ggplot(growth, aes(x=high_conf_ko_count, y=sscore, col=condit
   ggtitle('Effect of number of high confidence KOs on growth (Threshold: Proportion = 0.9)') + 
   xlab('KO Count') + ylab('S Score')
 
-ggsave('figures/bede_growth_data/conf-ko-count-vs-growth.pdf', p_conf_ko_count, width = 12, height = 10)
+ggsave('figures/bede_growth/conf-ko-count-vs-growth.pdf', p_conf_ko_count, width = 12, height = 10)
 
 # Test if presence of any high conf is important
 growth %<>% mutate(any = high_conf_ko_count > 0)
@@ -120,7 +184,7 @@ p_conf_ko_box <- ggplot(growth, aes(x=any, y=sscore)) +
   ggtitle('Distribution of S Score with HOG knockouts') + 
   xlab('KOs') + ylab('S Score')
 
-ggsave('figures/bede_growth_data/conf-kos-vs-growth-box.pdf', p_conf_ko_box, width = 12, height = 10)
+ggsave('figures/bede_growth/conf-kos-vs-growth-box.pdf', p_conf_ko_box, width = 12, height = 10)
 
 t.test(sscore~any, data = growth, alternative='l')
 # Welch Two Sample t-test
@@ -150,7 +214,7 @@ p_bin_path_growth <- ggplot(path_active, aes(x=hog_active, y=sscore)) +
   facet_wrap(~condition) + 
   xlab('HOG Path Active') + ylab('S-Score')
 
-ggsave('figures/bede_growth_data/bin-path-vs-growth.pdf', width = 12, height = 10, plot = p_bin_path_growth)
+ggsave('figures/bede_growth/bin-path-vs-growth.pdf', width = 12, height = 10, plot = p_bin_path_growth)
 
 t.test(sscore ~ hog_active, data = path_active, alternative='less')
 
@@ -161,7 +225,7 @@ p_prob_path_growth <- ggplot(path_active, aes(x=hog_probability, y=sscore, colou
   xlab('Hog1 Activity Probability') + 
   ylab('S-Score')
 
-ggsave('figures/bede_growth_data/path-probability-vs-growth.pdf', width = 12, height = 10, plot = p_prob_path_growth)
+ggsave('figures/bede_growth/path-probability-vs-growth.pdf', width = 12, height = 10, plot = p_prob_path_growth)
 
 fit <- lm(sscore~hog_probability, data = path_active, subset = path_active$condition == 'sodium chloride 0.6mM')
 
@@ -172,7 +236,7 @@ p_growth_cor <- ggplot(spread(path_active, key = 'condition', value = 'sscore'),
   xlab('S-Score (NaCl 0.4mM)') + 
   ylab('S-Score (NaCl 0.6mM)')
 
-ggsave('figures/bede_growth_data/growth_correlation_nacl.pdf', width = 12, height = 10, plot = p_growth_cor)
+ggsave('figures/bede_growth/growth_correlation_nacl.pdf', width = 12, height = 10, plot = p_growth_cor)
 
 # Strong correlation, increase in .6mM is slower
 fit <- lm(`sodium chloride 0.6mM` ~ `sodium chloride 0.4mM`, spread(path_active, key = 'condition', value = 'sscore'))
