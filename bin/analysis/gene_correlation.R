@@ -6,77 +6,82 @@ library(gplots)
 library(tidyverse)
 library(magrittr)
 
-#### Import ####
-## Strain information
-meta <- read_tsv('meta/strain_information.tsv', col_names = TRUE)
+# #### Import ####
+# ## Strain information
+# meta <- read_tsv('meta/strain_information.tsv', col_names = TRUE)
+# 
+# 
+# ## Gene information
+# genes <- read_tsv('meta/sacc_gene_loci', col_names = TRUE)
+# sys_to_gene <- structure(genes$name, names=genes$id)
+# filtered_strains <- filter(meta, Ploidy == 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
+# 
+# hog_genes <- read_table2('meta/hog-gene-loci', col_names = FALSE, comment = '#') %>%
+#   set_names(c('chrom', 'start', 'stop', 'id', 'name', 'strand'))
+# 
+# 
+# # Growth data
+# growth <- read_tsv(file = 'data/raw/phenoMatrix_35ConditionsNormalizedByYPD.tab', col_names = TRUE) %>% 
+#   rename(strain=X1) %>%
+#   set_names(str_to_lower(names(.)))
+# 
+# ## P(aff)
+# probs <- read_tsv('data/all-genes-no-missing.koprob', col_names = TRUE) %>%
+#   filter(strain %in% growth$strain)
+# 
+# # Filter genes with no variation
+# p_aff_sums <- colSums(select(probs, -strain))
+# no_prob_genes <- names(which(p_aff_sums == 0))
+# probs %<>% select(-one_of(no_prob_genes))
+# 
+# # Complex Membership
+# complexes <- read_tsv('data/complexes.tsv', col_names = TRUE)
+# 
+# ## Calculations
+# # Gene/Gene
+# cor_genes <- cor(select(probs, -strain))
+# 
+# cor_genes[lower.tri(cor_genes, diag = TRUE)] <- NA
+# 
+# same_complex <- function(x, y, comp=complexes){
+#   x_comps <- comp[comp$ORF == x,] %>% pull(Complex)
+#   y_comps <- comp[comp$ORF == y,] %>% pull(Complex)
+#   return(any(x_comps %in% y_comps))
+# }
+# 
+# cor_genes_melt <- as_tibble(cor_genes) %>%
+#   add_column(gene = rownames(cor_genes), .before = 1) %>%
+#   gather(key = 'gene2', value = 'cor', -gene) %>%
+#   drop_na(cor) %>%
+#   mutate(mag = abs(cor)) %>%
+#   arrange(desc(mag)) %>%
+#   mutate(name = sys_to_gene[gene], name2 = sys_to_gene[gene2]) %>%
+#   mutate(complex = map2(.$gene, .$gene2, same_complex))
+# 
+# # Gene/Growth
+# cor_growth <- cor(select(probs, -strain), select(growth, -strain))
+# meanGrowthCor <- rowMeans(cor_growth)
+# 
+# cor_growth_melt <- as_tibble(cor_growth, rownames = 'gene_id') %>%
+#   gather(key='condition', value = 'correlation', -gene_id) %>%
+#   group_by(condition) %>%
+#   mutate(gene_name = sys_to_gene[gene_id]) %>%
+#   mutate(mag = abs(correlation)) %>% 
+#   mutate(cor_sub_mean = correlation - meanGrowthCor) %>%
+#   mutate(cor_div_mean = correlation/meanGrowthCor) %>%
+#   arrange(desc(mag), .by_group = TRUE)
 
-
-## Gene information
-genes <- read_tsv('meta/sacc_gene_loci', col_names = TRUE)
-sys_to_gene <- structure(genes$name, names=genes$id)
-filtered_strains <- filter(meta, Ploidy == 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
-
-hog_genes <- read_table2('meta/hog-gene-loci', col_names = FALSE, comment = '#') %>%
-  set_names(c('chrom', 'start', 'stop', 'id', 'name', 'strand'))
-
-
-# Growth data
-growth <- read_tsv(file = 'data/raw/phenoMatrix_35ConditionsNormalizedByYPD.tab', col_names = TRUE) %>% 
-  rename(strain=X1) %>%
-  set_names(str_to_lower(names(.)))
-
-## P(aff)
-probs <- read_tsv('data/all-genes-no-missing.koprob', col_names = TRUE) %>%
-  filter(strain %in% growth$strain)
-
-# Filter genes with no variation
-p_aff_sums <- colSums(select(probs, -strain))
-no_prob_genes <- names(which(p_aff_sums == 0))
-probs %<>% select(-one_of(no_prob_genes))
-
-# Complex Membership
-complexes <- read_tsv('data/complexes.tsv', col_names = TRUE)
+load('data/correlation_data.Rdata')
 
 #### Analysis ####
 ## Gene/Gene Correlation
-cor_genes <- cor(select(probs, -strain))
-
-cor_genes[lower.tri(cor_genes, diag = TRUE)] <- NA
-
-same_complex <- function(x, y, comp=complexes){
-  x_comps <- comp[comp$ORF == x,] %>% pull(Complex)
-  y_comps <- comp[comp$ORF == y,] %>% pull(Complex)
-  return(any(x_comps %in% y_comps))
-}
-
-cor_genes_melt <- as_tibble(cor_genes) %>%
-  add_column(gene = rownames(cor_genes), .before = 1) %>%
-  gather(key = 'gene2', value = 'cor', -gene) %>%
-  drop_na(cor) %>%
-  mutate(mag = abs(cor)) %>%
-  arrange(desc(mag)) %>%
-  mutate(name = sys_to_gene[gene], name2 = sys_to_gene[gene2]) %>%
-  mutate(complex = map2(.$gene, .$gene2, same_complex))
-
-# pdf('figures/all_genes_paff_heatmap.pdf', width = 50, height = 50)
-# cols <- colorRampPalette(c("blue", "white","red"))(256)
-# heatmap.2(cor_genes, symm = TRUE, revC = TRUE, col=cols,
-#           breaks=seq(-1,1,2/256), trace = "none")
-# dev.off()
+pdf('figures/all_genes_paff_heatmap.pdf', width = 50, height = 50)
+cols <- colorRampPalette(c("blue", "white","red"))(256)
+heatmap.2(cor_genes, symm = TRUE, revC = TRUE, col=cols,
+          breaks=seq(-1,1,2/256), trace = "none")
+dev.off()
 
 ## Gene/Growth Correlation
-cor_growth <- cor(select(probs, -strain), select(growth, -strain))
-meanGrowthCor <- rowMeans(cor_growth)
-
-cor_growth_melt <- as_tibble(cor_growth, rownames = 'gene_id') %>%
-  gather(key='condition', value = 'correlation', -gene_id) %>%
-  group_by(condition) %>%
-  mutate(gene_name = sys_to_gene[gene_id]) %>%
-  mutate(mag = abs(correlation)) %>% 
-  mutate(cor_sub_mean = correlation - meanGrowthCor) %>%
-  mutate(cor_div_mean = correlation/meanGrowthCor) %>%
-  arrange(desc(mag), .by_group = TRUE)
-
 pdf('figures/all_genes_growth_heatmap.pdf', width = 50, height = 50)
 cols <- colorRampPalette(c("blue", "white","red"))(256)
 heatmap.2(cor_growth, col=cols, breaks=seq(-1,1,2/256), trace = "none", symkey = FALSE)
@@ -101,16 +106,8 @@ heatmap.2(cor_growth[rownames(cor_growth) %in% hog_genes$id,], breaks=seq(-1,1,2
           col=cols, trace = "none", symkey = FALSE, cexRow = 2.5, cexCol = 2.5, margins = c(24,15))
 dev.off()
 
-
-  
-
 # Individual Gene Analysis
-gene_p_aff_means <- colMeans(select(probs, -strain))
-
-prob_melt <- gather(probs, key = 'gene', value = 'p_aff', -strain)
-
 prob_mat <- as.matrix(select(probs, -strain))
-
 gene_summary <- tibble(id = names(select(probs, -strain))) %>%
   mutate(exp_rate = apply(select(probs, -strain), 2, function(x){fitdistr(x, densfun = 'exponential')$estimate})) %>%
   mutate(mean = colMeans(select(probs, -strain))) %>%
@@ -120,7 +117,6 @@ gene_summary <- tibble(id = names(select(probs, -strain))) %>%
   left_join(genes, by = 'id') %>%
   rename(chrom=`#chrom`) %>%
   mutate(length=abs(stop - start))
-
 
 # Length does relate to P(Aff)
 p_length <- ggplot(gene_summary, aes(x=length, y=mean_non_zero)) +

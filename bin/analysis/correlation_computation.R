@@ -82,3 +82,5 @@ cor_growth_melt <- as_tibble(cor_growth, rownames = 'gene_id') %>%
   arrange(desc(mag), .by_group = TRUE)
 
 write_tsv(cor_growth_melt, 'cors_growth_gene_cor_melt.tsv', col_names = TRUE)
+
+save.image(file = 'correlation_data.Rdata', safe = TRUE)
