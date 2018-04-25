@@ -44,10 +44,11 @@ complexes <- read_tsv(complex_file, col_names = TRUE)
 
 #### Calculate values ####
 ## Gene/Gene Correlation
-gene_gene_cor <- cor(select(probs, -strain)) %>%
-  as_tibble(rownames='gene')
+gene_gene_cor <- cor(select(probs, -strain))
 
-write_tsv(gene_gene_cor, 'cors_gene_gene_cor.tsv', col_names = TRUE)
+write_tsv(as_tibble(gene_gene_cor, rownames = 'gene'), 'cors_gene_gene_cor.tsv', col_names = TRUE)
+
+gene_gene_cor[lower.tri(gene_gene_cor, diag = TRUE)] <- NA
 
 same_complex <- function(x, y, comp=complexes){
   x_comps <- comp[comp$ORF == x,] %>% pull(Complex)
@@ -55,9 +56,8 @@ same_complex <- function(x, y, comp=complexes){
   return(any(x_comps %in% y_comps))
 }
 
-gene_gene_cor[lower.tri(gene_gene_cor, diag = TRUE)] <- NA
-
-cor_genes_melt <- gather(gene_gene_cor, key = 'gene2', value = 'cor', -gene) %>%
+cor_genes_melt <- as_tibble(gene_gene_cor, rownames='gene') %>%
+  gather(key = 'gene2', value = 'cor', -gene) %>%
   drop_na(cor) %>%
   mutate(mag = abs(cor)) %>%
   arrange(desc(mag)) %>%
@@ -67,10 +67,10 @@ cor_genes_melt <- gather(gene_gene_cor, key = 'gene2', value = 'cor', -gene) %>%
 write_tsv(cor_genes_melt, 'cors_gene_gene_cor_melt.tsv', col_names = TRUE)
 
 ## Gene/Growth Correlation
-cor_growth <- cor(select(probs, -strain), select(growth, -strain)) %>%
-  as_tibble(rownames='gene_id')
+cor_growth <- cor(select(probs, -strain), select(growth, -strain))
+meanGrowthCor <- rowMeans(cor_growth)
 
-write_tsv(cor_growth, 'cors_growth_gene_cor.tsv', col_names = TRUE)
+write_tsv(as_tibble(cor_growth, rownames='gene_id'), 'cors_growth_gene_cor.tsv', col_names = TRUE)
 
 cor_growth_melt <- as_tibble(cor_growth, rownames = 'gene_id') %>%
   gather(key='condition', value = 'correlation', -gene_id) %>%
