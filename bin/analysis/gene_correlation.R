@@ -5,6 +5,8 @@ library(mixtools)
 library(gplots)
 library(tidyverse)
 library(magrittr)
+library(moments)
+library(ggpubr)
 
 # #### Import ####
 # ## Strain information
@@ -73,58 +75,105 @@ library(magrittr)
 
 load('data/correlation_data.Rdata')
 
+hog_genes <- read_table2('meta/hog-gene-loci', col_names = FALSE, comment = '#') %>%
+  set_names(c('chrom', 'start', 'stop', 'id', 'name', 'strand'))
+
+## Import gene essentiallity
+essential <- read_tsv('data/raw/ogee_gene_ko_lethal_350.tsv', col_names = TRUE, skip = 5) %>%
+  rename(tax_D = `#taxID`)
+
+essential_hash <- structure(essential$essential, names=essential$locus)
+
+## Probs melt
+prob_mat <- as.matrix(select(probs, -strain))
+probs %<>% gather(key = 'gene', value = 'p_aff', -strain)
+
 #### Analysis ####
 ## Gene/Gene Correlation
-pdf('figures/all_genes_paff_heatmap.pdf', width = 50, height = 50)
+pdf('figures/heatmaps/all_genes_paff_heatmap.pdf', width = 50, height = 50)
 cols <- colorRampPalette(c("blue", "white","red"))(256)
 heatmap.2(cor_genes, symm = TRUE, revC = TRUE, col=cols,
           breaks=seq(-1,1,2/256), trace = "none")
 dev.off()
 
 ## Gene/Growth Correlation
-pdf('figures/all_genes_growth_heatmap.pdf', width = 50, height = 50)
+pdf('figures/heatmaps/all_genes_growth_heatmap.pdf', width = 50, height = 50)
 cols <- colorRampPalette(c("blue", "white","red"))(256)
 heatmap.2(cor_growth, col=cols, breaks=seq(-1,1,2/256), trace = "none", symkey = FALSE)
 dev.off()
 
 # normalise by subtraction
-pdf('figures/all_genes_growth_heatmap_norm_sub.pdf', width = 50, height = 50)
+pdf('figures/heatmaps/all_genes_growth_heatmap_norm_sub.pdf', width = 50, height = 50)
 cols <- colorRampPalette(c("blue", "white","red"))(256)
 heatmap.2(cor_growth - meanGrowthCor, col=cols, breaks=seq(-1,1,2/256), trace = "none", symkey = FALSE)
 dev.off()
 
 # Normalise by division
-pdf('figures/all_genes_growth_heatmap_norm_div.pdf', width = 50, height = 50)
+pdf('figures/heatmaps/all_genes_growth_heatmap_norm_div.pdf', width = 50, height = 50)
 cols <- colorRampPalette(c("blue", "white","red"))(256)
 heatmap.2(cor_growth / meanGrowthCor, col=cols, trace = "none", symkey = FALSE)
 dev.off()
 
 # Hog Genes Only
-pdf('figures/hog_genes_growth_heatmap.pdf', width = 50, height = 50)
+cor_growth_hog <- cor_growth[rownames(cor_growth) %in% hog_genes$id,]
+rownames(cor_growth_hog) <- structure(hog_genes$name, names=hog_genes$id)[rownames(cor_growth_hog)]
+  
+pdf('figures/heatmaps/hog_genes_growth_heatmap.pdf', width = 50, height = 50)
 cols <- colorRampPalette(c("blue", "white","red"))(256)
-heatmap.2(cor_growth[rownames(cor_growth) %in% hog_genes$id,], breaks=seq(-1,1,2/256), 
+heatmap.2(cor_growth_hog, breaks=seq(-1,1,2/256), 
           col=cols, trace = "none", symkey = FALSE, cexRow = 2.5, cexCol = 2.5, margins = c(24,15))
 dev.off()
 
 # Individual Gene Analysis
-prob_mat <- as.matrix(select(probs, -strain))
-gene_summary <- tibble(id = names(select(probs, -strain))) %>%
-  mutate(exp_rate = apply(select(probs, -strain), 2, function(x){fitdistr(x, densfun = 'exponential')$estimate})) %>%
-  mutate(mean = colMeans(select(probs, -strain))) %>%
+
+gene_summary <- tibble(id = unique(probs$gene)) %>%
+  mutate(exp_rate = apply(prob_mat, 2, function(x){fitdistr(x, densfun = 'exponential')$estimate})) %>%
+  mutate(mean = colMeans(prob_mat)) %>%
+  mutate(median = apply(prob_mat, 2, median)) %>%
   mutate(mean_non_zero = apply(prob_mat, 2, function(x){mean(x[!x == 0])})) %>%
   mutate(sum_zero = apply(prob_mat, 2, function(x){sum(x==0)})) %>%
   mutate(sum_non_zero = apply(prob_mat, 2, function(x){sum(!x==0)})) %>%
   left_join(genes, by = 'id') %>%
   rename(chrom=`#chrom`) %>%
-  mutate(length=abs(stop - start))
+  mutate(length=abs(stop - start)) %>%
+  mutate(essential = essential_hash[id]) %>%
+  mutate(complex = sapply(.$id, function(x){x %in% complexes$ORF}))
 
 # Length does relate to P(Aff)
-p_length <- ggplot(gene_summary, aes(x=length, y=mean_non_zero)) +
+p_length_mean <- ggplot(gene_summary, aes(x=length, y=mean, colour=sum_zero)) +
   geom_point() +
   xlab('Gene Length') +
-  ylab('Mean P(Aff)')
+  ylab('Mean P(Aff)') + 
+  guides(colour=guide_colourbar(title = "Strains with P(Aff) = 0"))
   
-ggsave('figures/correlations/length_vs_mean_paff.pdf', width = 12, height = 10, plot = p_length)
+ggsave('figures/correlations/length_vs_mean_paff.pdf', width = 12, height = 10, plot = p_length_mean)
+
+p_length_median <- ggplot(gene_summary, aes(x=length, y=median, colour=sum_zero)) +
+  geom_point() +
+  xlab('Gene Length') +
+  ylab('Median P(Aff)') + 
+  guides(colour=guide_colourbar(title = "Strains with P(Aff) = 0"))
+
+ggsave('figures/correlations/length_vs_median_paff.pdf', width = 12, height = 10, plot = p_length_median)
+
+p_length_sum_non_zero <- ggplot(gene_summary, aes(x=length, y=sum_non_zero)) +
+  geom_point() +
+  xlab('Gene Length') +
+  ylab('Strains where P(Aff) != 0')
+
+ggsave('figures/correlations/length_vs_sum_non_zero_paff.pdf', width = 12, height = 10, plot = p_length_sum_non_zero)
+
+
+probs %<>% mutate(length=structure(gene_summary$length, names=gene_summary$id)[gene]) %>%
+  mutate(len_bin = cut(log10(.$length), 10))
+
+p_length_density <- ggplot(probs, aes(x=length, y=p_aff)) +
+  geom_bin2d() + scale_fill_gradient(trans="log10", guide = guide_colourbar(title = "Count")) + 
+  xlab('Gene Length') + 
+  ylab('P(Aff)')
+
+ggsave('figures/correlations/length_vs_paff_density.pdf', width = 12, height = 10, plot = p_length_density)
+
 
 # Strand is unrelated
 p_strand <- ggplot(gene_summary, aes(x=strand, y=mean)) +
@@ -167,4 +216,60 @@ p_zero_non_zero <- ggplot(gene_summary, aes(x=mean, y=mean_non_zero, colour=sum_
 p_zero_dist <- ggplot(gene_summary, aes(x=sum_zero)) +
   geom_histogram(binwidth = 20) +
   xlab('Strains where P(Aff) = 0')
+
+# Essential genes
+# Re-add the lower triangle of correlation matrix
+gene_gene_cor[lower.tri(gene_gene_cor)] <- t(gene_gene_cor)[lower.tri(gene_gene_cor)]
+
+# Calculate summary statistics
+gene_summary %<>% mutate(cor_mean = sapply(.$id, function(x){mean(gene_gene_cor[x,], na.rm = TRUE)})) %>%
+  mutate(cor_skew = sapply(.$id, function(x){skewness(gene_gene_cor[x,], na.rm = TRUE)}))
+
+p_essential_mean <- ggplot(gene_summary, aes(x=essential, y=mean)) + geom_boxplot() + xlab('') + ylab('Mean P(Aff)')
+p_essential_mean_non_zero <- ggplot(gene_summary, aes(x=essential, y=mean_non_zero)) + geom_boxplot() + xlab('') + ylab('Mean P(Aff) != 0')
+p_essential_sum_zero <- ggplot(gene_summary, aes(x=essential, y=sum_zero)) + geom_boxplot() + xlab('') + ylab('Count of P(Aff) = 0')
+p_essential_exp_rate <- ggplot(gene_summary, aes(x=essential, y=exp_rate)) + geom_boxplot() + ylim(0,10) + xlab('') + ylab('P(Aff) Exponential Fit Rate')
+p_essential_cor_mean <- ggplot(gene_summary, aes(x=essential, y=cor_mean)) + geom_boxplot() + xlab('') + ylab('Mean P(Aff) Correlation')
+
+p_essential <- ggarrange(p_essential_mean, p_essential_mean_non_zero, p_essential_sum_zero, p_essential_exp_rate, p_essential_cor_mean)
+
+ggsave('figures/correlations/essential_genes.pdf', p_essential, width = 14, height = 10)
+
+# Complexes
+p_complex_paf <- ggplot(gene_summary, aes(x=complex, y=sum_zero)) +
+  geom_boxplot()
+
+p_complex_cors_box <- ggplot(cor_genes_melt, aes(x=complex, y=cor)) +
+  geom_boxplot(notch = TRUE, varwidth = TRUE) +
+  xlab('Proteins in a complex?') + 
+  ylab('Correlation Coefficient')
+
+p_complex_cors_dens <- ggplot(cor_genes_melt, aes(x=cor, colour=complex)) +
+  geom_density() +
+  xlab('Correlation Coefficient')
+
+ggsave('figures/correlations/complex_correlations_box.jpg', p_complex_cors_box, width = 12, height = 10)
+ggsave('figures/correlations/complex_correlations_density.pdf', p_complex_cors_dens, width = 12, height = 10)
+
+
+# P(Aff) and Genetic distance
+genotypes <- read_tsv('data/all-genes-no-missing.genotype', col_names = TRUE)
+distance_to_ref <- colSums(select(genotypes, -mut_id))
+
+probs %<>% mutate(distance_to_ref = distance_to_ref[strain])
+
+p_dist_ref <- ggplot(probs, aes(x=distance_to_ref, y=p_aff)) +
+  geom_bin2d() +
+  scale_fill_gradient(trans="log10", guide = guide_colourbar(title = "Count")) +
+  xlab("Differences from SC288") + 
+  ylab("P(Aff)")
+  
+ggsave('figures/correlations/dist_vs_p_aff_2dbin.pdf', p_dist_ref, width = 12, height = 10)
+
+# Doesn't appear to impact P(Aff) distribution
+probs %<>% mutate(bin=cut(distance_to_ref, breaks = 10))
+
+p_dist_ref_density <- ggplot(probs, aes(x=p_aff, fill=bin)) + 
+  geom_density(alpha=0.5)
+
 
