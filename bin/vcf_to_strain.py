@@ -32,9 +32,9 @@ def main(args):
     else:
         print('mut_id', *vcf_file.samples, sep='\t')
 
-    num_chroms = 2 * len(vcf_file.samples)
     # Iterate over loci
     for site in vcf_file:
+        freqs = site.INFO.AF.split(',')
         for i in range(len(site.ALT)):
             mut_id = ''.join((format_chrom(site.CHROM, rome=True),
                               ':', str(site.POS), '_', site.REF,
@@ -45,7 +45,7 @@ def main(args):
                 gens.append(call.data.GT.count(str(i + 1)))
 
             # Test frequency of variant and print
-            if not args.filter or sum(gens) / num_chroms < args.filter:
+            if not args.filter or float(freqs[i]) < args.filter:
                 print(mut_id, *gens, sep='\t')
 
 def parse_args():
