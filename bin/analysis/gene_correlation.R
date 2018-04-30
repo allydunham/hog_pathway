@@ -78,6 +78,9 @@ load('data/correlation_data.Rdata')
 hog_genes <- read_table2('meta/hog-gene-loci', col_names = FALSE, comment = '#') %>%
   set_names(c('chrom', 'start', 'stop', 'id', 'name', 'strand'))
 
+counts <- read_tsv('data/hog-gene-variants.mut-counts', col_names = TRUE) %>%
+  filter(strain %in% growth$strain)
+
 ## Import gene essentiallity
 essential <- read_tsv('data/raw/ogee_gene_ko_lethal_350.tsv', col_names = TRUE, skip = 5) %>%
   rename(tax_D = `#taxID`)
@@ -115,6 +118,16 @@ heatmap.2(cor_growth / meanGrowthCor, col=cols, trace = "none", symkey = FALSE)
 dev.off()
 
 # Hog Genes Only
+cor_hog_counts <- cor(select(counts, -strain))
+rownames(cor_hog_counts) <- structure(hog_genes$name, names=hog_genes$id)[rownames(cor_hog_counts)]
+
+pdf('figures/heatmaps/hog_genes_mut_count_heatmap.pdf', width = 20, height = 20)
+cols <- colorRampPalette(c("blue", "white","red"))(256)
+heatmap.2(cor_hog_counts, symm = TRUE, revC = TRUE, col=cols,
+          breaks=seq(-1,1,2/256), trace = "none")
+dev.off()
+
+# growth
 cor_growth_hog <- cor_growth[rownames(cor_growth) %in% hog_genes$id,]
 rownames(cor_growth_hog) <- structure(hog_genes$name, names=hog_genes$id)[rownames(cor_growth_hog)]
   
@@ -122,6 +135,28 @@ pdf('figures/heatmaps/hog_genes_growth_heatmap.pdf', width = 50, height = 50)
 cols <- colorRampPalette(c("blue", "white","red"))(256)
 heatmap.2(cor_growth_hog, breaks=seq(-1,1,2/256), 
           col=cols, trace = "none", symkey = FALSE, cexRow = 2.5, cexCol = 2.5, margins = c(24,15))
+dev.off()
+
+# Only select conditions
+cor_growth_hog_osmotic <- cor_growth_hog[,c("ypdkcl2m","ypdnacl1m", "ypdnacl15m", "ypd14",
+                                            "ypd40", "ypdcuso410mm", "ypdsodiummetaarsenite")]
+
+pdf('figures/heatmaps/hog_genes_growth_osmotic_cons_heatmap.pdf', width = 15, height = 25)
+cols <- colorRampPalette(c("blue", "white","red"))(256)
+heatmap.2(cor_growth_hog_osmotic, breaks=seq(-1,1,2/256), 
+          col=cols, trace = "none", symkey = FALSE, cexRow = 2.5, cexCol = 2.5, margins = c(30,15),
+          labCol = c("KCl 2M", "NaCl 1M", "NaCl 1.5M", expression("14"~degree~"C"), expression("40"~degree~"C"), 
+                                      expression("CuSO"[4]~10~"mM"), "Na Metaarsenite 2.5mM"))
+dev.off()
+
+# Against counts
+cor_hog_growth_counts <- cor(select(counts, -strain), select(growth, -strain))
+rownames(cor_hog_growth_counts) <- structure(hog_genes$name, names=hog_genes$id)[rownames(cor_hog_growth_counts)]
+
+pdf('figures/heatmaps/hog_genes_mut_count_growth_heatmap.pdf', width = 20, height = 20)
+cols <- colorRampPalette(c("blue", "white","red"))(256)
+heatmap.2(cor_hog_growth_counts, col=cols, symkey=FALSE, cexRow = 2.5, cexCol = 2.5, margins = c(30,15),
+          breaks=seq(-1,1,2/256), trace = "none")
 dev.off()
 
 # Individual Gene Analysis
@@ -234,6 +269,22 @@ p_essential_cor_mean <- ggplot(gene_summary, aes(x=essential, y=cor_mean)) + geo
 p_essential <- ggarrange(p_essential_mean, p_essential_mean_non_zero, p_essential_sum_zero, p_essential_exp_rate, p_essential_cor_mean)
 
 ggsave('figures/correlations/essential_genes.pdf', p_essential, width = 14, height = 10)
+
+counts_melt <- gather(counts, key = 'gene', value = 'count', -strain) %>%
+  mutate(ypdnacl1m=structure(growth$ypdnacl1m, names=growth$strain)[strain]) %>%
+  mutate(ypdnacl15m=structure(growth$ypdnacl15m, names=growth$strain)[strain]) %>%
+  mutate(ypdkcl2m=structure(growth$ypdkcl2m, names=growth$strain)[strain]) %>%
+  mutate(ypdchx1=structure(growth$ypdchx1, names=growth$strain)[strain]) %>%
+  mutate(essential=structure(essential$essential, names=essential$locus)[gene])
+
+p_essential_mut_counts_bar <- ggplot(counts_melt, aes(x=count, y=..prop.., fill=essential)) + 
+  geom_bar(position = "dodge") +
+  scale_y_continuous(labels = scales::percent)
+
+p_essential_mut_counts_box <- ggplot(counts_melt, aes(y=count, x=essential)) + 
+  geom_boxplot()
+
+p_essential_mut_counts <- ggarrange(p_essential_mut_counts_box, p_essential_mut_counts_bar)
 
 # Complexes
 p_complex_paf <- ggplot(gene_summary, aes(x=complex, y=sum_zero)) +

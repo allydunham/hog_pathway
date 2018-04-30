@@ -82,6 +82,13 @@ filtered_strains <- filter(meta, Ploidy == 2, Aneuploidies == 'euploid') %>% pul
 distance <- filter(distance, strain %in% filtered_strains & strain2 %in% filtered_strains)
 path <- filter(path, strain %in% filtered_strains, condition %in% c("ypdnacl1m", "ypdnacl15m"))
 
+genes <- read_tsv('meta/sacc_gene_loci', col_names = TRUE)
+
+# Import mutation counts
+counts <- read_tsv('data/hog-gene-variants.mut-counts', col_names = TRUE) %>%
+  filter(strain %in% growth$strain) %>%
+  set_names(c('strain', structure(genes$name, names=genes$id)[names(.)[-1]]))
+
 #### NaCl Growth Against Hog Pathway ####
 p_nacl_growth_vs_hog_prob <- ggplot(path, aes(x=hog_probability, y=growth, colour=condition)) + 
   geom_point() + 
@@ -217,6 +224,16 @@ ratios <- lapply(names(growth_filtered)[-1], growth_ratio) %>%
 p_dist_growth_ratio <- ggplot(ratios, aes(x=genetic_distance, y=ratio, colour=condition)) + 
   geom_point()
 
-
+## Analyse mutation counts
+counts_melt <- gather(counts, key = 'gene', value = 'count', -strain) %>%
+  mutate(ypdnacl1m=structure(growth$ypdnacl1m, names=growth$strain)[strain]) %>%
+  mutate(ypdnacl15m=structure(growth$ypdnacl15m, names=growth$strain)[strain]) %>%
+  mutate(ypdkcl2m=structure(growth$ypdkcl2m, names=growth$strain)[strain]) %>%
+  mutate(ypdchx1=structure(growth$ypdchx1, names=growth$strain)[strain])
+  
+p_gene_mut_counts <- ggplot(counts_melt,
+                            aes(x=count, y=ypdnacl15m)) + 
+  geom_boxplot(aes(group=cut_width(count, 1)), varwidth = TRUE) +
+  facet_wrap(~ gene)
 
   

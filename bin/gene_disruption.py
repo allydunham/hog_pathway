@@ -49,24 +49,34 @@ def main(args):
                                 (impacts['type'].isin(['frameshift', 'nonsense'])))
 
         gene_eval_func = high_conf_gene_ko
+    elif args.total:
+        gene_eval_func = sum_muts
     else:
         gene_eval_func = gene_impact_prob
 
     print("strain", *genes, sep='\t')
     for strain, genes in strain_muts.items():
         probs = {}
-        for gene, muts in genes.items():
-            probs[gene] = gene_eval_func(muts, impacts, gene)
+        for gene, mut_ids in genes.items():
+            probs[gene] = gene_eval_func(muts=mut_ids, impacts=impacts, gene=gene)
 
         print(strain, *[probs[i] for i in genes], sep='\t')
 
-def high_conf_gene_ko(muts, impacts, gene):
-    """Determine if a gene is very likely knocked out"""
-    return int(impacts.loc[(impacts['mut_id'].isin(muts)) &
-                           (impacts['gene'] == gene)].high_conf.any())
+def sum_muts(**kwargs):
+    """Count the number of mutations in a gene"""
+    return len(kwargs["muts"])
 
-def gene_impact_prob(muts, impacts, gene):
+def high_conf_gene_ko(**kwargs):
+    """Determine if a gene is very likely knocked out"""
+    return int(kwargs["impacts"].loc[(kwargs["impacts"]['mut_id'].isin(kwargs["muts"])) &
+                                     (kwargs["impacts"]['gene'] == kwargs["gene"])].high_conf.any())
+
+def gene_impact_prob(**kwargs):
     """Determine the probability that a gene carrying a series of variants is neutral"""
+    muts = kwargs['muts']
+    impacts = kwargs['impacts']
+    gene = kwargs['gene']
+
     # Sort mutations
     if not muts:
         return 0
@@ -161,6 +171,9 @@ def parse_args():
     parser.add_argument('--conf', '-c', default=0, type=float,
                         help="Only consider high confidence variants (frameshift and\
                               early stop occuring in the first X portion of the protein)")
+
+    parser.add_argument('--total', '-t', action="store_true",
+                        help="Return the count of variants in each gene")
 
     return parser.parse_args()
 
