@@ -88,7 +88,7 @@ essential <- read_tsv('data/raw/ogee_gene_ko_lethal_350.tsv', col_names = TRUE, 
 essential_hash <- structure(essential$essential, names=essential$locus)
 
 ## Probs melt
-prob_mat <- as.matrix(select(probs, -strain))
+prob_mat <- as.matrix(select(probs, -strain)) %>% set_rownames(probs$strain)
 probs %<>% gather(key = 'gene', value = 'p_aff', -strain)
 
 #### Analysis ####
@@ -285,6 +285,7 @@ p_essential_mut_counts_box <- ggplot(counts_melt, aes(y=count, x=essential)) +
   geom_boxplot()
 
 p_essential_mut_counts <- ggarrange(p_essential_mut_counts_box, p_essential_mut_counts_bar)
+ggsave('figures/correlations/essential_genes_counts.pdf', plot = p_essential_mut_counts, width = 14, height = 10)
 
 # Complexes
 p_complex_paf <- ggplot(gene_summary, aes(x=complex, y=sum_zero)) +
@@ -316,6 +317,29 @@ p_dist_ref <- ggplot(probs, aes(x=distance_to_ref, y=p_aff)) +
   ylab("P(Aff)")
   
 ggsave('figures/correlations/dist_vs_p_aff_2dbin.pdf', p_dist_ref, width = 12, height = 10)
+
+# Per strain mean P(Aff)
+strain_summary <- tibble(strain = rownames(prob_mat)) %>%
+  mutate(mean_paff = rowMeans(prob_mat)) %>%
+  mutate(distance_to_ref = distance_to_ref[strain]) %>%
+  mutate(num_high = rowSums(prob_mat > 0.9)[strain]) %>%
+  mutate(num_low = rowSums(prob_mat < 0.1)[strain])
+
+p_dist_ref_strain_mean <- ggplot(strain_summary, aes(x=distance_to_ref, y=mean_paff)) +
+  geom_point() +
+  xlab("Differences from SC288") + 
+  ylab("Mean P(Aff)")
+
+ggsave('figures/correlations/strain_dist_vs_paff.pdf', p_dist_ref_strain_mean, width = 12, height = 10)
+
+p_dist_ref_strain_counts <- ggplot(strain_summary, aes(x=distance_to_ref)) +
+  geom_point(aes(y=num_high, colour="P(Aff) > 0.9")) +
+  geom_point(aes(y=num_low, colour="P(Aff) < 0.1")) +
+  xlab("Differences from SC288") + 
+  ylab("Number of Genes")
+
+ggsave('figures/correlations/strain_dist_vs_paff_count_high.pdf', p_dist_ref_strain_counts, width = 12, height = 10)
+
 
 # Doesn't appear to impact P(Aff) distribution
 probs %<>% mutate(bin=cut(distance_to_ref, breaks = 10))
