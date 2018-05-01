@@ -1,5 +1,5 @@
 # Script to analyse whole genome P(Aff) scores and their correlations
-setwd('~/Projects/hog/')
+#setwd('~/Projects/hog/')
 library(MASS)
 library(mixtools)
 library(gplots)
@@ -41,7 +41,7 @@ counts <- readRDS('data/Rdata/hog_gene_mut_counts.rds') %>%
 ## Gene/Gene Correlation
 pdf('figures/heatmaps/all_genes_paff_heatmap.pdf', width = 50, height = 50)
 cols <- colorRampPalette(c("blue", "white","red"))(256)
-heatmap.2(cor_genes, symm = TRUE, revC = TRUE, col=cols,
+heatmap.2(gene_gene_cor, symm = TRUE, revC = TRUE, col=cols,
           breaks=seq(-1,1,2/256), trace = "none")
 dev.off()
 

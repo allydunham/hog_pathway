@@ -33,6 +33,14 @@ genotypes_hog <- read_tsv("data/hog-gene-variants.all-genotypes", col_names = TR
   arrange(strain)
 saveRDS(genotypes_hog, file = 'data/Rdata/genotypes_hog_genes.rds')
 
+genotypes_all <- read_tsv('data/all-genes-no-missing.genotype', col_names = TRUE)
+saveRDS(genotypes_all, file = 'data/Rdata/genotypes_all_genes.rds')
+
+#### Variant Impacts ####
+impacts <- read_tsv('data/all-genes-no-missing.impact', col_names = TRUE, na = "NA",
+                    col_types = cols(foldx_int_ddG = col_double(), foldx_int_ddG_sd = col_double()))
+saveRDS(impacts, 'data/Rdata/all_muts_impacts.rds')
+
 #### KO Probabilities ####
 prob_aff_hog <- read_tsv("data/hog-gene-variants.probs.blosum", col_names = TRUE) %>%
   select(strain, gene_meta_hog$id) %>%
@@ -80,3 +88,9 @@ saveRDS(gene_gene_cor, 'data/Rdata/all_gene_correlations_matrix.rds')
 saveRDS(cor_genes_melt, 'data/Rdata/all_gene_correlations.rds')
 saveRDS(cor_growth, 'data/Rdata/gene_growth_correlations_matrix.rds')
 saveRDS(cor_growth_melt, 'data/Rdata/gene_growth_correlations.rds')
+
+#### Frequencies ####
+allele_freqs <- read_tsv('data/all-genes-no-missing.mut-freqs', col_names = TRUE)
+saveRDS(allele_freqs, 'data/Rdata/allele_freqs.rds')
+
+

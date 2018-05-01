@@ -1,6 +1,7 @@
 # Script to check P(Aff) scores have expected characteristics
 setwd('~/Projects/hog/')
 library(gplots)
+library(MASS)
 library(moments)
 library(tidyverse)
 library(magrittr)
@@ -18,17 +19,28 @@ complexes <- readRDS('data/Rdata/complex_members.rds')
 essential <- readRDS('data/Rdata/essential_genes.rds')
 essential_hash <- structure(essential$essential, names=essential$locus)
 
+impacts <- readRDS('data/Rdata/all_muts_impacts.rds')
+
 growth <- readRDS('data/Rdata/growth_liti.rds') %>%
   filter(strain %in% filtered_strains)
 
+genotypes <- readRDS('data/Rdata/genotypes_all_genes.rds')
+distance_to_ref <- colSums(select(genotypes, -mut_id))
+
 probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
-  filter(strain %in% filtered_strains, strain %in% growth$strain)
+  filter(strain %in% filtered_strains, strain %in% growth$strain) %>%
+  mutate(distance_to_ref = distance_to_ref[strain])
 
 prob_mat <- readRDS('data/Rdata/paff_all_genes_mat.rds') %>%
-  filter(strain %in% filtered_strains, strain %in% growth$strain)
+  filter(strain %in% filtered_strains, strain %in% growth$strain) %>%
+  select(-strain) %>%
+  as.matrix() %>%
+  set_rownames(growth$strain)  
 
 counts <- readRDS('data/Rdata/hog_gene_mut_counts.rds') %>%
   filter(strain %in% growth$strain)
+
+allele_freqs <- readRDS('data/Rdata/allele_freqs.rds')
 
 #### Analysis ####
 gene_summary <- tibble(id = unique(probs$gene)) %>%
@@ -39,7 +51,6 @@ gene_summary <- tibble(id = unique(probs$gene)) %>%
   mutate(sum_zero = apply(prob_mat, 2, function(x){sum(x==0)})) %>%
   mutate(sum_non_zero = apply(prob_mat, 2, function(x){sum(!x==0)})) %>%
   left_join(genes, by = 'id') %>%
-  rename(chrom=`#chrom`) %>%
   mutate(length=abs(stop - start)) %>%
   mutate(essential = essential_hash[id]) %>%
   mutate(complex = sapply(.$id, function(x){x %in% complexes$ORF}))
@@ -175,11 +186,6 @@ ggsave('figures/paff_checks/complex_correlations_density.pdf', p_complex_cors_de
 
 
 # P(Aff) and Genetic distance
-genotypes <- read_tsv('data/all-genes-no-missing.genotype', col_names = TRUE)
-distance_to_ref <- colSums(select(genotypes, -mut_id))
-
-probs %<>% mutate(distance_to_ref = distance_to_ref[strain])
-
 p_dist_ref <- ggplot(probs, aes(x=distance_to_ref, y=p_aff)) +
   geom_bin2d() +
   scale_fill_gradient(trans="log10", guide = guide_colourbar(title = "Count")) +
@@ -191,6 +197,7 @@ ggsave('figures/paff_checks/dist_vs_p_aff_2dbin.pdf', p_dist_ref, width = 12, he
 # Per strain mean P(Aff)
 strain_summary <- tibble(strain = rownames(prob_mat)) %>%
   mutate(mean_paff = rowMeans(prob_mat)) %>%
+  mutate(median_paff = apply(prob_mat, 1, median)) %>%
   mutate(distance_to_ref = distance_to_ref[strain]) %>%
   mutate(num_high = rowSums(prob_mat > 0.9)[strain]) %>%
   mutate(num_low = rowSums(prob_mat < 0.1)[strain])
@@ -200,7 +207,7 @@ p_dist_ref_strain_mean <- ggplot(strain_summary, aes(x=distance_to_ref, y=mean_p
   xlab("Differences from SC288") + 
   ylab("Mean P(Aff)")
 
-ggsave('figures/paff_checks/strain_dist_vs_paff.pdf', p_dist_ref_strain_mean, width = 12, height = 10)
+ggsave('figures/paff_checks/strain_dist_vs_mean_paff.pdf', p_dist_ref_strain_mean, width = 12, height = 10)
 
 p_dist_ref_strain_counts <- ggplot(strain_summary, aes(x=distance_to_ref)) +
   geom_point(aes(y=num_high, colour="P(Aff) > 0.9")) +
@@ -210,10 +217,38 @@ p_dist_ref_strain_counts <- ggplot(strain_summary, aes(x=distance_to_ref)) +
 
 ggsave('figures/paff_checks/strain_dist_vs_paff_count_high.pdf', p_dist_ref_strain_counts, width = 12, height = 10)
 
+p_dist_ref_strain_median <- ggplot(strain_summary, aes(x=distance_to_ref, y=median_paff)) +
+  geom_point() +
+  xlab("Differences from SC288") + 
+  ylab("Median P(Aff)")
+
+ggsave('figures/paff_checks/strain_dist_vs_median_paff.pdf', p_dist_ref_strain_median, width = 12, height = 10)
 
 # Doesn't appear to impact P(Aff) distribution
 probs %<>% mutate(bin=cut(distance_to_ref, breaks = 10))
 
 p_dist_ref_density <- ggplot(probs, aes(x=p_aff, fill=bin)) + 
   geom_density(alpha=0.5)
+
+#### Analyse Individual Variants ####
+impacts %<>% mutate(freq=structure(allele_freqs$freq, names=allele_freqs$mut_id)[mut_id]) %>%
+  mutate(p_neut_sift= 1/(1 + exp(-1.312424 * log(sift_score + 1.598027e-05) - 4.103955))) %>%
+  mutate(p_neut_foldx= 1/(1 + exp(0.21786182 * foldx_ddG + 0.07351653))) %>%
+  mutate(p_neut_blosum = 0.66660 + 0.08293 * blosum62) %>%
+  filter(!type == 'synonymous') %>%
+  mutate(essential = essential_hash[gene])
+
+p_freq_neut <- ggplot(impacts, aes(x=freq)) +
+  geom_point(aes(y=p_neut_sift, colour="SIFT")) +
+  geom_point(aes(y=p_neut_foldx, colour="FoldX")) +
+  geom_point(aes(y=p_neut_blosum, colour="BLOSUM62")) + 
+  xlab('Allele Frequency') + 
+  ylab('P(Neutral)') + 
+  guides(colour=guide_legend(title = 'Method'))
+ggsave('figures/paff_checks/freq_vs_p_neut.pdf', p_freq_neut, width = 12, height = 10)  
+
+p_freq_essential <- ggplot(impacts, aes(x=essential, y=freq)) + 
+  geom_boxplot() + 
+  scale_y_log10()
+ggsave('figures/paff_checks/freq_vs_essential.pdf', p_freq_essential, width = 12, height = 10)  
 
