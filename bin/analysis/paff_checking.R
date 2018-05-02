@@ -42,6 +42,8 @@ counts <- readRDS('data/Rdata/hog_gene_mut_counts.rds') %>%
 
 allele_freqs <- readRDS('data/Rdata/allele_freqs.rds')
 
+gene_gene_cor <- readRDS('data/Rdata/all_gene_correlations_matrix.rds')
+
 #### Analysis ####
 gene_summary <- tibble(id = unique(probs$gene)) %>%
   mutate(exp_rate = apply(prob_mat, 2, function(x){fitdistr(x, densfun = 'exponential')$estimate})) %>%
@@ -133,13 +135,10 @@ p_zero_dist <- ggplot(gene_summary, aes(x=sum_zero)) +
   geom_histogram(binwidth = 20) +
   xlab('Strains where P(Aff) = 0')
 
-# Essential genes
-# Re-add the lower triangle of correlation matrix
-gene_gene_cor[lower.tri(gene_gene_cor)] <- t(gene_gene_cor)[lower.tri(gene_gene_cor)]
-
+## Essential genes
 # Calculate summary statistics
-gene_summary %<>% mutate(cor_mean = sapply(.$id, function(x){mean(gene_gene_cor[x,], na.rm = TRUE)})) %>%
-  mutate(cor_skew = sapply(.$id, function(x){skewness(gene_gene_cor[x,], na.rm = TRUE)}))
+gene_summary %<>% mutate(cor_mean = colMeans(gene_gene_cor, na.rm = TRUE)[id]) %>%
+  mutate(cor_skew = apply(gene_gene_cor, 2, skewness,  na.rm = TRUE)[id])
 
 p_essential_mean <- ggplot(gene_summary, aes(x=essential, y=mean)) + geom_boxplot() + xlab('') + ylab('Mean P(Aff)')
 p_essential_mean_non_zero <- ggplot(gene_summary, aes(x=essential, y=mean_non_zero)) + geom_boxplot() + xlab('') + ylab('Mean P(Aff) != 0')
@@ -251,4 +250,7 @@ p_freq_essential <- ggplot(impacts, aes(x=essential, y=freq)) +
   geom_boxplot() + 
   scale_y_log10()
 ggsave('figures/paff_checks/freq_vs_essential.pdf', p_freq_essential, width = 12, height = 10)  
+
+p_essential_foldx <- ggplot(filter(impacts, !is.na(essential)), aes(colour=essential, x=sift_score)) +
+  geom_density()
 

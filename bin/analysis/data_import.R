@@ -57,7 +57,6 @@ saveRDS(prob_aff_all, file = 'data/Rdata/paff_all_genes.rds')
 #### Growth Data ####
 growth_bede <- read_tsv("data/raw/bede_2017_parsed.tsv", col_names = TRUE) %>%
   mutate(strain=str_to_upper(strain)) %>%
-  select(strain, `sodium chloride 0.4mM`, `sodium chloride 0.6mM`) %>%
   filter(!is.na(strain_to_sys[strain])) %>%
   mutate(strain=strain_to_sys[strain])
 saveRDS(growth_bede, file = 'data/Rdata/growth_bede.rds')
@@ -68,8 +67,15 @@ growth_liti <- read_tsv(file = 'data/raw/phenoMatrix_35ConditionsNormalizedByYPD
 saveRDS(growth_liti, file = 'data/Rdata/growth_liti.rds')
 
 #### Genetic Distance ####
-load('data/genetic_distance_old.Rdata')
+load('data/Rdata/genetic_distance_old.Rdata')
 saveRDS(genetic_distance, 'data/Rdata/genetic_distance_matrix.rds')
+
+genetic_distance[lower.tri(genetic_distance)] <- NA
+genetic_distance_melt <- as_tibble(genetic_distance, rownames = 'strain') %>%
+  gather(key = 'strain2', value = 'distance', -strain) %>%
+  drop_na(distance)
+saveRDS(genetic_distance_melt, 'data/Rdata/genetic_distance.rds')
+
 saveRDS(growth_distance_NaCl6, 'data/Rdata/growth_distance_bede_NaCl6.rds')
 saveRDS(growth_distance_NaCl4, 'data/Rdata/growth_distance_bede_NaCl4.rds')
 
@@ -84,6 +90,8 @@ saveRDS(hog_counts, 'data/Rdata/hog_gene_mut_counts.rds')
   
 #### Correlation Data ####
 load('data/correlation_data.Rdata')
+gene_gene_cor[lower.tri(gene_gene_cor)] <- t(gene_gene_cor)[lower.tri(gene_gene_cor)]
+diag(gene_gene_cor) <- 1
 saveRDS(gene_gene_cor, 'data/Rdata/all_gene_correlations_matrix.rds')
 saveRDS(cor_genes_melt, 'data/Rdata/all_gene_correlations.rds')
 saveRDS(cor_growth, 'data/Rdata/gene_growth_correlations_matrix.rds')

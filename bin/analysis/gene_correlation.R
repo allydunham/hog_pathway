@@ -51,6 +51,8 @@ cols <- colorRampPalette(c("blue", "white","red"))(256)
 heatmap.2(cor_growth, col=cols, breaks=seq(-1,1,2/256), trace = "none", symkey = FALSE)
 dev.off()
 
+meanGrowthCor <- mean(cor_growth)
+
 # normalise by subtraction
 pdf('figures/heatmaps/all_genes_growth_heatmap_norm_sub.pdf', width = 50, height = 50)
 cols <- colorRampPalette(c("blue", "white","red"))(256)

@@ -5,11 +5,15 @@ library(magrittr)
 library(preprocessCore)
 
 #### Import Data ####
-## Import new growth data
-growth <- read_tsv(file = 'data/raw/phenoMatrix_35ConditionsNormalizedByYPD.tab', col_names = TRUE) %>% 
-  rename(strain=X1) %>%
-  set_names(str_to_lower(names(.)))
+## Meta Data
+genes <- readRDS('data/Rdata/gene_meta_all.rds')
 
+strains <- readRDS('data/Rdata/strain_meta.rds')
+filtered_strains <- filter(strains, Ploidy == 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
+
+## Growth data
+growth <- readRDS('data/Rdata/growth_liti.rds')
+  
 # initial growth distribution plot
 p_con_growth_distribution <- ggplot(gather(growth, key = 'condition', value = 'growth', -strain), aes(x=condition, y=growth)) + 
   geom_boxplot() + 
@@ -22,22 +26,18 @@ p_strain_growth_distribution <- ggplot(gather(growth, key = 'condition', value =
 # Normalise growth between strains?
 # Currently normalised relative to growth in unstressed media
 
-## Calculate distance data
-load('data/genetic_distance_old.Rdata')
+# Filter strains
+growth %<>% filter(strain %in% filtered_strains)
 
-# remove old growth records
-rm(growth_distance_NaCl4, growth_distance_NaCl6, genetic_distance_growth)
+## Genetic Distance
+genetic_distance <- readRDS('data/Rdata/genetic_distance.rds') %>%
+  filter(strain %in% intersect(growth$strain, filtered_strains),
+         strain2 %in% intersect(growth$strain, filtered_strains)) %>%
+  rename(genetic_distance=distance)
 
-genetic_distance[lower.tri(genetic_distance)] <- NA
+genetic_distance_matrix <- readRDS('data/Rdata/genetic_distance_matrix.rds')
 
-# filter strains with no growth data
-genetic_distance <- as_tibble(genetic_distance, rownames = 'strain') %>%
-  select(strain, growth$strain) %>%
-  filter(strain %in% growth$strain) %>%
-  gather(key = 'strain2', value = 'genetic_distance', -strain) %>%
-  drop_na(genetic_distance)
-
-# Load growth distance
+## Growth Distance
 growth_dist <- function(x){
   name <- paste0(x, '_distance')
   t <- as.matrix(dist(growth[x]))
@@ -56,40 +56,26 @@ growth_dist <- function(x){
 distance <- lapply(names(growth)[-1], growth_dist) %>% 
   bind_cols(genetic_distance, .) %>%
   gather(key = 'condition', value = 'growth', -strain, -strain2, -genetic_distance)
-# saveRDS(distance, file = 'data/distances-growth-strains.Rdata')
 
-# distance <- readRDS('data/distances-growth-strains.Rdata')
-  
-## Import raw probs
-probs <- read_tsv(file = 'data/hog-gene-variants.probs.blosum', col_names = TRUE) %>% filter(strain %in% growth$strain)
+## Raw probs
+probs_hog <- readRDS('data/Rdata/paff_hog_genes.rds') %>%
+  spread(key = 'gene', value = 'p_aff')
 
-## Import Pathway Data and collect relavent data
-path <- read_tsv(file = 'data/hog-gene-variants.path.blosum', col_names = TRUE) %>% 
-  filter(strain %in% growth$strain) %>% 
-  mutate(hog_active, hog_active = as.factor(hog_active))
-
-path$total_paff <- rowSums(select(probs, -strain))
-path$count <- rowSums(select(probs, -strain) > 0.5)
+## Pathway Data and collect relavent data
+path <- readRDS('data/Rdata/hog_path_probs.rds') %>%
+  mutate(total_paff = rowSums(select(probs_hog, -strain))) %>%
+  mutate(count = rowSums(select(probs_hog, -strain) > 0.5)) %>%
+  filter(strain %in% intersect(growth$strain, filtered_strains))
 
 path <- bind_cols(path, select(growth, -strain)) %>% 
   gather(key="condition", value="growth", -strain, -hog_active, -hog_probability, -count, -total_paff)
 
-## Import meta data
-meta <- read_tsv('meta/strain_information.tsv', col_names = TRUE)
+## Mutation counts
+counts <- readRDS('data/Rdata/hog_gene_mut_counts.rds') %>%
+  filter(strain %in% intersect(growth$strain, filtered_strains))
 
-filtered_strains <- filter(meta, Ploidy == 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
-
-distance <- filter(distance, strain %in% filtered_strains & strain2 %in% filtered_strains)
-path <- filter(path, strain %in% filtered_strains, condition %in% c("ypdnacl1m", "ypdnacl15m"))
-
-genes <- read_tsv('meta/sacc_gene_loci', col_names = TRUE)
-
-# Import mutation counts
-counts <- read_tsv('data/hog-gene-variants.mut-counts', col_names = TRUE) %>%
-  filter(strain %in% growth$strain) %>%
-  set_names(c('strain', structure(genes$name, names=genes$id)[names(.)[-1]]))
-
-#### NaCl Growth Against Hog Pathway ####
+#### Analysis ####
+## NaCl Growth Against Hog Pathway
 p_nacl_growth_vs_hog_prob <- ggplot(path, aes(x=hog_probability, y=growth, colour=condition)) + 
   geom_point() + 
   geom_smooth(method = 'lm')
@@ -108,7 +94,7 @@ ggsave('figures/liti_growth/hog_ko_count_growth.pdf', width = 12, height = 10, p
 fit1 <- lm(growth ~ count, data = path, subset = path$condition == "ypdnacl1m")
 fit15 <- lm(growth ~ count, data = path, subset = path$condition == "ypdnacl15m")
 
-#### Distance plots
+## Distance plots
 p_growth_genetic_distance <- ggplot(filter(distance, condition %in% c("ypdnacl1m_distance", "ypdnacl15m_distance")),
                                     aes(x=genetic_distance, y=growth)) + 
   geom_point() + facet_wrap(~condition) + 
@@ -118,7 +104,7 @@ ggsave('figures/liti_dist/genetic_dist_nacl_liti.pdf', plot = p_growth_genetic_d
 
 fit <- lm(growth ~ genetic_distance, filter(distance, condition %in% c("ypdnacl15m_distance")))
 
-# Binned analysis
+## Binned SD analysis
 bins = 40
 distance %<>% mutate(bin=cut(distance$genetic_distance, bins, labels = FALSE))
 
@@ -183,21 +169,12 @@ ggsave('figures/liti_dist/genetic_dist_median_growth_liti.pdf', device = 'pdf', 
 
 
 #### Use ratio for distance ####
-growth_filtered <- filter(growth, strain %in% filtered_strains) %>%
-  select(strain, ypdnacl15m, ypdnacl1m) %>%
+growth_filtered <- select(growth, strain, ypdnacl15m, ypdnacl1m) %>%
   filter(!(ypdnacl15m == 0), !(ypdnacl1m == 0))
 
-# Reload genetic distance info
-load('data/genetic_distance_old.Rdata')
-
-# remove old growth records
-rm(growth_distance_NaCl4, growth_distance_NaCl6, genetic_distance_growth)
-
-# filter strains with no growth data
-genetic_distance <- as_tibble(genetic_distance, rownames = 'strain') %>%
-  select(strain, growth_filtered$strain) %>%
-  filter(strain %in% growth_filtered$strain) %>%
-  gather(key = 'strain2', value = 'genetic_distance', -strain)
+genetic_distance_filtered <- as_tibble(genetic_distance_matrix, rownames = 'strain') %>%
+  gather(key = 'strain2', value = 'genetic_distance', -strain) %>%
+  filter(strain %in% growth_filtered$strain, strain2 %in% growth_filtered$strain)
 
 growth_ratio <- function(x){
   name <- paste0(x, '_ratio')
@@ -218,7 +195,7 @@ growth_ratio <- function(x){
 }
 
 ratios <- lapply(names(growth_filtered)[-1], growth_ratio) %>% 
-  bind_cols(genetic_distance, .) %>%
+  bind_cols(genetic_distance_filtered, .) %>%
   gather(key = 'condition', value = 'ratio', -strain, -strain2, -genetic_distance)
 
 p_dist_growth_ratio <- ggplot(ratios, aes(x=genetic_distance, y=ratio, colour=condition)) + 

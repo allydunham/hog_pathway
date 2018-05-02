@@ -1,96 +1,42 @@
-# Script looking at ko probability of genes comparaed to growth rates
+# Script looking at ko probability of genes comparaed to growth rates (based on Bede's growth screen)
+setwd('~/Projects/hog/')
 library(tidyverse)
 library(magrittr)
 library(purrr)
 library(gplots)
-setwd('~/Projects/hog/')
 
 #### Import ####
-# Import meta info
-hog_meta <- read_table2("meta/hog-gene-loci", col_names = TRUE) %>% 
-  rename(chrom=`#chrom`)
+# Meta info
+hog_meta <- readRDS('data/Rdata/gene_meta_hog.rds')
+strain_meta <- readRDS('data/Rdata/strain_meta.rds')
+strain_to_sys <- structure(strain_meta$`Standardized name`, names=strain_meta$`Isolate name`)
 
-meta <- read_tsv('meta/strain_information.tsv', col_names = TRUE, comment = "") %>%
-  mutate(`Isolate name`=str_to_upper(`Isolate name`))
-
-strain_to_sys <- structure(meta$`Standardized name`, names=meta$`Isolate name`)
-
-# Import ko probabilities
-prob_aff_hog <- read_tsv("data/hog-gene-variants.probs.blosum", col_names = TRUE) %>%
-  select(strain, hog_meta$id) %>%
-  set_names(c('strain', hog_meta$name)) %>%
-  gather(key = 'gene', value = 'p_aff', -strain)
-
-prob_aff_not_hog <- read_tsv('data/all-genes-no-missing.koprob', col_names = TRUE) %>% 
-  filter(strain %in% growth$strain) %>%
-  select(-one_of(hog_meta$id)) %>%
-  gather(key = 'gene', value = 'p_aff', -strain)
-  
-# Import growth data
-growth <- read_tsv("data/raw/bede_2017_parsed.tsv", col_names = TRUE) %>%
-  mutate(strain=str_to_upper(strain)) %>%
+# Growth data
+growth <- readRDS('data/Rdata/growth_bede.rds') %>%
   select(strain, `sodium chloride 0.4mM`, `sodium chloride 0.6mM`) %>%
-  filter(!is.na(strain_to_sys[strain])) %>%
-  mutate(strain=strain_to_sys[strain]) %>%
   gather(key = 'condition', value = 'sscore', -strain)
 
-p_paff_box <- ggplot(prob_aff_hog, aes(x=gene, y=p_aff)) + geom_boxplot() + ylab('P(Aff)') + xlab('Gene')
+# KO probabilities
+prob_aff_hog <- readRDS('data/Rdata/paff_hog_genes.rds')
 
+prob_aff_not_hog <- readRDS('data/Rdata/paff_all_genes.rds') %>%
+  filter(strain %in% growth$strain, !gene %in% hog_meta$id)
+
+
+#### Analysis ####
+## Gene P(Aff) distribution
+p_paff_box <- ggplot(prob_aff_hog, aes(x=gene, y=p_aff)) + geom_boxplot() + ylab('P(Aff)') + xlab('Gene')
 ggsave('figures/p_affected_genes_box_corrected.pdf', width = 12, height = 10, plot = p_paff_box)
 
-#### Gene Correlations ####
+## Gene Correlations ##
 gene_cor <- cor(as.matrix(spread(prob_aff_hog, key = gene, value = p_aff) %>% select(-strain)))
-#colnames(gene_cor) <- sapply(colnames(gene_cor), function(x){hog_meta[hog_meta$id == x, "gene"]})
-#rownames(gene_cor) <- sapply(rownames(gene_cor), function(x){hog_meta[hog_meta$id == x, "gene"]})
 
 pdf('figures/heatmaps/gene_ko_probs_heatmap_corrected.pdf', width = 12, height = 12)
 cols <- colorRampPalette(c("red","white","blue"))(256)
 heatmap.2(gene_cor, symm=TRUE, col=cols, breaks=seq(-1,1,2/256), trace = "none", revC = TRUE, cellnote = round(gene_cor, 2))
 dev.off()
 
-# # Generate lists with all interaction/no interaction correlations
-# interactions <- matrix(FALSE, nrow = dim(gene_cor)[1], ncol = dim(gene_cor)[2], dimnames = list(colnames(gene_cor),rownames(gene_cor)))
-# 
-# get_pairs <- function(x){
-#   # function to create a list of all combinations of a list
-#   t <- expand.grid(x, x)
-#   return(unname(split(t, seq(nrow(t))), force = TRUE))
-# }
-# 
-# for (i in list(c('SLN1','YPD1'),
-#                c('YPD1','SSK1'),
-#                c('SSK2','SSK1'),
-#                c('SSK22','SSK1'),
-#                c('SSK2','SSK22'),
-#                c('SSK2','PBS2'),
-#                c('SSK22','PBS2'),
-#                c('STE11','PBS2'),
-#                c('PBS2','HOG1'),
-#                c('PTC1','HOG1'),
-#                c('PTC1','PBS2'),
-#                c('PTP3','HOG1'),
-#                c('PTP3','PBS2'),
-#                c('PTP2','HOG1'),
-#                c('HOG1','HOT1'),
-#                c('HOG1','SMP1'),
-#                c('HOG1','SKO1'),
-#                c('HOG1','MSN2'),
-#                c('HOG1','MSN4'),
-#                c('HOG1','FPS1'),
-#                c('FPS1','SHO1')
-#                )){
-#   interactions[i, rev(i)] <- TRUE
-# }
-# 
-# no_interactions <- !interactions
-# 
-# interactions[lower.tri(interactions, diag=TRUE)] <- FALSE
-# no_interactions[lower.tri(no_interactions, diag=TRUE)] <- FALSE
-# 
-# hist(gene_cor[interactions], freq = FALSE, xlim = c(-0.1,0.6), col='red')
-# hist(gene_cor[no_interactions], freq = FALSE, add=TRUE, col='blue')
-
-#### Analyse p(aff) against growth ####
+## p(aff) against growth
 # Filter to strains with growth data
 prob_aff_hog %<>% filter(strain %in% growth$strain)
 
@@ -156,7 +102,7 @@ p_ko_sum_hog <- ggplot(growth, aes(y=sscore)) +
   xlab('Sum(P(Aff))') + ylab('S-Score')
 
 
-#### Test association against high probability ko ####
+## Test association against high probability ko
 high_conf_ko <- read_tsv('data/hog-gene-variants.conf-ko0.9', col_names = TRUE) %>%
   select(strain, hog_meta$id) %>%
   set_names(c('strain', hog_meta$name)) %>%
@@ -176,7 +122,7 @@ p_conf_ko_count <- ggplot(growth, aes(x=high_conf_ko_count, y=sscore, col=condit
 
 ggsave('figures/bede_growth/conf-ko-count-vs-growth.pdf', p_conf_ko_count, width = 12, height = 10)
 
-# Test if presence of any high conf is important
+## Test if presence of any high conf is important
 growth %<>% mutate(any = high_conf_ko_count > 0)
 
 p_conf_ko_box <- ggplot(growth, aes(x=any, y=sscore)) + 
