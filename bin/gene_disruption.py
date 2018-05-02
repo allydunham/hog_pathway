@@ -51,6 +51,8 @@ def main(args):
         gene_eval_func = high_conf_gene_ko
     elif args.total:
         gene_eval_func = sum_muts
+    elif args.worst:
+        gene_eval_func = worst_mut
     else:
         gene_eval_func = gene_impact_prob
 
@@ -71,23 +73,49 @@ def high_conf_gene_ko(**kwargs):
     return int(kwargs["impacts"].loc[(kwargs["impacts"]['mut_id'].isin(kwargs["muts"])) &
                                      (kwargs["impacts"]['gene'] == kwargs["gene"])].high_conf.any())
 
-def gene_impact_prob(**kwargs):
-    """Determine the probability that a gene carrying a series of variants is neutral"""
+def worst_mut(**kwargs):
+    """Determine the probability that a gene carrying a series of variants is not neutral based
+       on the highest impact variant"""
     muts = kwargs['muts']
     impacts = kwargs['impacts']
     gene = kwargs['gene']
 
+    # Filter impacts
+    impacts = impacts[(impacts['mut_id'].isin(muts)) & (impacts['gene'] == gene)]
+
+    # Fetch probs
+    probs = get_neutral_probabilities(muts, impacts)
+
+    # Return P(Aff) = 1 - P(Neut; worst mutant)
+    return 1 - min(probs)
+
+def gene_impact_prob(**kwargs):
+    """Determine the probability that a gene carrying a series of variants is not neutral"""
+    muts = kwargs['muts']
+    impacts = kwargs['impacts']
+    gene = kwargs['gene']
+
+    # Filter impacts
+    impacts = impacts[(impacts['mut_id'].isin(muts)) & (impacts['gene'] == gene)]
+
+    # Fetch probs
+    probs = get_neutral_probabilities(muts, impacts)
+
+    # Return P(Aff) = 1 - Prod(P(Neut))
+    return 1 - np.prod(probs)
+
+def get_neutral_probabilities(muts, impacts):
+    """Generate an ordered list of P(Neutral) values from a list of mut_ids in a gene"""
     # Sort mutations
     if not muts:
-        return 0
+        return [1]
 
-    muts = sorted(muts, key=lambda x: impacts[(impacts['mut_id'] == x) &
-                                              (impacts['gene'] == gene)]['pos_aa'].item())
+    muts = sorted(muts, key=lambda x: impacts[(impacts['mut_id'] == x)]['pos_aa'].item())
 
     # Calculate probabilities
     probs = []
     for mut_id in muts:
-        imp = impacts.loc[(impacts['mut_id'] == mut_id) & (impacts['gene'] == gene)]
+        imp = impacts.loc[(impacts['mut_id'] == mut_id)]
         if imp.type.item() == "nonsynonymous":
             probs.append(snp_neutral(imp))
 
@@ -104,7 +132,7 @@ def gene_impact_prob(**kwargs):
             else:
                 probs.append(0.99)
             break
-    return 1 - np.prod(probs)
+    return probs
 
 def snp_neutral(impact):
     """Determine the probability that a mutation is functionally neutral"""
@@ -174,6 +202,10 @@ def parse_args():
 
     parser.add_argument('--total', '-t', action="store_true",
                         help="Return the count of variants in each gene")
+
+    parser.add_argument('--worst', '-w', action="store_true",
+                        help="Return the neutral probability of the most impactful variant\
+                              in a gene")
 
     return parser.parse_args()
 
