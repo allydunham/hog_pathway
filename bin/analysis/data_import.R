@@ -54,6 +54,9 @@ saveRDS(prob_aff_all, file = 'data/Rdata/paff_all_genes_mat.rds')
 prob_aff_all %<>% gather(key = 'gene', value = 'p_aff', -strain)
 saveRDS(prob_aff_all, file = 'data/Rdata/paff_all_genes.rds')
 
+worst_probs_hog <- read_tsv('data/hog-gene-variants.worst-probs', col_names = TRUE)
+saveRDS(worst_probs_hog, 'data/Rdata/worst_probs_hog.rds')
+
 #### Growth Data ####
 growth_bede <- read_tsv("data/raw/bede_2017_parsed.tsv", col_names = TRUE) %>%
   mutate(strain=str_to_upper(strain)) %>%

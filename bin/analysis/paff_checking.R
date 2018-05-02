@@ -10,6 +10,8 @@ library(ggpubr)
 #### Import Data ####
 strains <- readRDS('data/Rdata/strain_meta.rds')
 filtered_strains <- filter(strains, Ploidy == 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
+# Filter strains that are unusually distant from the reference genome
+filtered_strains <-  setdiff(filtered_strains , c("AMH", "BAG", "BAH", "BAL", "CEG", "CEI"))
 
 genes <- readRDS('data/Rdata/gene_meta_all.rds')
 hog_genes <- readRDS('data/Rdata/gene_meta_hog.rds')
@@ -29,13 +31,18 @@ distance_to_ref <- colSums(select(genotypes, -mut_id))
 
 probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
   filter(strain %in% filtered_strains, strain %in% growth$strain) %>%
-  mutate(distance_to_ref = distance_to_ref[strain])
+  mutate(distance_to_ref = distance_to_ref[strain]) %>% 
+  mutate(length=structure(gene_summary$length, names=gene_summary$id)[gene]) %>%
+  mutate(len_bin = cut(log10(.$length), 10))
 
 prob_mat <- readRDS('data/Rdata/paff_all_genes_mat.rds') %>%
   filter(strain %in% filtered_strains, strain %in% growth$strain) %>%
   select(-strain) %>%
   as.matrix() %>%
   set_rownames(growth$strain)  
+
+worst_probs <- readRDS('data/Rdata/worst_probs_hog.rds') %>%
+  filter(strain %in% intersect(filtered_strains, growth$strain))
 
 counts <- readRDS('data/Rdata/hog_gene_mut_counts.rds') %>%
   filter(strain %in% growth$strain)
@@ -58,13 +65,26 @@ gene_summary <- tibble(id = unique(probs$gene)) %>%
   mutate(complex = sapply(.$id, function(x){x %in% complexes$ORF}))
 
 # Length relates to P(Aff)
+fit_length <- lm(mean ~ length, data = gene_summary)
+probs %<>% mutate(length_corrected = p_aff - (
+  fit_length$coefficients[1] + fit_length$coefficients[2] * length))
+gene_summary %<>% mutate(mean_length_corrected = mean - (fit_length$coefficients[1] + fit_length$coefficients[2] * length))
+
 p_length_mean <- ggplot(gene_summary, aes(x=length, y=mean, colour=sum_zero)) +
   geom_point() +
   xlab('Gene Length') +
   ylab('Mean P(Aff)') + 
-  guides(colour=guide_colourbar(title = "Strains with P(Aff) = 0"))
+  guides(colour=guide_colourbar(title = "Strains with P(Aff) = 0")) + 
+  stat_function(fun = function(x){fit_length$coefficients[1] + fit_length$coefficients[2] * x})
 
 ggsave('figures/paff_checks/length_vs_mean_paff.pdf', width = 12, height = 10, plot = p_length_mean)
+
+p_length_mean_corrected <- ggplot(gene_summary, aes(x=length, y=mean_length_corrected, colour=sum_zero)) +
+  geom_point() +
+  xlab('Gene Length') +
+  ylab('Mean Length Corrected P(Aff)') + 
+  guides(colour=guide_colourbar(title = "Strains with P(Aff) = 0")) + 
+  geom_smooth(method = 'lm')
 
 p_length_median <- ggplot(gene_summary, aes(x=length, y=median, colour=sum_zero)) +
   geom_point() +
@@ -82,16 +102,12 @@ p_length_sum_non_zero <- ggplot(gene_summary, aes(x=length, y=sum_non_zero)) +
 ggsave('figures/paff_checks/length_vs_sum_non_zero_paff.pdf', width = 12, height = 10, plot = p_length_sum_non_zero)
 
 
-probs %<>% mutate(length=structure(gene_summary$length, names=gene_summary$id)[gene]) %>%
-  mutate(len_bin = cut(log10(.$length), 10))
-
 p_length_density <- ggplot(probs, aes(x=length, y=p_aff)) +
   geom_bin2d() + scale_fill_gradient(trans="log10", guide = guide_colourbar(title = "Count")) + 
   xlab('Gene Length') + 
   ylab('P(Aff)')
 
 ggsave('figures/paff_checks/length_vs_paff_density.pdf', width = 12, height = 10, plot = p_length_density)
-
 
 # Strand is unrelated
 p_strand <- ggplot(gene_summary, aes(x=strand, y=mean)) +
@@ -199,14 +215,25 @@ strain_summary <- tibble(strain = rownames(prob_mat)) %>%
   mutate(median_paff = apply(prob_mat, 1, median)) %>%
   mutate(distance_to_ref = distance_to_ref[strain]) %>%
   mutate(num_high = rowSums(prob_mat > 0.9)[strain]) %>%
-  mutate(num_low = rowSums(prob_mat < 0.1)[strain])
+  mutate(num_low = rowSums(prob_mat < 0.1)[strain]) %>%
+  mutate(mean_worst_paff = rowMeans(select(worst_probs, -strain)))
+
+fit_strain <- lm(mean_paff ~ distance_to_ref, data = strain_summary)
+strain_summary %<>% mutate(mean_corrected = mean_paff - (fit_strain$coefficients[1] + fit_strain$coefficients[2] * distance_to_ref))
 
 p_dist_ref_strain_mean <- ggplot(strain_summary, aes(x=distance_to_ref, y=mean_paff)) +
   geom_point() +
   xlab("Differences from SC288") + 
-  ylab("Mean P(Aff)")
+  ylab("Mean P(Aff)") + 
+  geom_smooth(method = 'lm')
 
 ggsave('figures/paff_checks/strain_dist_vs_mean_paff.pdf', p_dist_ref_strain_mean, width = 12, height = 10)
+
+p_dist_ref_strain_mean_corrected <- ggplot(strain_summary, aes(x=distance_to_ref, y=mean_corrected)) +
+  geom_point() +
+  xlab("Differences from SC288") + 
+  ylab("Mean Phylogeny Corrected P(Aff)") + 
+  geom_smooth(method = 'lm')
 
 p_dist_ref_strain_counts <- ggplot(strain_summary, aes(x=distance_to_ref)) +
   geom_point(aes(y=num_high, colour="P(Aff) > 0.9")) +
