@@ -32,7 +32,7 @@ distance_to_ref <- colSums(select(genotypes, -mut_id))
 probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
   filter(strain %in% filtered_strains, strain %in% growth$strain) %>%
   mutate(distance_to_ref = distance_to_ref[strain]) %>% 
-  mutate(length=structure(gene_summary$length, names=gene_summary$id)[gene]) %>%
+  mutate(length=structure(genes$stop - genes$start, names=genes$id)[gene]) %>%
   mutate(len_bin = cut(log10(.$length), 10))
 
 prob_mat <- readRDS('data/Rdata/paff_all_genes_mat.rds') %>%
@@ -183,6 +183,8 @@ p_essential_mut_counts_box <- ggplot(counts_melt, aes(y=count, x=essential)) +
 p_essential_mut_counts <- ggarrange(p_essential_mut_counts_box, p_essential_mut_counts_bar)
 ggsave('figures/paff_checks/essential_genes_counts.pdf', plot = p_essential_mut_counts, width = 14, height = 10)
 
+
+
 # Complexes
 p_complex_paf <- ggplot(gene_summary, aes(x=complex, y=sum_zero)) +
   geom_boxplot()
@@ -278,6 +280,46 @@ p_freq_essential <- ggplot(impacts, aes(x=essential, y=freq)) +
   scale_y_log10()
 ggsave('figures/paff_checks/freq_vs_essential.pdf', p_freq_essential, width = 12, height = 10)  
 
+p_freq_essential_sift <- ggplot(filter(impacts, sift_score < 0.05, !is.na(essential)), aes(x=essential, y=freq)) + 
+  geom_boxplot() + 
+  scale_y_log10()
+
+p_freq_essential_foldX <- ggplot(filter(impacts, abs(foldx_ddG) > 2, !is.na(essential)), aes(x=essential, y=freq)) + 
+  geom_boxplot() + 
+  scale_y_log10()
+
+# But does not appear significant
+t.test(freq ~ essential, data = filter(impacts, sift_score < 0.05, !is.na(essential)))
+t.test(freq ~ essential, data = filter(impacts, abs(foldx_ddG) > 2, !is.na(essential)))
+
 p_essential_foldx <- ggplot(filter(impacts, !is.na(essential)), aes(colour=essential, x=sift_score)) +
   geom_density()
+
+impact_summary <- group_by(impacts, gene) %>%
+  summarise(essential = first(essential),
+            count_sift = sum(sift_score < 0.05, na.rm = TRUE),
+            count_foldx = sum(foldx_ddG > 2, na.rm = TRUE)) %>%
+  mutate(length = structure(gene_summary$length, names=gene_summary$id)[gene]) %>%
+  mutate(count_sift_per_base = count_sift / length) %>%
+  mutate(count_foldx_per_base = count_foldx / length)
+
+# Observe same result as Omars Mutfunc paper
+p_essential_sift_per_base <- ggplot(filter(impact_summary, !is.na(essential)), aes(x=essential, y=count_sift_per_base)) + 
+  geom_boxplot(notch = TRUE, varwidth = TRUE) +
+  xlab('Gene Essential?') +
+  ylab('Number of variants with SIFT < 0.05 per base')
+
+t.test(count_sift_per_base ~ essential, data = impact_summary)
+
+ggsave('figures/paff_checks/gene_count_low_sift_per_base_essential_box.pdf', p_essential_sift_per_base, width = 12, height = 10)
+
+# but less so here?
+p_essential_foldx_per_base <- ggplot(impact_summary, aes(x=essential, y=count_foldx_per_base)) + 
+  geom_boxplot(notch = TRUE, varwidth = TRUE)
+
+t.test(count_foldx_per_base ~ essential, data = impact_summary)
+
+# Integrate frequency of variants into analysis?
+
+
 

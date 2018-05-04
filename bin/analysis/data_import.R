@@ -37,7 +37,8 @@ genotypes_all <- read_tsv('data/all-genes-no-missing.genotype', col_names = TRUE
 saveRDS(genotypes_all, file = 'data/Rdata/genotypes_all_genes.rds')
 
 #### Variant Impacts ####
-impacts <- read_tsv('data/all-genes-no-missing.impact', col_names = TRUE, na = "NA",
+## Use filtered version to avoid poor annotations
+impacts <- read_tsv('data/all-genes-no-missing.impact.filtered', col_names = TRUE, na = "NA",
                     col_types = cols(foldx_int_ddG = col_double(), foldx_int_ddG_sd = col_double()))
 saveRDS(impacts, 'data/Rdata/all_muts_impacts.rds')
 
