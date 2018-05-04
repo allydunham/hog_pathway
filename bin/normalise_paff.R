@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
 # Script to normalise P(Aff) scores against gene length and strain distance from S288C
+# Uses a linear model based on P(Aff) calculated from FoldX and SIFT scores of all variants in a gene to factor out effect of gene length and strain diversity
 library(tidyverse)
 library(magrittr)
 
