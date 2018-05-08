@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Process per mutation genotypes to group them by gene and assign per gene disruption scores
+If no methods are given only SIFT scores are used.
 
 ToDo
 - Currently nothing takes account of heterozygotes
@@ -56,11 +57,23 @@ def main(args):
     else:
         gene_eval_func = gene_impact_prob
 
+    if args.sift or args.blosum or args.foldx:
+        snp_neutral = generate_snp_neutral(blosum=args.blosum,
+                                           foldx=args.foldx,
+                                           sift=args.sift)
+    else:
+        snp_neutral = generate_snp_neutral(blosum=False,
+                                           foldx=False,
+                                           sift=True)
+
     print("strain", *genes, sep='\t')
     for strain, genes in strain_muts.items():
         probs = {}
         for gene, mut_ids in genes.items():
-            probs[gene] = gene_eval_func(muts=mut_ids, impacts=impacts, gene=gene)
+            probs[gene] = gene_eval_func(muts=mut_ids,
+                                         impacts=impacts,
+                                         gene=gene,
+                                         snp_neutral=snp_neutral)
 
         print(strain, *[probs[i] for i in genes], sep='\t')
 
@@ -74,17 +87,18 @@ def high_conf_gene_ko(**kwargs):
                                      (kwargs["impacts"]['gene'] == kwargs["gene"])].high_conf.any())
 
 def worst_mut(**kwargs):
-    """Determine the probability that a gene carrying a series of variants is not neutral based
-       on the highest impact variant"""
+    """Determine the probability that a gene carrying a series of variants is not
+    neutral based on the highest impact variant"""
     muts = kwargs['muts']
     impacts = kwargs['impacts']
     gene = kwargs['gene']
+    snp_neutral = kwargs['snp_neutral']
 
     # Filter impacts
     impacts = impacts[(impacts['mut_id'].isin(muts)) & (impacts['gene'] == gene)]
 
     # Fetch probs
-    probs = get_neutral_probabilities(muts, impacts)
+    probs = get_neutral_probabilities(muts, impacts, snp_neutral)
 
     # Return P(Aff) = 1 - P(Neut; worst mutant)
     return 1 - min(probs)
@@ -94,17 +108,18 @@ def gene_impact_prob(**kwargs):
     muts = kwargs['muts']
     impacts = kwargs['impacts']
     gene = kwargs['gene']
+    snp_neutral = kwargs['snp_neutral']
 
     # Filter impacts
     impacts = impacts[(impacts['mut_id'].isin(muts)) & (impacts['gene'] == gene)]
 
     # Fetch probs
-    probs = get_neutral_probabilities(muts, impacts)
+    probs = get_neutral_probabilities(muts, impacts, snp_neutral)
 
     # Return P(Aff) = 1 - Prod(P(Neut))
     return 1 - np.prod(probs)
 
-def get_neutral_probabilities(muts, impacts):
+def get_neutral_probabilities(muts, impacts, snp_neutral):
     """Generate an ordered list of P(Neutral) values from a list of mut_ids in a gene"""
     # Sort mutations
     if not muts:
@@ -134,12 +149,33 @@ def get_neutral_probabilities(muts, impacts):
             break
     return probs
 
-def snp_neutral(impact):
-    """Determine the probability that a mutation is functionally neutral"""
-    sift = 1/(1 + np.exp(-1.312424 * np.log(impact.sift_score.item() + 1.598027e-05) - 4.103955))
-    foldx = 1/(1 + np.exp(0.21786182 * impact.foldx_ddG.item() + 0.07351653))
-    #blosum = 0.66660 + 0.08293 * impact.blosum62.item()
-    return min(1, sift, foldx) #, blosum) Better way to do blosum?
+def generate_snp_neutral(blosum=True, foldx=True, sift=True):
+    """Generate a function to determine P(Neutral) for a SNP using a subset of
+       the three methods"""
+    funcs = []
+    if blosum:
+        funcs.append(lambda x: 0.66660 + 0.08293 * x.blosum62.item())
+
+    if foldx:
+        funcs.append(lambda x: 1/(1 + np.exp(0.21786182 * x.foldx_ddG.item() + 0.07351653)))
+
+    if sift:
+        funcs.append(lambda x: 1/(1 + np.exp(-1.312424 *
+                                             np.log(x.sift_score.item() + 1.598027e-05) -
+                                             4.103955)))
+
+    def snp_neutral(impact):
+        """Determine the probability that a mutation is functionally neutral"""
+        return min(1, *[f(impact) for f in funcs])
+
+    return snp_neutral
+
+# def snp_neutral(impact):
+#     """Determine the probability that a mutation is functionally neutral"""
+#     sift = 1/(1 + np.exp(-1.312424 * np.log(impact.sift_score.item() + 1.598027e-05) - 4.103955))
+#     foldx = 1/(1 + np.exp(0.21786182 * impact.foldx_ddG.item() + 0.07351653))
+#     #blosum = 0.66660 + 0.08293 * impact.blosum62.item()
+#     return min(1, sift, foldx) #, blosum) Better way to do blosum?
 
 def import_genotypes(genotype_file, genes, impacts, strains=''):
     """Import a table of genotypes into a nested dictionary
@@ -206,6 +242,15 @@ def parse_args():
     parser.add_argument('--worst', '-w', action="store_true",
                         help="Return the neutral probability of the most impactful variant\
                               in a gene")
+
+    parser.add_argument('--sift', '-i', action="store_true",
+                        help="Use SIFT scores to calculate P(Neutral)")
+
+    parser.add_argument('--blosum', '-b', action="store_true",
+                        help="Use BLOSUM62 scores to calculate P(Neutral)")
+
+    parser.add_argument('--foldx', '-f', action="store_true",
+                        help="Use FoldX ddG scores to calculate P(Neutral)")
 
     return parser.parse_args()
 
