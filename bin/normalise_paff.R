@@ -6,11 +6,13 @@ library(magrittr)
 
 args <- commandArgs(trailingOnly=TRUE)
 probs_file <- args[1]
+model_file <- args[2]
 
 out_file <- paste0(probs_file, '.norm')
 
 #### Import ####
-model <- readRDS('data/Rdata/len_ref_dist_normalisation_lm_coefs.rds')
+##Model expected to be a coefficients vector of the form seen on line 29
+model <- readRDS(model_file)
 
 strains <- readRDS('data/Rdata/strain_meta.rds')
 distance_to_ref <- structure(strains$`Total number of SNPs`, names=strains$`Standardized name`)
