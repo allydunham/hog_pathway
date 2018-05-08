@@ -31,7 +31,18 @@ probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
   mutate(length=unname(structure(genes$length, names=genes$id)[gene])) %>%
   mutate(ref_dist = unname(distance_to_ref_full[strain]))
 
+worst_probs <- readRDS('data/Rdata/worst_probs_all.rds') %>%
+  filter(strain %in% filtered_strains)
+
+counts <- readRDS('data/Rdata/all_gene_mut_counts.rds') %>%
+  filter(strain %in% filtered_strains) %>%
+  gather(key = 'gene', value = 'count', -strain)
+
+probs %<>% mutate(count = counts$count) %>%
+  mutate(worst_paff = worst_probs$worst_p_aff)
+
 #### Normalisation ####
+### Of Overall P(Aff)
 ## Independently on SC288 distance
 fit_ref_dist <- lm(p_aff ~ ref_dist, data = probs)
 probs %<>% mutate(p_aff_ref_cor = unname(p_aff - (fit_ref_dist$coefficients[1] + fit_ref_dist$coefficients[2] * ref_dist)))
@@ -45,11 +56,25 @@ fit_both <- lm(p_aff ~ length + ref_dist, data = probs)
 probs %<>% mutate(p_aff_both_cor = p_aff - (fit_both$coefficients[1] + fit_both$coefficients[2] * length + fit_both$coefficients[3] * ref_dist))
 saveRDS(fit_both$coefficients, 'data/Rdata/len_ref_dist_normalisation_lm_coefs.rds')
 
+## Double Normalise Worst P(Aff)
+fit_both <- lm(worst_paff ~ length + ref_dist, data = probs)
+probs %<>% mutate(worst_paff_both_cor = worst_paff - (fit_both$coefficients[1] + fit_both$coefficients[2] * length + fit_both$coefficients[3] * ref_dist))
+saveRDS(fit_both$coefficients, 'data/Rdata/worst_len_ref_dist_normalisation_lm_coefs.rds')
+
+## Double Normalise Count
+fit_both <- lm(count ~ length + ref_dist, data = probs)
+probs %<>% mutate(count_both_cor = count - (fit_both$coefficients[1] + fit_both$coefficients[2] * length + fit_both$coefficients[3] * ref_dist))
+saveRDS(fit_both$coefficients, 'data/Rdata/count_len_ref_dist_normalisation_lm_coefs.rds')
+
 #### Analysis ####
 strain_summary <- group_by(probs, strain) %>% 
   summarise(mean_paff = mean(p_aff),
             mean_ref_cor_paff = mean(p_aff_ref_cor),
-            mean_both_cor_paff = mean(p_aff_both_cor)) %>%
+            mean_both_cor_paff = mean(p_aff_both_cor),
+            mean_worst_paff = mean(worst_paff),
+            mean_worst_paff_cor = mean(worst_paff_both_cor),
+            mean_count = mean(count),
+            mean_count_cor = mean(count_both_cor)) %>%
   mutate(ref_dist = unname(distance_to_ref_full[strain]))
 
 gene_summary <- group_by(probs, gene) %>%
@@ -57,7 +82,12 @@ gene_summary <- group_by(probs, gene) %>%
             mean_paff_dist_cor = mean(p_aff_ref_cor),
             mean_paff_dist_length_cor = mean(p_aff_ref_length_cor),
             length = first(length),
-            mean_paff_both_cor = mean(p_aff_both_cor))
+            mean_paff_both_cor = mean(p_aff_both_cor),
+            mean_worst_paff = mean(worst_paff),
+            mean_worst_paff_cor = mean(worst_paff_both_cor),
+            mean_count = mean(count),
+            mean_count_cor = mean(count_both_cor)) %>%
+  mutate(essential = unname(essential_hash[gene]))
 
 # Just ref dist normalisation
 p_before_ref_correction <- ggplot(strain_summary, aes(x=ref_dist, y=mean_paff)) + 
@@ -104,17 +134,76 @@ ggsave('figures/paff_checks/normalised_ref_dist.pdf', p_both_ref, width = 12, he
 
 # Behaves identically - as it must?
 
+## Worst P(Aff)
+p_worst_ref_before_correction <- ggplot(strain_summary, aes(x=ref_dist, y=mean_worst_paff)) + 
+  geom_point() +
+  xlab("Differences from SC288") + 
+  ylab("Mean P(Aff)") + 
+  geom_smooth(method = 'lm')
+
+p_worst_length_before_correction <- ggplot(gene_summary, aes(y=mean_worst_paff, x = length)) + 
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  xlab("Gene Length") + 
+  ylab("Mean Length Corrected P(Aff)")
+
+p_worst_both_length <- ggplot(gene_summary, aes(y=mean_worst_paff_cor, x = length)) + 
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  xlab("Gene Length") + 
+  ylab("Mean Length Corrected P(Aff)")
+
+p_worst_both_ref <- ggplot(strain_summary, aes(x=ref_dist, y=mean_worst_paff_cor)) + 
+  geom_point() +
+  xlab("Differences from SC288") + 
+  ylab("Mean P(Aff)") + 
+  geom_smooth(method = 'lm')
+
+## Count
+p_count_ref_before_correction <- ggplot(strain_summary, aes(x=ref_dist, y=mean_count)) + 
+  geom_point() +
+  xlab("Differences from SC288") + 
+  ylab("Mean P(Aff)") + 
+  geom_smooth(method = 'lm')
+
+p_count_length_before_correction <- ggplot(gene_summary, aes(y=mean_count, x = length)) + 
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  xlab("Gene Length") + 
+  ylab("Mean Length Corrected P(Aff)")
+
+p_count_both_length <- ggplot(gene_summary, aes(y=mean_count_cor, x = length)) + 
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  xlab("Gene Length") + 
+  ylab("Mean Length Corrected P(Aff)")
+
+p_count_both_ref <- ggplot(strain_summary, aes(x=ref_dist, y=mean_count_cor)) + 
+  geom_point() +
+  xlab("Differences from SC288") + 
+  ylab("Mean P(Aff)") + 
+  geom_smooth(method = 'lm')
+
 
 ## Analyse essentiality
-gene_summary %<>% mutate(essential = unname(essential_hash[gene]))
-
 p_corrected_essential <- ggplot(filter(gene_summary, !is.na(essential)), aes(x=essential, y=mean_paff_both_cor, colour=essential)) +
   geom_boxplot(notch = TRUE, varwidth = TRUE) + 
   xlab('Gene Essential?') +
   ylab('Mean Normalised P(Aff)')
-
 ggsave('figures/paff_checks/normalised_essential_box.pdf', p_corrected_essential, width = 12, height = 10)
-
 t.test(mean_paff_dist_length_cor ~ essential, data = gene_summary)
 
+p_corrected_worst_essential <- ggplot(filter(gene_summary, !is.na(essential)), aes(x=essential, y=mean_worst_paff_cor, colour=essential)) +
+  geom_boxplot(notch = TRUE, varwidth = TRUE) + 
+  xlab('Gene Essential?') +
+  ylab('Mean Normalised Worst P(Aff)')
+ggsave('figures/paff_checks/normalised_worst_essential_box.pdf', p_corrected_worst_essential, width = 12, height = 10)
+t.test(mean_worst_paff_cor ~ essential, data = gene_summary)
+
+p_corrected_count_essential <- ggplot(filter(gene_summary, !is.na(essential)), aes(x=essential, y=mean_count_cor, colour=essential)) +
+  geom_boxplot(notch = TRUE, varwidth = TRUE) + 
+  xlab('Gene Essential?') +
+  ylab('Mean Normalised Variant Count')
+ggsave('figures/paff_checks/normalised_count_essential_box.pdf', p_corrected_count_essential, width = 12, height = 10)
+t.test(mean_count_cor ~ essential, data = gene_summary)
 

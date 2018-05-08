@@ -27,7 +27,7 @@ growth <- readRDS('data/Rdata/growth_liti.rds') %>%
   filter(strain %in% filtered_strains)
 
 genotypes <- readRDS('data/Rdata/genotypes_all_genes.rds')
-distance_to_ref <- colSums(select(genotypes, -mut_id))
+distance_to_ref <- structure(strains$`Total number of SNPs`, names=strains$`Standardized name`)
 
 probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
   filter(strain %in% filtered_strains, strain %in% growth$strain) %>%
@@ -41,10 +41,10 @@ prob_mat <- readRDS('data/Rdata/paff_all_genes_mat.rds') %>%
   as.matrix() %>%
   set_rownames(growth$strain)  
 
-worst_probs <- readRDS('data/Rdata/worst_probs_hog.rds') %>%
+worst_probs <- readRDS('data/Rdata/worst_probs_all.rds') %>%
   filter(strain %in% intersect(filtered_strains, growth$strain))
 
-counts <- readRDS('data/Rdata/hog_gene_mut_counts.rds') %>%
+counts <- readRDS('data/Rdata/all_gene_mut_counts.rds') %>%
   filter(strain %in% growth$strain)
 
 allele_freqs <- readRDS('data/Rdata/allele_freqs.rds')
@@ -166,24 +166,46 @@ p_essential <- ggarrange(p_essential_mean, p_essential_mean_non_zero, p_essentia
 
 ggsave('figures/paff_checks/essential_genes.pdf', p_essential, width = 14, height = 10)
 
-counts_melt <- gather(counts, key = 'gene', value = 'count', -strain) %>%
-  mutate(ypdnacl1m=structure(growth$ypdnacl1m, names=growth$strain)[strain]) %>%
-  mutate(ypdnacl15m=structure(growth$ypdnacl15m, names=growth$strain)[strain]) %>%
-  mutate(ypdkcl2m=structure(growth$ypdkcl2m, names=growth$strain)[strain]) %>%
-  mutate(ypdchx1=structure(growth$ypdchx1, names=growth$strain)[strain]) %>%
-  mutate(essential=structure(essential$essential, names=essential$locus)[gene])
+# Gene variant counts
+counts_melt <- gather(counts, key = 'gene', value = 'count', -strain)
 
-p_essential_mut_counts_bar <- ggplot(counts_melt, aes(x=count, y=..prop.., fill=essential)) + 
+probs %<>% mutate(variant_count = counts_melt$count) %>%
+  mutate(ypdnacl1m=unname(structure(growth$ypdnacl1m, names=growth$strain)[strain])) %>%
+  mutate(ypdnacl15m=unname(structure(growth$ypdnacl15m, names=growth$strain)[strain])) %>%
+  mutate(ypdkcl2m=unname(structure(growth$ypdkcl2m, names=growth$strain)[strain])) %>%
+  mutate(ypdchx1=unname(structure(growth$ypdchx1, names=growth$strain)[strain])) %>%
+  mutate(essential=NA)
+
+# Assign essentiallity (structure method is too slow)
+essential_genes <- filter(essential, essential == 'E') %>% pull(locus)
+non_essential_genes <- filter(essential, essential == 'NE') %>% pull(locus)
+probs[probs$gene %in% essential_genes, 'essential'] <- 'E'
+probs[probs$gene %in% non_essential_genes, 'essential'] <- 'NE'
+
+p_essential_mut_counts_bar <- ggplot(probs, aes(x=count, y=..prop.., fill=essential)) + 
   geom_bar(position = "dodge") +
-  scale_y_continuous(labels = scales::percent)
+  scale_y_continuous(labels = scales::percent) %>%
+  xlab('Numbr of Variants') %>%
+  ylab('Proportion of Genes')
 
-p_essential_mut_counts_box <- ggplot(counts_melt, aes(y=count, x=essential)) + 
-  geom_boxplot()
+p_essential_mut_counts_box <- ggplot(probs, aes(y=count, x=essential)) + 
+  geom_boxplot() +
+  scale_y_log10()
 
 p_essential_mut_counts <- ggarrange(p_essential_mut_counts_box, p_essential_mut_counts_bar)
 ggsave('figures/paff_checks/essential_genes_counts.pdf', plot = p_essential_mut_counts, width = 14, height = 10)
 
+# Different but not a meaningful amount
+wilcox.test(filter(counts_melt, essential == 'E') %>% pull(count), filter(counts_melt, essential == 'NE') %>% pull(count))
 
+# Most impactful variant
+probs %<>% mutate(worst_p_aff = worst_probs$worst_p_aff)
+
+p_worst_paff_essential_box <- ggplot(filter(probs, !is.na(essential), variant_count > 0), aes(x = essential, y = worst_p_aff)) +
+  geom_boxplot()
+
+p_worst_paff_essential_density <- ggplot(filter(probs, !is.na(essential), variant_count > 0), aes(colour = essential, x = worst_p_aff)) +
+  geom_density()
 
 # Complexes
 p_complex_paf <- ggplot(gene_summary, aes(x=complex, y=sum_zero)) +

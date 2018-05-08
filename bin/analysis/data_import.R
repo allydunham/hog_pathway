@@ -58,6 +58,12 @@ saveRDS(prob_aff_all, file = 'data/Rdata/paff_all_genes.rds')
 worst_probs_hog <- read_tsv('data/hog-gene-variants.worst-probs', col_names = TRUE)
 saveRDS(worst_probs_hog, 'data/Rdata/worst_probs_hog.rds')
 
+worst_probs_all <- read_tsv('data/all-genes-no-missing.worst-prob', col_names = TRUE)
+saveRDS(worst_probs_all, 'data/Rdata/worst_probs_all_mat.rds')
+
+worst_probs_all %<>% gather(key='gene', value = 'worst_p_aff', -strain)
+saveRDS(worst_probs_all, 'data/Rdata/worst_probs_all.rds')
+
 #### Growth Data ####
 growth_bede <- read_tsv("data/raw/bede_2017_parsed.tsv", col_names = TRUE) %>%
   mutate(strain=str_to_upper(strain)) %>%
@@ -89,9 +95,11 @@ hog_path <- read_tsv(file = 'data/hog-gene-variants.path.blosum', col_names = TR
 saveRDS(hog_path, 'data/Rdata/hog_path_probs.rds')
   
 hog_counts <- read_tsv('data/hog-gene-variants.mut-counts', col_names = TRUE)
-  set_names(c('strain', structure(genes$name, names=genes$id)[names(.)[-1]]))
 saveRDS(hog_counts, 'data/Rdata/hog_gene_mut_counts.rds')
-  
+
+all_counts <- read_tsv('data/all-genes-no-missing.mut-counts', col_names = TRUE)
+saveRDS(all_counts, 'data/Rdata/all_gene_mut_counts.rds')
+
 #### Correlation Data ####
 load('data/correlation_data.Rdata')
 gene_gene_cor[lower.tri(gene_gene_cor)] <- t(gene_gene_cor)[lower.tri(gene_gene_cor)]
@@ -105,4 +113,19 @@ saveRDS(cor_growth_melt, 'data/Rdata/gene_growth_correlations.rds')
 allele_freqs <- read_tsv('data/all-genes-no-missing.mut-freqs', col_names = TRUE)
 saveRDS(allele_freqs, 'data/Rdata/allele_freqs.rds')
 
+#### Normalised P(Aff) Data ####
+probs_norm <- read_tsv('data/all-genes-no-missing.koprob.norm', col_names = TRUE)
+saveRDS(probs_norm, 'data/Rdata/norm_paff_mat.rds')
+probs_norm %<>% gather(key = 'gene', value = 'norm_p_aff', -strain)
+saveRDS(probs_norm, 'data/Rdata/norm_paff.rds')
+
+counts_norm <- read_tsv('data/all-genes-no-missing.mut-counts.norm', col_names = TRUE)
+saveRDS(counts_norm, 'data/Rdata/norm_counts_mat.rds')
+counts_norm %<>% gather(key = 'gene', value = 'norm_count', -strain)
+saveRDS(counts_norm, 'data/Rdata/norm_counts.rds')
+
+worst_norm <- read_tsv('data/all-genes-no-missing.worst-prob.norm', col_names = TRUE)
+saveRDS(worst_norm, 'data/Rdata/norm_worst_mat.rds')
+worst_norm %<>% gather(key = 'gene', value = 'norm_worst_p_aff', -strain)
+saveRDS(worst_norm, 'data/Rdata/norm_worst.rds')
 
