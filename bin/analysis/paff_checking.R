@@ -239,8 +239,7 @@ strain_summary <- tibble(strain = rownames(prob_mat)) %>%
   mutate(median_paff = apply(prob_mat, 1, median)) %>%
   mutate(distance_to_ref = distance_to_ref[strain]) %>%
   mutate(num_high = rowSums(prob_mat > 0.9)[strain]) %>%
-  mutate(num_low = rowSums(prob_mat < 0.1)[strain]) %>%
-  mutate(mean_worst_paff = rowMeans(select(worst_probs, -strain)))
+  mutate(num_low = rowSums(prob_mat < 0.1)[strain])
 
 fit_strain <- lm(mean_paff ~ distance_to_ref, data = strain_summary)
 strain_summary %<>% mutate(mean_corrected = mean_paff - (fit_strain$coefficients[1] + fit_strain$coefficients[2] * distance_to_ref))

@@ -76,6 +76,8 @@ growth_liti <- read_tsv(file = 'data/raw/phenoMatrix_35ConditionsNormalizedByYPD
   set_names(str_to_lower(names(.)))
 saveRDS(growth_liti, file = 'data/Rdata/growth_liti.rds')
 
+growth_bede_gene_dels <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE)
+
 #### Genetic Distance ####
 load('data/Rdata/genetic_distance_old.Rdata')
 saveRDS(genetic_distance, 'data/Rdata/genetic_distance_matrix.rds')
