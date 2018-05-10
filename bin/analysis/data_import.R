@@ -76,7 +76,19 @@ growth_liti <- read_tsv(file = 'data/raw/phenoMatrix_35ConditionsNormalizedByYPD
   set_names(str_to_lower(names(.)))
 saveRDS(growth_liti, file = 'data/Rdata/growth_liti.rds')
 
-growth_bede_gene_dels <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE)
+growth_bede_gene_dels <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
+  filter(qvalue < 0.05) %>%
+  filter(!gene == 'WT') %>%
+  filter(!duplicated(.[,c('strain', 'condition', 'gene')])) %>%
+  select(-position) %>%
+  unite(comb, score, qvalue) %>%
+  spread(key = strain, value = comb) %>%
+  mutate(num_strains = (!is.na(S288C)) + (!is.na(UWOP)) + (!is.na(Y55)) + (!is.na(YPS))) %>%
+  separate(S288C, c('S288C-score', 'S288C-qvalue'), sep = '_') %>%
+  separate(UWOP, c('UWOP-score', 'UWOP-qvalue'), sep = '_') %>%
+  separate(Y55, c('Y55-score', 'Y55-qvalue'), sep = '_') %>%
+  separate(YPS, c('YPS-score', 'YPS-qvalue'), sep = '_')
+saveRDS(growth_bede_gene_dels, 'data/Rdata/gene_ko_growth.rds')
 
 #### Genetic Distance ####
 load('data/Rdata/genetic_distance_old.Rdata')

@@ -125,3 +125,4 @@ p_growth_high_bin <- ggplot(strain_summary_melt, aes(x=bin, y=growth)) +
 p_growth_high <- ggarrange(p_growth_high_point, p_growth_high_bin, widths = c(2,1))
 ggsave('figures/liti_growth/growth_vs_unusual_variant_count_genes.pdf', p_growth_high, width = 20, height = 10)
 ## Does not appear to be a big decrease in growth in stressed media with any of the three normalised counts for gene impact
+
