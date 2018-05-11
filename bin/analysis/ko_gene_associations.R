@@ -39,8 +39,8 @@ ko_growth <- readRDS('data/Rdata/gene_ko_growth.rds')
 ko_thresh <- 0.95
 
 ## Define conditions considered equivalent between bede and liti screens
-equiv_conditions <- structure(c("NaCl 0.6M (48H)"),
-                              names=c("ypdnacl15m"))
+equiv_conditions <- structure(c("NaCl 0.6M (48H)", "39ºC (48H)"),
+                              names=c("ypdnacl15m", "ypd40"))
 
 sig_genes <- lapply(equiv_conditions, function(x){filter(ko_growth, condition == x, num_strains >= 1) %>% pull(gene)})
 
@@ -64,25 +64,65 @@ fit <- lm(growth ~ num_sig_kos, data = filter(strain_summary, condition == 'ypdn
 ggsave('figures/liti_growth/nacl15_growth_vs_number_sig_kos.pdf', p_ypdnacl15m_sig_kos, width = 12, height = 10)
 
 ## By individual gene
-probs %<>% mutate(sig_ko = gene_sig & p_aff > ko_thresh)
+probs %<>% mutate(ko = p_aff > ko_thresh) %>%
+  mutate(sig_ko = gene_sig & ko)
+
+# Example with Pbs2 and Hog1 (Known to be sig in NaCl 1.5mM)
 hog_id <- 'YLR113W'
 pbs2_id <- 'YJL128C'
-p_hog_ko_growth_box <- ggplot(filter(probs, gene==!!hog_id , condition=='ypdnacl15m'), aes(x=sig_ko, y=growth)) +
+probs_nacl <- filter(probs, gene==!!hog_id | gene == !!pbs2_id, condition=='ypdnacl15m') %>%
+  select(strain, gene, growth, ko) %>%
+  spread(key = 'gene', value = 'ko') %>%
+  rename(hog1 = !!hog_id, pbs2 = !!pbs2_id) %>%
+  mutate(ko = ifelse(hog1, ifelse(pbs2, 'Both', 'Hog1'), ifelse(pbs2, 'Pbs2', 'Neither'))) %>%
+  select(-hog1, -pbs2) %>%
+  mutate(ypdnacl15m = growth) %>%
+  mutate(ypd14 = !!growth$ypd14) %>%
+  gather(key = 'condition', value = 'growth', -strain, -growth, -ko) %>%
+  mutate(ko = factor(ko, levels = c('Neither', 'Hog1', 'Pbs2', 'Both'))) %>%
+  mutate(condition = factor(condition, levels = c('ypdnacl15m', 'ypd14')))
+
+p_osmotic_shock_ko_growth_box <- ggplot(probs_nacl, aes(x = ko, y = growth, colour = ko)) +
+  facet_wrap(~ condition) +
   geom_boxplot(varwidth = TRUE) +
-  xlab(paste0('Hog1 P(aff) > ', ko_thresh)) +
+  xlab(paste0('Genes with P(aff) > ', ko_thresh)) +
   ylab('Growth Relative to YPD Media') + 
-  stat_compare_means(method = 't.test', hjust = -0.5) +
-  stat_summary(geom = 'text', fun.data = function(x){return(c(y = 0, label = length(x)))})
-
-p_pbs_ko_growth_box <- ggplot(filter(probs, gene==!!pbs2_id, condition=='ypdnacl15m'), aes(x=sig_ko, y=growth)) +
-  geom_boxplot(varwidth = TRUE) +
-  xlab(paste0('Pbs2 P(aff) > ', ko_thresh)) +
-  ylab('') + 
-  stat_compare_means(method = 't.test', hjust = -0.5) +
-  stat_summary(geom = 'text', fun.data = function(x){return(c(y = 0, label = length(x)))})
-
-p_osmotic_shock_ko_growth_box <- ggarrange(p_hog_ko_growth_box, p_pbs_ko_growth_box)
+  stat_compare_means(method = 'wilcox.test',
+                     comparisons = list(c('Hog1', 'Neither'), c('Pbs2', 'Neither'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.03, label = length(x)))}) +
+  guides(colour = FALSE)
 ggsave('figures/liti_growth/osmotic_shock_ko_growth.pdf', p_osmotic_shock_ko_growth_box, width = 14, height = 10)
+
+# Generic function for gene ko growth box plots
+ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL){
+  if (!is.null(gene_ids)){
+    gene_names <- structure(genes$name, names=genes$id)[gene_ids]
+    gene_ids <- structure(names(gene_names), names=unname(gene_names))
+  } else if (!is.null(gene_names)){
+    gene_ids <- structure(genes$id, names=genes$name)[str_to_upper(gene_names)]
+    gene_names <- structure(names(gene_ids), names=unname(gene_ids))
+  } else {
+    warning('One of "gene_names" or "gene_ids" must be given')
+  }
+  
+  probs_filter <- filter(probs, gene %in% gene_ids, condition==!!condition) %>%
+    select(strain, gene, growth, ko) %>%
+    spread(key = 'gene', value = 'ko') %>%
+    rename_at(.vars = vars(!!gene_ids), .funs = function(x){gene_names[x]}) %>%
+    gather(key = 'gene', value = 'ko', -strain, -growth) %>%
+    mutate(ko = factor(ifelse(ko, 'True', 'False'), levels = c('False', 'True'))) %>%
+    mutate(gene = factor(gene, levels = gene_names))
+  
+  p <- ggplot(probs_filter, aes(x=ko, y=growth)) +
+    geom_boxplot(aes(fill=gene), varwidth = TRUE, alpha=0.4) +
+    facet_wrap(~gene) +
+    stat_compare_means(comparisons = list(c('False','True'))) +
+    stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.03, label = length(x)))}) +
+    xlab(paste0('P(aff) > ', ko_thresh)) +
+    ylab(paste0('Growth in ', condition, ' Relative to YPD Media'))
+  return(p)
+}
+
 
 all_sig_genes <- unique(unname(unlist(sig_genes)))
 gene_summary <- readRDS('data/Rdata/paff_all_genes.rds') %>%
@@ -121,4 +161,18 @@ p_ko_sig_rates <- ggplot(filter(gene_summary, !is.na(essential)), aes(x=count, c
 #   -5.537457  1.676464
 # sample estimates:
 #   mean in group FALSE  mean in group TRUE 
-# 32.72335            34.65385 
+# 32.72335            34.65385
+
+get_mean_sscore <- function(gene, ko){
+  if (gene %in% ko$gene){
+    return(mean(unlist(ko[ko$gene == gene, c('S288C-score', 'UWOP-score', 'Y55-score', 'YPS-score')], use.names = FALSE), na.rm=TRUE))
+  } else {
+    return(NA)
+  }
+}
+
+gene_summary %<>% mutate(nacl_score = sapply(gene, get_mean_sscore, ko = filter(ko_growth, condition == "NaCl 0.6M (48H)")))
+
+p_affs_count_vs_ko_impact <- ggplot(gene_summary, aes(x=nacl_score, y=count)) +
+  geom_point()
+
