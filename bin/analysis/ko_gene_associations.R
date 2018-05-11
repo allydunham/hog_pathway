@@ -33,14 +33,20 @@ probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
   gather(key='condition', value = 'growth', -strain, -gene, -p_aff) %>%
   mutate(gene_sig = FALSE)
 
-ko_growth <- readRDS('data/Rdata/gene_ko_growth.rds')
+# import Ko growth data showing which genes are significant (using 0.01 threshold)
+ko_growth <- readRDS('data/Rdata/gene_ko_growth.rds') %>%
+  filter(num_strains >= 2) %>% # Only interested in genes that show general ipact rather than in one strain
+  filter(gene %in% unique(probs$gene))
+
+ko_growth_full <- readRDS('data/Rdata/gene_ko_growth_full.rds') %>%
+  filter(gene %in% unique(probs$gene))
 
 #### Processing ####
 ko_thresh <- 0.95
 
 ## Define conditions considered equivalent between bede and liti screens
-equiv_conditions <- structure(c("NaCl 0.6M (48H)", "39ºC (48H)"),
-                              names=c("ypdnacl15m", "ypd40"))
+equiv_conditions <- structure(c("NaCl 0.6M (48H)", "39ºC (48H)", "Caffeine 20mM (48H)", "Glycerol 2%  (48H)", "6-AU (48H)"),
+                              names=c("ypdnacl15m", "ypd40", "ypdcafein40", "ypglycerol", "ypd6au"))
 
 sig_genes <- lapply(equiv_conditions, function(x){filter(ko_growth, condition == x, num_strains >= 1) %>% pull(gene)})
 
@@ -91,12 +97,13 @@ p_osmotic_shock_ko_growth_box <- ggplot(probs_nacl, aes(x = ko, y = growth, colo
                      comparisons = list(c('Hog1', 'Neither'), c('Pbs2', 'Neither'))) +
   stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.03, label = length(x)))}) +
   guides(colour = FALSE)
-ggsave('figures/liti_growth/osmotic_shock_ko_growth.pdf', p_osmotic_shock_ko_growth_box, width = 14, height = 10)
+ggsave('figures/liti_growth/osmotic_shock_ko_growth_pbs2_hog1.pdf', p_osmotic_shock_ko_growth_box, width = 14, height = 10)
 
 # Generic function for gene ko growth box plots
-ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL){
+plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL){
   if (!is.null(gene_ids)){
     gene_names <- structure(genes$name, names=genes$id)[gene_ids]
+    gene_names[is.na(gene_names)] <- gene_ids[is.na(gene_names)]
     gene_ids <- structure(names(gene_names), names=unname(gene_names))
   } else if (!is.null(gene_names)){
     gene_ids <- structure(genes$id, names=genes$name)[str_to_upper(gene_names)]
@@ -119,22 +126,40 @@ ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL){
     stat_compare_means(comparisons = list(c('False','True'))) +
     stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.03, label = length(x)))}) +
     xlab(paste0('P(aff) > ', ko_thresh)) +
-    ylab(paste0('Growth in ', condition, ' Relative to YPD Media'))
+    ylab(paste0('Growth in ', condition, ' Relative to YPD Media')) +
+    guides(fill=FALSE)
   return(p)
 }
 
+p_nacl15m_all_sig_kos_box <- plot_ko_growth_box('ypdnacl15m', gene_ids = sig_genes$ypdnacl15m)
+ggsave('figures/liti_growth/osmotic_shock_ko_growth_all_genes.pdf', p_nacl15m_all_sig_kos_box, width = 20, height = 20)
 
+p_heat_all_sig_kos_box <- plot_ko_growth_box('ypd40', gene_ids = sig_genes$ypd40)
+ggsave('figures/liti_growth/high_temp_ko_growth_all_genes.pdf', p_heat_all_sig_kos_box, width = 30, height = 30)
+
+p_cafein40_all_sig_kos_box <- plot_ko_growth_box('ypdcafein40', gene_ids = sig_genes$ypdcafein40)
+ggsave('figures/liti_growth/cafein40_ko_growth_all_genes.pdf', p_cafein40_all_sig_kos_box, width = 30, height = 30)
+
+p_glycerol_all_sig_kos_box <- plot_ko_growth_box('ypglycerol', gene_ids = sig_genes$ypglycerol)
+ggsave('figures/liti_growth/glycerol_ko_growth_all_genes.pdf', p_glycerol_all_sig_kos_box, width = 30, height = 30)
+
+p_6au_all_sig_kos_box <- plot_ko_growth_box('ypd6au', gene_ids = sig_genes$ypd6au)
+ggsave('figures/liti_growth/6au_ko_growth_all_genes.pdf', p_6au_all_sig_kos_box, width = 30, height = 30)
+
+## Analyse all genes
 all_sig_genes <- unique(unname(unlist(sig_genes)))
 gene_summary <- readRDS('data/Rdata/paff_all_genes.rds') %>%
   mutate(sig = gene %in% all_sig_genes) %>%
+  mutate(sig_nacl = gene %in% sig_genes$ypdnacl15m) %>%
   mutate(ko = p_aff > ko_thresh) %>%
   group_by(gene) %>%
   summarise(count = sum(ko),
-            sig = first(sig)) %>%
+            sig_nacl = first(sig_nacl),
+            sig=first(sig)) %>%
   mutate(essential = structure(essential$essential, names=essential$locus)[gene])
 
 # Essential and sig KO genes are mutually exclusive as expected (S-Score would mean no diff between stressed and unstressed growth in essential gene)
-table(gene_summary$sig, gene_summary$essential)
+table(gene_summary$sig_nacl, gene_summary$essential)
 
 # Not a big difference in rate of KO between genes that are sig in some conditions
 gene_summary %<>% mutate(sigess = if_else(essential == 'E', 'Essential', if_else(sig, 'Significant', 'Neither')))
@@ -163,16 +188,30 @@ p_ko_sig_rates <- ggplot(filter(gene_summary, !is.na(essential)), aes(x=count, c
 #   mean in group FALSE  mean in group TRUE 
 # 32.72335            34.65385
 
-get_mean_sscore <- function(gene, ko){
+### Analyse genes ko rate against their significance
+ko <- filter(ko_growth_full, condition == "NaCl 0.6M (48H)")
+
+get_strain_sscore <- function(gene, strain, ko){
   if (gene %in% ko$gene){
-    return(mean(unlist(ko[ko$gene == gene, c('S288C-score', 'UWOP-score', 'Y55-score', 'YPS-score')], use.names = FALSE), na.rm=TRUE))
+    return(unlist(ko[ko$gene == gene, paste0(strain, '-score')]))
   } else {
     return(NA)
   }
 }
 
-gene_summary %<>% mutate(nacl_score = sapply(gene, get_mean_sscore, ko = filter(ko_growth, condition == "NaCl 0.6M (48H)")))
+gene_summary %<>% mutate(S288C = sapply(gene, get_strain_sscore, strain = 'S288C', ko = ko)) %>%
+  mutate(UWOP = sapply(gene, get_strain_sscore, strain = 'UWOP', ko = ko)) %>%
+  mutate(Y55 = sapply(gene, get_strain_sscore, strain = 'Y55', ko = ko)) %>%
+  mutate(YPS = sapply(gene, get_strain_sscore, strain = 'YPS', ko = ko)) %>%
+  gather(key = 'strain', value = 'sscore', -gene, -count, -sig, -essential, -sigess, -sig_nacl)
 
-p_affs_count_vs_ko_impact <- ggplot(gene_summary, aes(x=nacl_score, y=count)) +
-  geom_point()
+p_ko_count_significance <- ggplot(gene_summary, aes(x=sscore, y=count, colour=strain, shape=sig_nacl)) +
+  geom_point() +
+  xlab('S-Score in 0.6mM NaCl (48hr)') +
+  ylab(paste0('Number of Strains with P(Aff) > ', ko_thresh)) +
+  guides(colour=guide_legend(title = 'KO Strain for S-Score'), shape=guide_legend(title = 'Gene Significant in 2+ strains'))
 
+ggsave('figures/liti_growth/strain_ko_count_vs_significance_nacl.pdf', p_ko_count_significance, width = 12, height = 10)
+
+p_strain_sscore_density <- ggplot(gene_summary, aes(x=sscore, colour=strain)) +
+  geom_density()
