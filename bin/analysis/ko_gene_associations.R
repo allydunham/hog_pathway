@@ -5,6 +5,8 @@ library(tidyverse)
 library(magrittr)
 library(ggpubr)
 
+figure_root <- 'figures/liti_growth/'
+
 #### Import Data ####
 strains <- readRDS('data/Rdata/strain_meta.rds')
 filtered_strains <- filter(strains, Ploidy == 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
@@ -33,9 +35,21 @@ probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
   gather(key='condition', value = 'growth', -strain, -gene, -p_aff) %>%
   mutate(gene_sig = FALSE)
 
+probs_norm <- readRDS('data/Rdata/norm_paff.rds') %>%
+  rename(p_aff = norm_p_aff) %>%
+  filter(strain %in% intersect(filtered_strains, growth$strain)) %>%
+  left_join(. ,growth, by = 'strain') %>%
+  gather(key='condition', value = 'growth', -strain, -gene, -p_aff) %>%
+  mutate(gene_sig = FALSE)
+
+probs_mat <- readRDS('data/Rdata/paff_all_genes_mat.rds') %>%
+  filter(strain %in% intersect(filtered_strains, growth$strain))
+
+probs_norm_mat <- readRDS('data/Rdata/norm_paff_mat.rds') %>%
+  filter(strain %in% intersect(filtered_strains, growth$strain))
+
 # import Ko growth data showing which genes are significant (using 0.01 threshold)
 ko_growth <- readRDS('data/Rdata/gene_ko_growth.rds') %>%
-  filter(num_strains >= 2) %>% # Only interested in genes that show general ipact rather than in one strain
   filter(gene %in% unique(probs$gene))
 
 ko_growth_full <- readRDS('data/Rdata/gene_ko_growth_full.rds') %>%
@@ -43,15 +57,19 @@ ko_growth_full <- readRDS('data/Rdata/gene_ko_growth_full.rds') %>%
 
 #### Processing ####
 ko_thresh <- 0.95
+ko_norm_thresh <- mean(probs_norm$p_aff) + qnorm(0.95) * sd(probs_norm$p_aff)
 
 ## Define conditions considered equivalent between bede and liti screens
 equiv_conditions <- structure(c("NaCl 0.6M (48H)", "39ºC (48H)", "Caffeine 20mM (48H)", "Glycerol 2%  (48H)", "6-AU (48H)"),
                               names=c("ypdnacl15m", "ypd40", "ypdcafein40", "ypglycerol", "ypd6au"))
 
 sig_genes <- lapply(equiv_conditions, function(x){filter(ko_growth, condition == x, num_strains >= 1) %>% pull(gene)})
+sig_genes_strong <- lapply(equiv_conditions, function(x){filter(ko_growth, condition == x, num_strains >= 2) %>% pull(gene)})
+sig_genes_v_strong <- lapply(equiv_conditions, function(x){filter(ko_growth, condition == x, num_strains >= 3) %>% pull(gene)})
 
 for (con in names(sig_genes)){
   probs[probs$condition == con & probs$gene %in% sig_genes[[con]], 'gene_sig'] <- TRUE
+  probs_norm[probs_norm$condition == con & probs_norm$gene %in% sig_genes[[con]], 'gene_sig'] <- TRUE
 }
 
 #### Analysis ####
@@ -67,11 +85,11 @@ p_ypdnacl15m_sig_kos <- ggplot(filter(strain_summary, condition == 'ypdnacl15m')
   ylab('Growth Relative to YPD Media') +
   xlab(paste0('Number of NaCl Stress Significant Genes with P(Aff) > ', ko_thresh))
 fit <- lm(growth ~ num_sig_kos, data = filter(strain_summary, condition == 'ypdnacl15m'))
-ggsave('figures/liti_growth/nacl15_growth_vs_number_sig_kos.pdf', p_ypdnacl15m_sig_kos, width = 12, height = 10)
+ggsave(paste0(figure_root, 'nacl15_growth_vs_number_sig_kos.pdf'), p_ypdnacl15m_sig_kos, width = 12, height = 10)
 
 ## By individual gene
-probs %<>% mutate(ko = p_aff > ko_thresh) %>%
-  mutate(sig_ko = gene_sig & ko)
+probs %<>% mutate(ko = p_aff > ko_thresh)
+probs_norm %<>% mutate(ko = p_aff > ko_norm_thresh)
 
 # Example with Pbs2 and Hog1 (Known to be sig in NaCl 1.5mM)
 hog_id <- 'YLR113W'
@@ -97,10 +115,10 @@ p_osmotic_shock_ko_growth_box <- ggplot(probs_nacl, aes(x = ko, y = growth, colo
                      comparisons = list(c('Hog1', 'Neither'), c('Pbs2', 'Neither'))) +
   stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.03, label = length(x)))}) +
   guides(colour = FALSE)
-ggsave('figures/liti_growth/osmotic_shock_ko_growth_pbs2_hog1.pdf', p_osmotic_shock_ko_growth_box, width = 14, height = 10)
+ggsave(paste0(figure_root, 'osmotic_shock_ko_growth_pbs2_hog1.pdf'), p_osmotic_shock_ko_growth_box, width = 14, height = 10)
 
 # Generic function for gene ko growth box plots
-plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL){
+plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL, prob_tbl=probs){
   if (!is.null(gene_ids)){
     gene_names <- structure(genes$name, names=genes$id)[gene_ids]
     gene_names[is.na(gene_names)] <- gene_ids[is.na(gene_names)]
@@ -112,7 +130,7 @@ plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL){
     warning('One of "gene_names" or "gene_ids" must be given')
   }
   
-  probs_filter <- filter(probs, gene %in% gene_ids, condition==!!condition) %>%
+  probs_filter <- filter(prob_tbl, gene %in% gene_ids, condition==!!condition) %>%
     select(strain, gene, growth, ko) %>%
     spread(key = 'gene', value = 'ko') %>%
     rename_at(.vars = vars(!!gene_ids), .funs = function(x){gene_names[x]}) %>%
@@ -131,38 +149,104 @@ plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL){
   return(p)
 }
 
-p_nacl15m_all_sig_kos_box <- plot_ko_growth_box('ypdnacl15m', gene_ids = sig_genes$ypdnacl15m)
-ggsave('figures/liti_growth/osmotic_shock_ko_growth_all_genes.pdf', p_nacl15m_all_sig_kos_box, width = 20, height = 20)
+p_nacl15m_all_sig_kos_box <- plot_ko_growth_box('ypdnacl15m', gene_ids = sig_genes_strong$ypdnacl15m)
+ggsave(paste0(figure_root, 'osmotic_shock_ko_growth_all_genes.pdf'), p_nacl15m_all_sig_kos_box, width = 20, height = 20)
 
-p_heat_all_sig_kos_box <- plot_ko_growth_box('ypd40', gene_ids = sig_genes$ypd40)
-ggsave('figures/liti_growth/high_temp_ko_growth_all_genes.pdf', p_heat_all_sig_kos_box, width = 30, height = 30)
+p_nacl1m_all_sig_kos_box <- plot_ko_growth_box('ypdnacl1m', gene_ids = sig_genes_strong$ypdnacl15m)
+ggsave(paste0(figure_root, 'low_osmotic_shock_ko_growth_all_genes.pdf'), p_nacl1m_all_sig_kos_box, width = 20, height = 20)
 
-p_cafein40_all_sig_kos_box <- plot_ko_growth_box('ypdcafein40', gene_ids = sig_genes$ypdcafein40)
-ggsave('figures/liti_growth/cafein40_ko_growth_all_genes.pdf', p_cafein40_all_sig_kos_box, width = 30, height = 30)
+p_nacl15m_all_sig_vstrong_kos_box <- plot_ko_growth_box('ypdnacl15m', gene_ids = sig_genes_v_strong$ypdnacl15m)
+ggsave(paste0(figure_root, 'osmotic_shock_ko_growth_all_genes_strong_sig.pdf'), p_nacl15m_all_sig_vstrong_kos_box, width = 20, height = 20)
 
-p_glycerol_all_sig_kos_box <- plot_ko_growth_box('ypglycerol', gene_ids = sig_genes$ypglycerol)
-ggsave('figures/liti_growth/glycerol_ko_growth_all_genes.pdf', p_glycerol_all_sig_kos_box, width = 30, height = 30)
+p_nacl15m_all_sig_norm_kos_box <- plot_ko_growth_box('ypdnacl15m', gene_ids = sig_genes_strong$ypdnacl15m, prob_tbl = probs_norm)
+ggsave(paste0(figure_root, 'normalised_associations/osmotic_shock_ko_growth_all_genes.pdf'), p_nacl15m_all_sig_norm_kos_box, width = 20, height = 20)
 
-p_6au_all_sig_kos_box <- plot_ko_growth_box('ypd6au', gene_ids = sig_genes$ypd6au)
-ggsave('figures/liti_growth/6au_ko_growth_all_genes.pdf', p_6au_all_sig_kos_box, width = 30, height = 30)
+p_kcl2m_all_sig_kos_box <- plot_ko_growth_box('ypdkcl2m', gene_ids = sig_genes_strong$ypdnacl15m)
+ggsave(paste0(figure_root, 'kcl_osmotic_shock_ko_growth_all_genes.pdf'), p_kcl2m_all_sig_kos_box, width = 20, height = 20)
+
+p_heat_all_sig_kos_box <- plot_ko_growth_box('ypd40', gene_ids = sig_genes_strong$ypd40)
+ggsave(paste0(figure_root, 'high_temp_ko_growth_all_genes.pdf'), p_heat_all_sig_kos_box, width = 30, height = 30)
+
+p_cafein40_all_sig_kos_box <- plot_ko_growth_box('ypdcafein40', gene_ids = sig_genes_strong$ypdcafein40)
+ggsave(paste0(figure_root, 'cafein40_ko_growth_all_genes.pdf'), p_cafein40_all_sig_kos_box, width = 30, height = 30)
+
+p_glycerol_all_sig_kos_box <- plot_ko_growth_box('ypglycerol', gene_ids = sig_genes_strong$ypglycerol)
+ggsave(paste0(figure_root, 'glycerol_ko_growth_all_genes.pdf'), p_glycerol_all_sig_kos_box, width = 30, height = 30)
+
+p_6au_all_sig_kos_box <- plot_ko_growth_box('ypd6au', gene_ids = sig_genes_strong$ypd6au)
+ggsave(paste0(figure_root, '6au_ko_growth_all_genes.pdf'), p_6au_all_sig_kos_box, width = 30, height = 30)
+
+## Test interactions between NaCl ko genes
+probs_mat_nacl <- select(probs_mat, one_of(sig_genes_strong$ypdnacl15m))
+
+# Filter to genes that have real impact
+ko_thresh <- 0.5
+real_effects <- c('STE50', 'PBS2', 'RXT3', 'PPZ1', 'ALG12')
+real_effects_id <- structure(genes$id, names=genes$name)[real_effects]
+
+probs_mat_nacl %<>% select(one_of(real_effects_id))
+# sum(rowSums(probs_mat_nacl > 0.95) > 1)
+# 11 strains have more than one likely KO in these genes
+
+probs_mat_nacl %<>% mutate(kos = factor(rowSums(. > ko_thresh), levels = c('0', '1', '2', '3'))) %>%
+  mutate(strain = growth$strain,
+                           nacl15m = growth$ypdnacl15m,
+                           nacl1m = growth$ypdnacl1m)
+  
+p_nacl_interaction <- ggplot(probs_mat_nacl, aes(x=kos, y=nacl15m)) +
+  geom_boxplot(varwidth = TRUE) +
+  stat_compare_means(comparisons = list(c('2','3'), c('1','2'), c('0','1'), c('1','3'), c('0','2'), c('0','3'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.03, label = length(x)))}) +
+  xlab(paste0('Number of Osmotic Shock Genes with P(aff) > ', ko_thresh)) +
+  ylab('Growth in 1.5mM NaCl Relative to YPD Media')
+ggsave(paste0(figure_root, 'nacl15_ko_interactions.pdf'), p_nacl_interaction, width = 12, height = 10)
+
+# Same with Cafeine
+ko_thresh <- 0.95
+probs_mat_caf <- select(probs_mat, one_of(sig_genes_strong$ypdcafein40)) %>%
+  mutate(kos = factor(rowSums(. > ko_thresh))) %>%
+  mutate(strain = growth$strain, cafein40 = growth$ypdcafein40)
+
+p_cafe_interaction <- ggplot(probs_mat_caf, aes(x=kos, y=cafein40)) +
+  geom_boxplot(varwidth = TRUE) +
+  #stat_compare_means(comparisons = list(c('2','3'), c('1','2'), c('0','1'), c('1','3'), c('0','2'), c('0','3'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.03, label = length(x)))}) +
+  xlab(paste0('Number of Caffeine Genes with P(aff) > ', ko_thresh)) +
+  ylab('Growth in 40mM Caffeine Relative to YPD Media')
+ggsave(paste0(figure_root, 'caffeine_ko_interactions.pdf'), p_cafe_interaction, width = 12, height = 10)
+
+
+
+## Linear models for growth in condition
+fit <- lm(nacl15m ~ ., data = select(probs_mat_nacl, -strain, -nacl1m))
+fit_summary <- summary(fit)
+top_genes <- as_tibble(fit_summary$coefficients, rownames = 'gene_id') %>%
+  set_names(c('gene_id', 'coef', 'std_err', 't_val', 'p_val')) %>%
+  mutate(p_adj = p.adjust(p_val)) %>%
+  #filter(p_adj < 0.05) %>%
+  mutate(gene_name = structure(genes$name, names=genes$id)[gene_id])
 
 ## Analyse all genes
-all_sig_genes <- unique(unname(unlist(sig_genes)))
+all_sig_genes <- unique(unname(unlist(sig_genes_strong)))
 gene_summary <- readRDS('data/Rdata/paff_all_genes.rds') %>%
-  mutate(sig = gene %in% all_sig_genes) %>%
-  mutate(sig_nacl = gene %in% sig_genes$ypdnacl15m) %>%
+  mutate(sig = gene %in% ko_growth$gene) %>%
+  mutate(sig_nacl = gene %in% sig_genes_strong$ypdnacl15m) %>%
   mutate(ko = p_aff > ko_thresh) %>%
+  left_join(., growth, by='strain') %>%
   group_by(gene) %>%
   summarise(count = sum(ko),
+            growth_ko = mean(ypdnacl15m[ko], na.rm = TRUE),
+            growth_not = mean(ypdnacl15m[!ko], na.rm = TRUE),
             sig_nacl = first(sig_nacl),
             sig=first(sig)) %>%
-  mutate(essential = structure(essential$essential, names=essential$locus)[gene])
+  mutate(essential = structure(essential$essential, names=essential$locus)[gene]) %>%
+  mutate(sigess = if_else(essential == 'E', 'Essential', if_else(sig, 'Significant', 'Neither')))
+  
 
 # Essential and sig KO genes are mutually exclusive as expected (S-Score would mean no diff between stressed and unstressed growth in essential gene)
 table(gene_summary$sig_nacl, gene_summary$essential)
 
 # Not a big difference in rate of KO between genes that are sig in some conditions
-gene_summary %<>% mutate(sigess = if_else(essential == 'E', 'Essential', if_else(sig, 'Significant', 'Neither')))
 p_ko_sig_rates <- ggplot(filter(gene_summary, !is.na(essential)), aes(x=count, colour=sigess)) +
   geom_density()
 
@@ -203,7 +287,7 @@ gene_summary %<>% mutate(S288C = sapply(gene, get_strain_sscore, strain = 'S288C
   mutate(UWOP = sapply(gene, get_strain_sscore, strain = 'UWOP', ko = ko)) %>%
   mutate(Y55 = sapply(gene, get_strain_sscore, strain = 'Y55', ko = ko)) %>%
   mutate(YPS = sapply(gene, get_strain_sscore, strain = 'YPS', ko = ko)) %>%
-  gather(key = 'strain', value = 'sscore', -gene, -count, -sig, -essential, -sigess, -sig_nacl)
+  gather(key = 'strain', value = 'sscore', -gene, -count, -sig, -essential, -sigess, -sig_nacl, -growth_ko, -growth_not)
 
 p_ko_count_significance <- ggplot(gene_summary, aes(x=sscore, y=count, colour=strain, shape=sig_nacl)) +
   geom_point() +
@@ -211,7 +295,7 @@ p_ko_count_significance <- ggplot(gene_summary, aes(x=sscore, y=count, colour=st
   ylab(paste0('Number of Strains with P(Aff) > ', ko_thresh)) +
   guides(colour=guide_legend(title = 'KO Strain for S-Score'), shape=guide_legend(title = 'Gene Significant in 2+ strains'))
 
-ggsave('figures/liti_growth/strain_ko_count_vs_significance_nacl.pdf', p_ko_count_significance, width = 12, height = 10)
+ggsave(paste0(figure_root, 'strain_ko_count_vs_significance_nacl.pdf'), p_ko_count_significance, width = 12, height = 10)
 
 p_strain_sscore_density <- ggplot(gene_summary, aes(x=sscore, colour=strain)) +
   geom_density()

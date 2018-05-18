@@ -55,6 +55,12 @@ saveRDS(prob_aff_all, file = 'data/Rdata/paff_all_genes_mat.rds')
 prob_aff_all %<>% gather(key = 'gene', value = 'p_aff', -strain)
 saveRDS(prob_aff_all, file = 'data/Rdata/paff_all_genes.rds')
 
+prob_aff_all_sift <- read_tsv('data/all-genes-no-missing.koprob.sift', col_names = TRUE) 
+saveRDS(prob_aff_all_sift, file = 'data/Rdata/paff_all_genes_sift_mat.rds')
+
+prob_aff_all_sift %<>% gather(key = 'gene', value = 'p_aff', -strain)
+saveRDS(prob_aff_all_sift, file = 'data/Rdata/paff_all_genes_sift.rds')
+
 worst_probs_hog <- read_tsv('data/hog-gene-variants.worst-probs', col_names = TRUE)
 saveRDS(worst_probs_hog, 'data/Rdata/worst_probs_hog.rds')
 
@@ -63,6 +69,13 @@ saveRDS(worst_probs_all, 'data/Rdata/worst_probs_all_mat.rds')
 
 worst_probs_all %<>% gather(key='gene', value = 'worst_p_aff', -strain)
 saveRDS(worst_probs_all, 'data/Rdata/worst_probs_all.rds')
+
+worst_probs_all_sift <- read_tsv('data/all-genes-no-missing.worst-prob.sift', col_names = TRUE)
+saveRDS(worst_probs_all_sift, 'data/Rdata/worst_probs_all_sift_mat.rds')
+
+worst_probs_all_sift %<>% gather(key='gene', value = 'worst_p_aff', -strain)
+saveRDS(worst_probs_all_sift, 'data/Rdata/worst_probs_all_sift.rds')
+
 
 #### Growth Data ####
 growth_bede <- read_tsv("data/raw/bede_2017_parsed.tsv", col_names = TRUE) %>%
