@@ -285,7 +285,8 @@ impacts %<>% mutate(freq=structure(allele_freqs$freq, names=allele_freqs$mut_id)
   mutate(p_neut_foldx= 1/(1 + exp(0.21786182 * foldx_ddG + 0.07351653))) %>%
   mutate(p_neut_blosum = 0.66660 + 0.08293 * blosum62) %>%
   filter(!type == 'synonymous') %>%
-  mutate(essential = essential_hash[gene])
+  mutate(essential = essential_hash[gene]) %>%
+  mutate(complex = gene %in% complexes$ORF)
 
 p_freq_neut <- ggplot(impacts, aes(x=freq)) +
   geom_point(aes(y=p_neut_sift, colour="SIFT")) +
@@ -301,13 +302,30 @@ p_freq_essential <- ggplot(impacts, aes(x=essential, y=freq)) +
   scale_y_log10()
 ggsave('figures/paff_checks/freq_vs_essential.pdf', p_freq_essential, width = 12, height = 10)  
 
-p_freq_essential_sift <- ggplot(filter(impacts, sift_score < 0.05, !is.na(essential)), aes(x=essential, y=freq)) + 
-  geom_boxplot() + 
-  scale_y_log10()
+p_freq_essential_sift <- ggplot(filter(impacts, sift_score < 0.05, !is.na(essential)), aes(x=essential, y=freq, colour=essential)) + 
+  geom_boxplot(varwidth = TRUE) + 
+  scale_y_log10() +
+  xlab('Gene Essential?') +
+  ylab('Allele Frquency') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -4, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE) + 
+  ggtitle('Allele frequency of variants with SIFT < 0.05')
+ggsave('figures/paff_checks/freq_vs_essential_sift.pdf', p_freq_essential_sift, width = 12, height = 10)  
 
-p_freq_essential_foldX <- ggplot(filter(impacts, abs(foldx_ddG) > 2, !is.na(essential)), aes(x=essential, y=freq)) + 
-  geom_boxplot() + 
-  scale_y_log10()
+p_freq_essential_foldx <- ggplot(filter(impacts, abs(foldx_ddG) > 2, !is.na(essential)), aes(x=essential, y=freq, colour=essential)) + 
+  geom_boxplot(varwidth = TRUE) + 
+  scale_y_log10() +
+  xlab('Gene Essential?') +
+  ylab('Allele Frquency') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -4, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE) + 
+  ggtitle('Allele frequency of variants with |ddG| > 2')
+ggsave('figures/paff_checks/freq_vs_essential_foldx.pdf', p_freq_essential_foldx, width = 12, height = 10)  
+
 
 # But does not appear significant
 t.test(freq ~ essential, data = filter(impacts, sift_score < 0.05, !is.na(essential)))
@@ -319,7 +337,11 @@ p_essential_foldx <- ggplot(filter(impacts, !is.na(essential)), aes(colour=essen
 impact_summary <- group_by(impacts, gene) %>%
   summarise(essential = first(essential),
             count_sift = sum(sift_score < 0.05, na.rm = TRUE),
-            count_foldx = sum(foldx_ddG > 2, na.rm = TRUE)) %>%
+            count_foldx = sum(abs(foldx_ddG) > 2, na.rm = TRUE),
+            count_sift_per_person = sum((sift_score < 0.05) * freq, na.rm = TRUE),
+            count_foldx_per_person = sum((foldx_ddG > 2) * freq, na.rm = TRUE),
+            prob_neutral_sift = prod(1 - freq[sift_score < 0.05], na.rm = TRUE),
+            prob_neutral_foldx = prod(1 - freq[foldx_ddG > 2], na.rm = TRUE)) %>%
   mutate(length = structure(gene_summary$length, names=gene_summary$id)[gene]) %>%
   mutate(count_sift_per_base = count_sift / length) %>%
   mutate(count_foldx_per_base = count_foldx / length)
@@ -339,14 +361,53 @@ ggsave('figures/paff_checks/gene_count_low_sift_per_base_essential_box.pdf', p_e
 p_essential_foldx_per_base <- ggplot(filter(impact_summary, !is.na(essential)), aes(x=essential, y=count_foldx_per_base, colour=essential)) + 
   geom_boxplot(varwidth = TRUE) +
   xlab('Gene Essential?') +
-  ylab('Number of variants with FoldX ddG > 2 per base') +
+  ylab('Number of variants with FoldX |ddG| > 2 per base') +
   stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
   stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.005, label = length(x)))}) +
   stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
   guides(colour = FALSE)
 ggsave('figures/paff_checks/gene_count_high_foldx_per_base_essential_box.pdf', p_essential_foldx_per_base, width = 12, height = 10)
 
-# Integrate frequency of variants into analysis?
+## Integrate frequency of variants into analysis
+# Average number of variants per individual
+p_essential_sift_per_person <- ggplot(filter(impact_summary, !is.na(essential)), aes(x=essential, y=count_sift_per_person, colour=essential)) + 
+  geom_boxplot(notch = TRUE, varwidth = TRUE) +
+  xlab('Gene Essential?') +
+  ylab('Number of variants with SIFT < 0.05 per Individual') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.1, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
+ggsave('figures/paff_checks/gene_count_high_sift_per_person_essential_box.pdf', p_essential_sift_per_person, width = 12, height = 10)
 
+p_essential_foldx_per_person <- ggplot(filter(impact_summary, !is.na(essential)), aes(x=essential, y=count_foldx_per_person, colour=essential)) + 
+  geom_boxplot(varwidth = TRUE) +
+  xlab('Gene Essential?') +
+  ylab('Number of variants with FoldX |ddG| > 2 per Individual') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.1, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
+ggsave('figures/paff_checks/gene_count_high_foldx_per_person_essential_box.pdf', p_essential_foldx_per_person, width = 12, height = 10)
 
+# Probability of gene carrying a variant
+p_essential_sift_prob <- ggplot(filter(impact_summary, !is.na(essential), count_sift > 0), aes(x=essential, y=prob_neutral_sift, colour=essential)) + 
+  geom_boxplot(notch = TRUE, varwidth = TRUE) +
+  xlab('Gene Essential?') +
+  ylab('Probability of carrying no variants with SIFT < 0.05') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.05, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
 
+p_essential_foldx_prob <- ggplot(filter(impact_summary, !is.na(essential), count_foldx > 0), aes(x=essential, y=prob_neutral_foldx, colour=essential)) + 
+  geom_boxplot(notch = TRUE, varwidth = TRUE) +
+  xlab('Gene Essential?') +
+  ylab('Probability of carrying no variants with FoldX |ddG| > 2') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.05, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
+
+p_essential_prob <- ggarrange(p_essential_sift_prob, p_essential_foldx_prob)
+ggsave('figures/paff_checks/prob_no_variants_essential.pdf', p_essential_prob, width = 20, height = 10)
