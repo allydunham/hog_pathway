@@ -18,8 +18,11 @@ filtered_strains <-  setdiff(filtered_strains , c("AMH", "BAG", "BAH", "BAL", "C
 genes <- readRDS('data/Rdata/gene_meta_all.rds') %>%
   mutate(length = stop - start)
 complexes <- readRDS('data/Rdata/complex_members.rds')
+
 essential <- readRDS('data/Rdata/essential_genes.rds')
 essential_hash <- structure(essential$essential, names=essential$locus)
+essential_genes <- filter(essential, essential == 'E') %>% pull(locus)
+non_essential_genes <- filter(essential, essential == 'NE') %>% pull(locus)
 
 ## Genotypes
 genotypes <- readRDS('data/Rdata/genotypes_all_genes.rds')
@@ -39,7 +42,11 @@ counts <- readRDS('data/Rdata/all_gene_mut_counts.rds') %>%
   gather(key = 'gene', value = 'count', -strain)
 
 probs %<>% mutate(count = counts$count) %>%
-  mutate(worst_paff = worst_probs$worst_p_aff)
+  mutate(worst_paff = worst_probs$worst_p_aff) %>%
+  mutate(essential = NA)
+
+probs[probs$gene %in% essential_genes, 'essential'] <- 'E'
+probs[probs$gene %in% non_essential_genes, 'essential'] <- 'NE'
 
 #### Normalisation ####
 ### Of Overall P(Aff)
@@ -189,21 +196,43 @@ p_count_both_ref <- ggplot(strain_summary, aes(x=ref_dist, y=mean_count_cor)) +
 p_corrected_essential <- ggplot(filter(gene_summary, !is.na(essential)), aes(x=essential, y=mean_paff_both_cor, colour=essential)) +
   geom_boxplot(notch = TRUE, varwidth = TRUE) + 
   xlab('Gene Essential?') +
-  ylab('Mean Normalised P(Aff)')
+  ylab('Mean Normalised P(Aff)') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.26, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
 ggsave('figures/paff_checks/normalised_essential_box.pdf', p_corrected_essential, width = 12, height = 10)
 t.test(mean_paff_dist_length_cor ~ essential, data = gene_summary)
+
+p_corrected_essential_all <- ggplot(filter(probs, !is.na(essential)), aes(x=essential, y=p_aff_both_cor, colour=essential)) +
+  geom_boxplot(notch = TRUE, varwidth = TRUE) + 
+  xlab('Gene Essential?') +
+  ylab('Normalised P(Aff)') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.75, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
+ggsave('figures/paff_checks/normalised_essential_all_strains_box.jpg', p_corrected_essential_all, width = 12, height = 10)
 
 p_corrected_worst_essential <- ggplot(filter(gene_summary, !is.na(essential)), aes(x=essential, y=mean_worst_paff_cor, colour=essential)) +
   geom_boxplot(notch = TRUE, varwidth = TRUE) + 
   xlab('Gene Essential?') +
-  ylab('Mean Normalised Worst P(Aff)')
+  ylab('Mean Normalised Worst P(Aff)') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.26, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
 ggsave('figures/paff_checks/normalised_worst_essential_box.pdf', p_corrected_worst_essential, width = 12, height = 10)
 t.test(mean_worst_paff_cor ~ essential, data = gene_summary)
 
 p_corrected_count_essential <- ggplot(filter(gene_summary, !is.na(essential)), aes(x=essential, y=mean_count_cor, colour=essential)) +
   geom_boxplot(notch = TRUE, varwidth = TRUE) + 
   xlab('Gene Essential?') +
-  ylab('Mean Normalised Variant Count')
+  ylab('Mean Normalised Variant Count') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -1.5, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
 ggsave('figures/paff_checks/normalised_count_essential_box.pdf', p_corrected_count_essential, width = 12, height = 10)
 t.test(mean_count_cor ~ essential, data = gene_summary)
 

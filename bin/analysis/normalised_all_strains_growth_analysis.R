@@ -70,18 +70,32 @@ essential_summary <- group_by(gene_scores, gene) %>%
 p_essential_unusual_norm_paff <- ggplot(essential_summary, aes(x=essential, y=count_paff, colour=essential)) +
   geom_boxplot(varwidth = TRUE, notch = TRUE) +
   xlab('') +
-  ylab('Number of Strains with Normalised P(Aff) > 3sd')
+  ylab('Number of Strains with Normalised P(Aff) > 3sd') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -25, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
+
 p_essential_unusual_worst <- ggplot(essential_summary, aes(x=essential, y=count_worst, colour=essential)) +
   geom_boxplot(varwidth = TRUE, notch = TRUE) +
   xlab('') +
-  ylab('Number of Strains with Normalised Worst P(Aff) > 3sd')
+  ylab('Number of Strains with Normalised Worst P(Aff) > 3sd') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -25, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
+
 p_essential_unusual_count <- ggplot(essential_summary, aes(x=essential, y=count_count, colour=essential)) + 
   geom_boxplot(varwidth = TRUE, notch = TRUE) +
   xlab('') +
-  ylab('Number of Strains with Variant Count > 3sd')
+  ylab('Number of Strains with Variant Count > 3sd') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -25, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
 
 p_essential_unusual <- ggarrange(p_essential_unusual_norm_paff, p_essential_unusual_worst, p_essential_unusual_count)
-ggsave('figures/paff_checks/unusual_score_counts_norm_essential_box.pdf', p_essential_unusual, width = 12, height = 10)
+ggsave('figures/paff_checks/unusual_score_counts_norm_essential_box.pdf', p_essential_unusual, width = 20, height = 20)
 
 # find significant difference between essential and non-essential genes but not huge magnitude
 t.test(count_count ~ essential, data = essential_summary)

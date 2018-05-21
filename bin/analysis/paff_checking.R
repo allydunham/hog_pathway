@@ -325,20 +325,26 @@ impact_summary <- group_by(impacts, gene) %>%
   mutate(count_foldx_per_base = count_foldx / length)
 
 # Observe same result as Omars Mutfunc paper
-p_essential_sift_per_base <- ggplot(filter(impact_summary, !is.na(essential)), aes(x=essential, y=count_sift_per_base)) + 
+p_essential_sift_per_base <- ggplot(filter(impact_summary, !is.na(essential)), aes(x=essential, y=count_sift_per_base, colour=essential)) + 
   geom_boxplot(notch = TRUE, varwidth = TRUE) +
   xlab('Gene Essential?') +
-  ylab('Number of variants with SIFT < 0.05 per base')
-
-t.test(count_sift_per_base ~ essential, data = impact_summary)
-
+  ylab('Number of variants with SIFT < 0.05 per base') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.005, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
 ggsave('figures/paff_checks/gene_count_low_sift_per_base_essential_box.pdf', p_essential_sift_per_base, width = 12, height = 10)
 
 # but less so here?
-p_essential_foldx_per_base <- ggplot(impact_summary, aes(x=essential, y=count_foldx_per_base)) + 
-  geom_boxplot(notch = TRUE, varwidth = TRUE)
-
-t.test(count_foldx_per_base ~ essential, data = impact_summary)
+p_essential_foldx_per_base <- ggplot(filter(impact_summary, !is.na(essential)), aes(x=essential, y=count_foldx_per_base, colour=essential)) + 
+  geom_boxplot(varwidth = TRUE) +
+  xlab('Gene Essential?') +
+  ylab('Number of variants with FoldX ddG > 2 per base') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.005, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
+ggsave('figures/paff_checks/gene_count_high_foldx_per_base_essential_box.pdf', p_essential_foldx_per_base, width = 12, height = 10)
 
 # Integrate frequency of variants into analysis?
 
