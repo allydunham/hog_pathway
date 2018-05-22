@@ -79,12 +79,19 @@ strain_summary <- group_by(probs, condition) %>%
   summarise(num_sig_kos = sum(gene_sig & p_aff > ko_thresh),
             growth = first(growth))
 
+fit <- lm(growth ~ num_sig_kos, data = filter(strain_summary, condition == 'ypdnacl15m'))
 p_ypdnacl15m_sig_kos <- ggplot(filter(strain_summary, condition == 'ypdnacl15m'), aes(x=num_sig_kos, y=growth)) +
   geom_point() +
   geom_smooth(method = 'lm') +
   ylab('Growth Relative to YPD Media') +
-  xlab(paste0('Number of NaCl Stress Significant Genes with P(Aff) > ', ko_thresh))
-fit <- lm(growth ~ num_sig_kos, data = filter(strain_summary, condition == 'ypdnacl15m'))
+  xlab(paste0('Number of NaCl Stress Significant Genes with P(Aff) > ', ko_thresh)) +
+  annotate('text', x = 25, y = 0.4, label=paste0('y = ',
+                                                 signif(fit$coefficients[2], 4),
+                                                 'x + ',
+                                                 signif(fit$coefficients[1], 4),
+                                                 ', Adj. R-Squared = ',
+                                                 signif(summary(fit)$adj.r.squared), 4))
+
 ggsave(paste0(figure_root, 'nacl15_growth_vs_number_sig_kos.pdf'), p_ypdnacl15m_sig_kos, width = 12, height = 10)
 
 ## By individual gene
@@ -116,6 +123,14 @@ p_osmotic_shock_ko_growth_box <- ggplot(probs_nacl, aes(x = ko, y = growth, colo
   stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.03, label = length(x)))}) +
   guides(colour = FALSE)
 ggsave(paste0(figure_root, 'osmotic_shock_ko_growth_pbs2_hog1.pdf'), p_osmotic_shock_ko_growth_box, width = 14, height = 10)
+
+probs_nacl <- filter(probs, gene==!!hog_id | gene == !!pbs2_id, condition=='ypdnacl15m') %>%
+  mutate(gene = structure(c('Hog1', 'Pbs2'), names=c(hog_id, pbs2_id))[gene])
+
+# Investigate full distribution of P(Aff)'s vs growth
+p_hog_pbs_p_aff_growth <- ggplot(probs_nacl, aes(x=p_aff, y=growth, colour=gene)) +
+  geom_point() +
+  facet_wrap(~ gene)
 
 # Generic function for gene ko growth box plots
 plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL, prob_tbl=probs){
