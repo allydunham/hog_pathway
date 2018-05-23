@@ -9,10 +9,17 @@ figure_root <- 'figures/liti_growth/'
 
 #### Import Data ####
 strains <- readRDS('data/Rdata/strain_meta.rds')
-filtered_strains <- filter(strains, Ploidy == 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
-# Filter strains that are unusually distant from the reference genome
-filtered_strains <-  setdiff(filtered_strains , c("AMH", "BAG", "BAH", "BAL", "CEG", "CEI"))
 distance_to_ref <- structure(strains$`Total number of SNPs`, names=strains$`Standardized name`)
+
+filtered_strains_dip <- filter(strains, Ploidy == 2, Aneuploidies == 'euploid', Zygosity == 'homozygous') %>% pull(`Standardized name`)
+filtered_strains_hap <- filter(strains, Ploidy == 1, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
+filtered_strains <- filter(strains, Ploidy <= 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
+
+
+# Filter strains that are unusually distant from the reference genome
+filtered_strains_dip <-  setdiff(filtered_strains_dip , c("AMH", "BAG", "BAH", "BAL", "CEG", "CEI"))
+filtered_strains_hap <-  setdiff(filtered_strains_hap , c("AMH", "BAG", "BAH", "BAL", "CEG", "CEI"))
+filtered_strains_both <-  setdiff(filtered_strains_both , c("AMH", "BAG", "BAH", "BAL", "CEG", "CEI"))
 
 genes <- readRDS('data/Rdata/gene_meta_all.rds')
 
@@ -25,28 +32,28 @@ non_essential_genes <- filter(essential, essential == 'NE') %>% pull(locus)
 impacts <- readRDS('data/Rdata/all_muts_impacts.rds')
 
 growth <- readRDS('data/Rdata/growth_liti.rds') %>%
-  filter(strain %in% filtered_strains)
+  filter(strain %in% filtered_strains_both)
 
 allele_freqs <- readRDS('data/Rdata/allele_freqs.rds')
 
 probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
-  filter(strain %in% intersect(filtered_strains, growth$strain)) %>%
+  filter(strain %in% growth$strain) %>%
   left_join(. ,growth, by = 'strain') %>%
   gather(key='condition', value = 'growth', -strain, -gene, -p_aff) %>%
   mutate(gene_sig = FALSE)
 
 probs_norm <- readRDS('data/Rdata/norm_paff.rds') %>%
   rename(p_aff = norm_p_aff) %>%
-  filter(strain %in% intersect(filtered_strains, growth$strain)) %>%
+  filter(strain %in% growth$strain) %>%
   left_join(. ,growth, by = 'strain') %>%
   gather(key='condition', value = 'growth', -strain, -gene, -p_aff) %>%
   mutate(gene_sig = FALSE)
 
 probs_mat <- readRDS('data/Rdata/paff_all_genes_mat.rds') %>%
-  filter(strain %in% intersect(filtered_strains, growth$strain))
+  filter(strain %in% growth$strain)
 
 probs_norm_mat <- readRDS('data/Rdata/norm_paff_mat.rds') %>%
-  filter(strain %in% intersect(filtered_strains, growth$strain))
+  filter(strain %in% growth$strain)
 
 # import Ko growth data showing which genes are significant (using 0.01 threshold)
 ko_growth <- readRDS('data/Rdata/gene_ko_growth.rds') %>%
@@ -101,7 +108,7 @@ probs_norm %<>% mutate(ko = p_aff > ko_norm_thresh)
 # Example with Pbs2 and Hog1 (Known to be sig in NaCl 1.5mM)
 hog_id <- 'YLR113W'
 pbs2_id <- 'YJL128C'
-probs_nacl <- filter(probs, gene==!!hog_id | gene == !!pbs2_id, condition=='ypdnacl15m') %>%
+kos_nacl <- filter(probs, gene==!!hog_id | gene == !!pbs2_id, condition=='ypdnacl15m') %>%
   select(strain, gene, growth, ko) %>%
   spread(key = 'gene', value = 'ko') %>%
   rename(hog1 = !!hog_id, pbs2 = !!pbs2_id) %>%
@@ -113,7 +120,7 @@ probs_nacl <- filter(probs, gene==!!hog_id | gene == !!pbs2_id, condition=='ypdn
   mutate(ko = factor(ko, levels = c('Neither', 'Hog1', 'Pbs2', 'Both'))) %>%
   mutate(condition = factor(condition, levels = c('ypdnacl15m', 'ypd14')))
 
-p_osmotic_shock_ko_growth_box <- ggplot(probs_nacl, aes(x = ko, y = growth, colour = ko)) +
+p_osmotic_shock_ko_growth_box <- ggplot(kos_nacl, aes(x = ko, y = growth, colour = ko)) +
   facet_wrap(~ condition) +
   geom_boxplot(varwidth = TRUE) +
   xlab(paste0('Genes with P(aff) > ', ko_thresh)) +
@@ -124,13 +131,29 @@ p_osmotic_shock_ko_growth_box <- ggplot(probs_nacl, aes(x = ko, y = growth, colo
   guides(colour = FALSE)
 ggsave(paste0(figure_root, 'osmotic_shock_ko_growth_pbs2_hog1.pdf'), p_osmotic_shock_ko_growth_box, width = 14, height = 10)
 
+
+# Investigate full distribution of P(Aff)'s vs growth
 probs_nacl <- filter(probs, gene==!!hog_id | gene == !!pbs2_id, condition=='ypdnacl15m') %>%
   mutate(gene = structure(c('Hog1', 'Pbs2'), names=c(hog_id, pbs2_id))[gene])
 
-# Investigate full distribution of P(Aff)'s vs growth
+probs_norm_nacl <- filter(probs_norm, gene==!!hog_id | gene == !!pbs2_id, condition=='ypdnacl15m') %>%
+  mutate(gene = structure(c('Hog1', 'Pbs2'), names=c(hog_id, pbs2_id))[gene])
+
 p_hog_pbs_p_aff_growth <- ggplot(probs_nacl, aes(x=p_aff, y=growth, colour=gene)) +
   geom_point() +
-  facet_wrap(~ gene)
+  facet_wrap(~ gene) +
+  guides(colour=FALSE) + 
+  xlab('P(Aff)') + 
+  ylab('Growth in 1.5mM NaCl relative to YPD Media')
+
+p_hog_pbs_p_aff_growth_norm <- ggplot(probs_norm_nacl, aes(x=p_aff, y=growth, colour=gene)) +
+  geom_point() +
+  facet_wrap(~ gene) + 
+  xlab('Normalised P(Aff)') + 
+  ylab('Growth in 1.5mM NaCl relative to YPD Media')
+
+p_hog_pbs_p_aff_growth_both <- ggarrange(p_hog_pbs_p_aff_growth, p_hog_pbs_p_aff_growth_norm)
+ggsave(paste0(figure_root, 'p_aff_distribution_vs_growth.pdf'), p_hog_pbs_p_aff_growth_both, width = 22, height = 10)
 
 # Generic function for gene ko growth box plots
 plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL, prob_tbl=probs){

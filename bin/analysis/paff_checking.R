@@ -9,9 +9,16 @@ library(ggpubr)
 
 #### Import Data ####
 strains <- readRDS('data/Rdata/strain_meta.rds')
-filtered_strains <- filter(strains, Ploidy == 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
+distance_to_ref_full <- structure(strains$`Total number of SNPs`, names=strains$`Standardized name`)
+
+filtered_strains_dip <- filter(strains, Ploidy == 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
+filtered_strains_hap <- filter(strains, Ploidy == 1, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
+filtered_strains_both <- filter(strains, Ploidy <= 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
+
 # Filter strains that are unusually distant from the reference genome
-filtered_strains <-  setdiff(filtered_strains , c("AMH", "BAG", "BAH", "BAL", "CEG", "CEI"))
+filtered_strains_dip <-  setdiff(filtered_strains_dip , c("AMH", "BAG", "BAH", "BAL", "CEG", "CEI"))
+filtered_strains_hap <-  setdiff(filtered_strains_hap , c("AMH", "BAG", "BAH", "BAL", "CEG", "CEI"))
+filtered_strains_both <-  setdiff(filtered_strains_both , c("AMH", "BAG", "BAH", "BAL", "CEG", "CEI"))
 
 genes <- readRDS('data/Rdata/gene_meta_all.rds')
 hog_genes <- readRDS('data/Rdata/gene_meta_hog.rds')
@@ -24,25 +31,25 @@ essential_hash <- structure(essential$essential, names=essential$locus)
 impacts <- readRDS('data/Rdata/all_muts_impacts.rds')
 
 growth <- readRDS('data/Rdata/growth_liti.rds') %>%
-  filter(strain %in% filtered_strains)
+  filter(strain %in% filtered_strains_both)
 
 genotypes <- readRDS('data/Rdata/genotypes_all_genes.rds')
 distance_to_ref <- structure(strains$`Total number of SNPs`, names=strains$`Standardized name`)
 
 probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
-  filter(strain %in% filtered_strains, strain %in% growth$strain) %>%
+  filter(strain %in% growth$strain) %>%
   mutate(distance_to_ref = distance_to_ref[strain]) %>% 
   mutate(length=structure(genes$stop - genes$start, names=genes$id)[gene]) %>%
   mutate(len_bin = cut(log10(.$length), 10))
 
 prob_mat <- readRDS('data/Rdata/paff_all_genes_mat.rds') %>%
-  filter(strain %in% filtered_strains, strain %in% growth$strain) %>%
+  filter(strain %in% growth$strain) %>%
   select(-strain) %>%
   as.matrix() %>%
   set_rownames(growth$strain)  
 
 worst_probs <- readRDS('data/Rdata/worst_probs_all.rds') %>%
-  filter(strain %in% intersect(filtered_strains, growth$strain))
+  filter(strain %in% growth$strain)
 
 counts <- readRDS('data/Rdata/all_gene_mut_counts.rds') %>%
   filter(strain %in% growth$strain)
@@ -281,6 +288,7 @@ p_dist_ref_density <- ggplot(probs, aes(x=p_aff, fill=bin)) +
 
 #### Analyse Individual Variants ####
 impacts %<>% mutate(freq=structure(allele_freqs$freq, names=allele_freqs$mut_id)[mut_id]) %>%
+  filter(freq < 0.05) %>%
   mutate(p_neut_sift= 1/(1 + exp(-1.312424 * log(sift_score + 1.598027e-05) - 4.103955))) %>%
   mutate(p_neut_foldx= 1/(1 + exp(0.21786182 * foldx_ddG + 0.07351653))) %>%
   mutate(p_neut_blosum = 0.66660 + 0.08293 * blosum62) %>%
@@ -334,6 +342,7 @@ t.test(freq ~ essential, data = filter(impacts, abs(foldx_ddG) > 2, !is.na(essen
 p_essential_foldx <- ggplot(filter(impacts, !is.na(essential)), aes(colour=essential, x=sift_score)) +
   geom_density()
 
+
 impact_summary <- group_by(impacts, gene) %>%
   summarise(essential = first(essential),
             count_sift = sum(sift_score < 0.05, na.rm = TRUE),
@@ -346,6 +355,36 @@ impact_summary <- group_by(impacts, gene) %>%
   mutate(count_sift_per_base = count_sift / length) %>%
   mutate(count_foldx_per_base = count_foldx / length)
 
+# Filter impacts that only appear in diploids or haploids
+haploid_vars <- genotypes$mut_id[(select(genotypes, one_of(filtered_strains_hap)) %>% rowSums(.)) > 0]
+impact_summary_hap <- filter(impacts, mut_id %in% haploid_vars) %>%
+  group_by(gene) %>%
+  summarise(essential = first(essential),
+            count_sift = sum(sift_score < 0.05, na.rm = TRUE),
+            count_foldx = sum(abs(foldx_ddG) > 2, na.rm = TRUE),
+            count_sift_per_person = sum((sift_score < 0.05) * freq, na.rm = TRUE),
+            count_foldx_per_person = sum((foldx_ddG > 2) * freq, na.rm = TRUE),
+            prob_neutral_sift = prod(1 - freq[sift_score < 0.05], na.rm = TRUE),
+            prob_neutral_foldx = prod(1 - freq[foldx_ddG > 2], na.rm = TRUE)) %>%
+  mutate(length = structure(gene_summary$length, names=gene_summary$id)[gene]) %>%
+  mutate(count_sift_per_base = count_sift / length) %>%
+  mutate(count_foldx_per_base = count_foldx / length)
+
+diploid_vars <- genotypes$mut_id[(select(genotypes, one_of(filtered_strains_dip)) %>% rowSums(.)) > 0]
+impact_summary_dip <- filter(impacts, mut_id %in% diploid_vars) %>%
+  group_by(gene) %>%
+  summarise(essential = first(essential),
+            count_sift = sum(sift_score < 0.05, na.rm = TRUE),
+            count_foldx = sum(abs(foldx_ddG) > 2, na.rm = TRUE),
+            count_sift_per_person = sum((sift_score < 0.05) * freq, na.rm = TRUE),
+            count_foldx_per_person = sum((foldx_ddG > 2) * freq, na.rm = TRUE),
+            prob_neutral_sift = prod(1 - freq[sift_score < 0.05], na.rm = TRUE),
+            prob_neutral_foldx = prod(1 - freq[foldx_ddG > 2], na.rm = TRUE)) %>%
+  mutate(length = structure(gene_summary$length, names=gene_summary$id)[gene]) %>%
+  mutate(count_sift_per_base = count_sift / length) %>%
+  mutate(count_foldx_per_base = count_foldx / length)
+
+
 # Observe same result as Omars Mutfunc paper
 p_essential_sift_per_base <- ggplot(filter(impact_summary, !is.na(essential)), aes(x=essential, y=count_sift_per_base, colour=essential)) + 
   geom_boxplot(notch = TRUE, varwidth = TRUE) +
@@ -356,6 +395,29 @@ p_essential_sift_per_base <- ggplot(filter(impact_summary, !is.na(essential)), a
   stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
   guides(colour = FALSE)
 ggsave('figures/paff_checks/gene_count_low_sift_per_base_essential_box.pdf', p_essential_sift_per_base, width = 12, height = 10)
+
+p_essential_sift_per_base_dip <- ggplot(filter(impact_summary_dip, !is.na(essential)), aes(x=essential, y=count_sift_per_base, colour=essential)) + 
+  geom_boxplot(notch = TRUE, varwidth = TRUE) +
+  xlab('Gene Essential?') +
+  ylab('Number of variants with SIFT < 0.05 per base') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.005, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE) +
+  ggtitle('Using diploid, euploid strains, variants with frequency < 0.05')
+ggsave('figures/paff_checks/gene_count_low_sift_per_base_essential_box_dip.pdf', p_essential_sift_per_base_dip, width = 12, height = 10)
+
+p_essential_sift_per_base_hap <- ggplot(filter(impact_summary_hap, !is.na(essential)), aes(x=essential, y=count_sift_per_base, colour=essential)) + 
+  geom_boxplot(notch = TRUE, varwidth = TRUE) +
+  xlab('Gene Essential?') +
+  ylab('Number of variants with SIFT < 0.05 per base') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.005, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE) +
+  ggtitle('Using haploid, euploid strains, variants with frequency < 0.05')
+ggsave('figures/paff_checks/gene_count_low_sift_per_base_essential_box_hap.pdf', p_essential_sift_per_base_hap, width = 12, height = 10)
+
 
 # but less so here?
 p_essential_foldx_per_base <- ggplot(filter(impact_summary, !is.na(essential)), aes(x=essential, y=count_foldx_per_base, colour=essential)) + 
