@@ -31,7 +31,7 @@ def main(args):
                                            sift=args.sift)
     else:
         snp_neutral = generate_snp_neutral(blosum=False,
-                                           foldx=False,
+                                           foldx=True,
                                            sift=True)
 
     impacts['p_neut'] = impacts.apply(snp_neutral, axis=1)
@@ -41,7 +41,6 @@ def main(args):
 
     # Extract list of affected genes and generate a default P(Aff) series
     genes = impacts.gene.dropna().unique()
-    genes = pd.Series([0] * len(genes), index=genes)
 
     # Import genotype data
     strain_muts = pd.read_table(args.genotypes, sep='\t', header=0,
@@ -52,62 +51,60 @@ def main(args):
         strain_muts = strain_muts.filter(items=args.strains, axis='columns')
 
     # Determine function to evaluate genes
-    # if args.conf:
-    #     impacts['high_conf'] = ((impacts['prop_aa'] < args.conf) &
-    #                             (impacts['type'].isin(['frameshift', 'nonsense'])))
-
-    #     gene_eval_func = high_conf_gene_ko
-    # elif args.total:
-    #     gene_eval_func = sum_muts
-    # elif args.worst:
-    #     gene_eval_func = worst_mut
-    # else:
-    #     gene_eval_func = gene_impact_prob
+    if args.conf:
+        # Only count high confidence variants and give the total in a gene
+        impacts['high_conf'] = ((impacts['prop_aa'] < args.conf) &
+                                (impacts['type'].isin(['frameshift', 'nonsense'])))
+        gene_eval_func = lambda x: x['high_conf'].sum()
+        process_nonsense = True
+    elif args.total:
+        # Give the total number of variants
+        gene_eval_func = lambda x: x.shape[0]
+        process_nonsense = False
+    elif args.worst:
+        gene_eval_func = lambda x: 1 - x['p_neut'].min()
+        process_nonsense = True
+    else:
+        gene_eval_func = lambda x: 1 - x['p_neut'].prod()
+        process_nonsense = True
 
     strain_probs = strain_muts.apply(func=eval_strain, axis=0, reduce=False,
-                                     impacts=impacts, genes=genes).transpose()
+                                     impacts=impacts, genes=genes,
+                                     eval_func=gene_eval_func,
+                                     process_nonsense=process_nonsense,
+                                     zygosity=args.zygosity).transpose()
     strain_probs.index.name = 'strain'
     strain_probs.to_csv(sys.stdout, sep='\t')
 
-def eval_strain(muts, impacts, genes):
+def eval_strain(muts, impacts, genes, eval_func, process_nonsense=True, zygosity = 1):
     """
     Evaluate a strain genotype to give a list of gene P(Aff) values
     """
-    # Set default_probs to prevent modification of genes list
-    default_probs = genes
+    # Set default P(Aff) as 0
+    default_probs = pd.Series([0] * len(genes), index=genes)
 
     # Extract variants in strain - add hom/het processing here
-    mut_ids = muts[muts > 0].index
+    mut_ids = muts[muts >= zygosity].index
 
     # Determine P(Aff) for each affected gene
     gene_probs = impacts[(impacts['mut_id'].isin(mut_ids))
-                        ].groupby('gene').apply(gene_impact_prob)
+                        ].groupby('gene').apply(gene_impact_prob,
+                                                eval_func=eval_func,
+                                                process_nonsense=process_nonsense)
     default_probs[gene_probs.index] = gene_probs
 
     return default_probs
 
-def gene_impact_prob(gene_imp):
+def gene_impact_prob(gene_imp, eval_func, process_nonsense=True):
     """Determine the P(Aff) for a gene carrying a table of variants"""
     # Filter to first nonsense/framshift
-    if 'nonsense' in gene_imp['type'] or 'frameshift' in gene_imp['type']:
+    if process_nonsense and ('nonsense' in gene_imp['type'] or
+                             'frameshift' in gene_imp['type']):
         first_index = gene_imp[gene_imp['type'].isin(('nonsense', 'frameshift'))].index[0]
-        gene_imp = gene_imp.iloc[:gene_imp.index.get_loc(first_index),]
+        gene_imp = gene_imp.iloc[:gene_imp.index.get_loc(first_index) + 1,]
 
     # Combine probabilities
-    return 1 - gene_imp['p_neut'].prod()
-
-def sum_muts(**kwargs):
-    """Count the number of mutations in a gene"""
-    pass
-
-def high_conf_gene_ko(**kwargs):
-    """Determine if a gene is very likely knocked out"""
-    pass
-
-def worst_mut(**kwargs):
-    """Determine the probability that a gene carrying a series of variants is not
-    neutral based on the highest impact variant"""
-    pass
+    return eval_func(gene_imp)
 
 def generate_snp_neutral(blosum=True, foldx=True, sift=True):
     """Generate a function to determine P(Neutral) for a SNP using a subset of
@@ -147,6 +144,10 @@ def parse_args():
     parser.add_argument('genotypes', metavar='G', help="Genotype table")
 
     parser.add_argument('mutations', metavar='M', help="Mutation table")
+
+    parser.add_argument('--zygosity', '-z', default=1, type=int,
+                        help="Minimum number of variant alleles required to be variant\
+                              (1=het, 2=hom for diploids)")
 
     parser.add_argument('--strains', '-s', default='',
                         help="List of strains (per line or comma separated)")
