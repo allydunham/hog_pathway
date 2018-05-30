@@ -13,7 +13,7 @@ distance_to_ref <- structure(strains$`Total number of SNPs`, names=strains$`Stan
 
 filtered_strains_dip <- filter(strains, Ploidy == 2, Aneuploidies == 'euploid', Zygosity == 'homozygous') %>% pull(`Standardized name`)
 filtered_strains_hap <- filter(strains, Ploidy == 1, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
-filtered_strains <- filter(strains, Ploidy <= 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
+filtered_strains_both <- filter(strains, Ploidy <= 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
 
 
 # Filter strains that are unusually distant from the reference genome

@@ -141,14 +141,14 @@ p_after_ref_correction <- ggplot(strain_summary, aes(x=ref_dist, y=mean_ref_cor_
   geom_smooth(method = 'lm')
 
 # Subsequent length normalisation
-p_before_length_correction <- ggplot(gene_summary, aes(x=length)) + 
+p_before_length_correction <- ggplot(gene_summary_both, aes(x=length)) + 
   geom_point(aes(y=mean_paff, colour = 'Pre Strain Correction')) +
   geom_point(aes(y=mean_paff_dist_cor, colour = 'Post Strain Correction')) +
   xlab("Gene Length") + 
   ylab("Mean P(Aff)")
 # plot also shows ref dist normalisation doesn't affect gene length effect
 
-p_after_length_correction <- ggplot(gene_summary, aes(y=mean_paff_dist_length_cor, x = length)) + 
+p_after_length_correction <- ggplot(gene_summary_both, aes(y=mean_paff_dist_length_cor, x = length)) + 
   geom_point() +
   geom_smooth(method = 'lm') +
   xlab("Gene Length") + 

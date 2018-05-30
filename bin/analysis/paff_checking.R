@@ -42,7 +42,7 @@ probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
   mutate(length=structure(genes$stop - genes$start, names=genes$id)[gene]) %>%
   mutate(len_bin = cut(log10(.$length), 10))
 
-prob_mat <- readRDS('data/Rdata/paff_all_genes_mat.rds') %>%
+prob_mat <- readRDS('data/Rdata/paff_all_genes_hom_mat.rds') %>%
   filter(strain %in% growth$strain) %>%
   select(-strain) %>%
   as.matrix() %>%

@@ -61,6 +61,24 @@ saveRDS(prob_aff_all_sift, file = 'data/Rdata/paff_all_genes_sift_mat.rds')
 prob_aff_all_sift %<>% gather(key = 'gene', value = 'p_aff', -strain)
 saveRDS(prob_aff_all_sift, file = 'data/Rdata/paff_all_genes_sift.rds')
 
+prob_aff_all_hom <- read_tsv('data/all-genes-no-missing.koprob.homs', col_names = TRUE) 
+saveRDS(prob_aff_all_hom, file = 'data/Rdata/paff_all_genes_hom_mat.rds')
+
+prob_aff_all_hom %<>% gather(key = 'gene', value = 'p_aff', -strain)
+saveRDS(prob_aff_all_hom, file = 'data/Rdata/paff_all_genes_hom.rds')
+
+prob_aff_all_hom_sift <- read_tsv('data/all-genes-no-missing.koprob.homs.sift', col_names = TRUE) 
+saveRDS(prob_aff_all_hom_sift, file = 'data/Rdata/paff_all_genes_hom_sift_mat.rds')
+
+prob_aff_all_hom_sift %<>% gather(key = 'gene', value = 'p_aff', -strain)
+saveRDS(prob_aff_all_hom_sift, file = 'data/Rdata/paff_all_genes_hom_sift.rds')
+
+prob_aff_all_het <- read_tsv('data/all-genes-no-missing.koprob.hets.sift', col_names = TRUE) 
+saveRDS(prob_aff_all_het, file = 'data/Rdata/paff_all_genes_het_mat.rds')
+
+prob_aff_all_het %<>% gather(key = 'gene', value = 'p_aff', -strain)
+saveRDS(prob_aff_all_het, file = 'data/Rdata/paff_all_genes_het.rds')
+
 worst_probs_hog <- read_tsv('data/hog-gene-variants.worst-probs', col_names = TRUE)
 saveRDS(worst_probs_hog, 'data/Rdata/worst_probs_hog.rds')
 
