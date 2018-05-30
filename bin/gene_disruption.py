@@ -9,9 +9,7 @@ ToDo
 - deal with start codons
 """
 import argparse
-import fileinput
 import sys
-import os
 import numpy as np
 import pandas as pd
 
@@ -46,10 +44,6 @@ def main(args):
     strain_muts = pd.read_table(args.genotypes, sep='\t', header=0,
                                 low_memory=False, index_col=0)
 
-    # Filter strains if desired
-    if args.strains:
-        strain_muts = strain_muts.filter(items=args.strains, axis='columns')
-
     # Determine function to evaluate genes
     if args.conf:
         # Only count high confidence variants and give the total in a gene
@@ -76,15 +70,20 @@ def main(args):
     strain_probs.index.name = 'strain'
     strain_probs.to_csv(sys.stdout, sep='\t')
 
-def eval_strain(muts, impacts, genes, eval_func, process_nonsense=True, zygosity = 1):
+def eval_strain(muts, impacts, genes, eval_func, process_nonsense=True, zygosity='both'):
     """
     Evaluate a strain genotype to give a list of gene P(Aff) values
     """
     # Set default P(Aff) as 0
     default_probs = pd.Series([0] * len(genes), index=genes)
 
-    # Extract variants in strain - add hom/het processing here
-    mut_ids = muts[muts >= zygosity].index
+    # Extract variants in strain
+    if zygosity == 'hom':
+        mut_ids = muts[muts > 1].index
+    elif zygosity == 'het':
+        mut_ids = muts[muts == 1].index
+    else:
+        mut_ids = muts[muts > 0].index
 
     # Determine P(Aff) for each affected gene
     gene_probs = impacts[(impacts['mut_id'].isin(mut_ids))
@@ -145,12 +144,9 @@ def parse_args():
 
     parser.add_argument('mutations', metavar='M', help="Mutation table")
 
-    parser.add_argument('--zygosity', '-z', default=1, type=int,
+    parser.add_argument('--zygosity', '-z', default='both', type=str,
                         help="Minimum number of variant alleles required to be variant\
                               (1=het, 2=hom for diploids)")
-
-    parser.add_argument('--strains', '-s', default='',
-                        help="List of strains (per line or comma separated)")
 
     parser.add_argument('--conf', '-c', default=0, type=float,
                         help="Only consider high confidence variants (frameshift and\
