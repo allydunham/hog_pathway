@@ -146,7 +146,7 @@ def parse_args():
 
     parser.add_argument('--zygosity', '-z', default='both', type=str,
                         help="Minimum number of variant alleles required to be variant\
-                              (1=het, 2=hom for diploids)")
+                              (het, hom or both)")
 
     parser.add_argument('--conf', '-c', default=0, type=float,
                         help="Only consider high confidence variants (frameshift and\
