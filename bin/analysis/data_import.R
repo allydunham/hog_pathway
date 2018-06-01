@@ -94,6 +94,11 @@ saveRDS(worst_probs_all_sift, 'data/Rdata/worst_probs_all_sift_mat.rds')
 worst_probs_all_sift %<>% gather(key='gene', value = 'worst_p_aff', -strain)
 saveRDS(worst_probs_all_sift, 'data/Rdata/worst_probs_all_sift.rds')
 
+nonsense_counts <- read_tsv('data/all-genes-no-missing.nonsense', col_names = TRUE) 
+saveRDS(nonsense_counts, 'data/Rdata/nonsense_counts_mat.rds')
+
+nonsense_counts %<>% gather(key='gene', value = 'nonsense_frameshift_count', -strain)
+saveRDS(nonsense_counts, 'data/Rdata/nonsense_counts.rds')
 
 #### Growth Data ####
 growth_bede <- read_tsv("data/raw/bede_2017_parsed.tsv", col_names = TRUE) %>%

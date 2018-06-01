@@ -58,6 +58,14 @@ allele_freqs <- readRDS('data/Rdata/allele_freqs.rds')
 
 gene_gene_cor <- readRDS('data/Rdata/all_gene_correlations_matrix.rds')
 
+nonsense_counts <- readRDS('data/Rdata/nonsense_counts.rds')
+
+nonsense_counts_mat <- readRDS('data/Rdata/nonsense_counts_mat.rds') %>%
+  filter(strain %in% growth$strain) %>%
+  select(-strain) %>%
+  as.matrix() %>%
+  set_rownames(growth$strain)
+
 #### Analysis ####
 gene_summary <- tibble(id = unique(probs$gene)) %>%
   mutate(exp_rate = apply(prob_mat, 2, function(x){fitdistr(x, densfun = 'exponential')$estimate})) %>%
@@ -66,6 +74,7 @@ gene_summary <- tibble(id = unique(probs$gene)) %>%
   mutate(mean_non_zero = apply(prob_mat, 2, function(x){mean(x[!x == 0])})) %>%
   mutate(sum_zero = apply(prob_mat, 2, function(x){sum(x==0)})) %>%
   mutate(sum_non_zero = apply(prob_mat, 2, function(x){sum(!x==0)})) %>%
+  mutate(count_high_conf = apply(nonsense_counts_mat, 2, function(x){sum(!x==0)})) %>%
   left_join(genes, by = 'id') %>%
   mutate(length=abs(stop - start)) %>%
   mutate(essential = essential_hash[id]) %>%

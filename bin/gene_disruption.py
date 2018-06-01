@@ -45,10 +45,10 @@ def main(args):
                                 low_memory=False, index_col=0)
 
     # Determine function to evaluate genes
-    if args.conf:
+    if args.nonsense:
         # Only count high confidence variants and give the total in a gene
-        impacts['high_conf'] = ((impacts['prop_aa'] < args.conf) &
-                                (impacts['type'].isin(['frameshift', 'nonsense'])))
+        impacts['high_conf'] = ((impacts['prop_aa'] < args.nonsense) &
+                                (impacts['type'] == 'nonsense'))
         gene_eval_func = lambda x: x['high_conf'].sum()
         process_nonsense = True
     elif args.total:
@@ -148,9 +148,9 @@ def parse_args():
                         help="Minimum number of variant alleles required to be variant\
                               (het, hom or both)")
 
-    parser.add_argument('--conf', '-c', default=0, type=float,
-                        help="Only consider high confidence variants (frameshift and\
-                              early stop occuring in the first X portion of the protein)")
+    parser.add_argument('--nonsense', '-n', default=0, type=float,
+                        help="Only consider nonsense variants occuring in the first\
+                              X portion of the protein")
 
     parser.add_argument('--total', '-t', action="store_true",
                         help="Return the count of variants in each gene")
