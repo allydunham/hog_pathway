@@ -4,6 +4,7 @@ library(tidyverse)
 library(magrittr)
 library(purrr)
 library(gplots)
+library(ggpubr)
 
 #### Import ####
 # Meta info
@@ -155,11 +156,15 @@ count_categories <- function(x){
   return(c(y = -3.5, label=length(x)))
 }
 
-p_bin_path_growth <- ggplot(path_active, aes(x=hog_active, y=sscore)) + 
+p_bin_path_growth <- ggplot(path_active, aes(x=hog_active, y=sscore, colour=hog_active)) + 
   geom_boxplot() + 
   facet_wrap(~condition) + 
-  xlab('HOG Path Active') + ylab('S-Score')
-
+  xlab('HOG Path Active') + ylab('S-Score') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('TRUE', 'FALSE'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -4, label = length(x)))}, size = 8) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black", size=8) +
+  guides(colour = FALSE) +
+  theme(text = element_text(size = 20))
 ggsave('figures/bede_growth/bin-path-vs-growth.pdf', width = 12, height = 10, plot = p_bin_path_growth)
 
 t.test(sscore ~ hog_active, data = path_active, alternative='less')
