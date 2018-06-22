@@ -76,11 +76,21 @@ counts <- readRDS('data/Rdata/hog_gene_mut_counts.rds') %>%
 
 #### Analysis ####
 ## NaCl Growth Against Hog Pathway
-p_nacl_growth_vs_hog_prob <- ggplot(path, aes(x=hog_probability, y=growth, colour=condition)) + 
-  geom_point() + 
-  geom_smooth(method = 'lm')
+path_nacl <- filter(path, condition %in% c('ypdnacl15m', 'ypdnacl1m')) %>%
+  mutate(condition = as.factor(condition))
+levels(path_nacl$condition) <- c('1.5M NaCl', '1M NaCl')
+  
+fit1 <- lm(growth ~ hog_probability, data=filter(path_nacl, condition == '1M NaCl'))
+fit15 <- lm(growth ~ hog_probability, data=filter(path_nacl, condition == '1.5M NaCl'))
 
-ggsave('figures/liti_growth/hog_prob_growth.pdf', width = 12, height = 10, plot = p_nacl_growth_vs_hog_prob)
+p_nacl_growth_vs_hog_prob <- ggplot(path_nacl, aes(x=hog_probability, y=growth, colour=condition)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm') +
+  xlab('P(Hog1)') +
+  ylab('Relative Growth') + 
+  guides(colour=guide_legend(title = 'Condition'))
+
+ggsave('figures/liti_growth/hog_prob_growth.pdf', width = 7, height = 5, plot = p_nacl_growth_vs_hog_prob)
 
 fit1 <- lm(growth ~ hog_probability, data = path, subset = path$condition == "ypdnacl1m")
 fit15 <- lm(growth ~ hog_probability, data = path, subset = path$condition == "ypdnacl15m")

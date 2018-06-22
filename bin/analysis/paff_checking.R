@@ -296,19 +296,21 @@ p_dist_ref_density <- ggplot(probs, aes(x=p_aff, fill=bin)) +
   geom_density(alpha=0.5)
 
 #### Analyse Individual Variants ####
+cut_points = seq(0,0.05,0.005)
 impacts %<>% mutate(freq=structure(allele_freqs$freq, names=allele_freqs$mut_id)[mut_id]) %>%
-  filter(freq < 0.05) %>%
+#  filter(freq < 0.05) %>%
   mutate(p_neut_sift= 1/(1 + exp(-1.312424 * log(sift_score + 1.598027e-05) - 4.103955))) %>%
   mutate(p_neut_foldx= 1/(1 + exp(0.21786182 * foldx_ddG + 0.07351653))) %>%
   mutate(p_neut_blosum = 0.66660 + 0.08293 * blosum62) %>%
   filter(!type == 'synonymous') %>%
   mutate(essential = essential_hash[gene]) %>%
-  mutate(complex = gene %in% complexes$ORF)
+  mutate(complex = gene %in% complexes$ORF) %>%
+  mutate(freq_bin = cut(freq, breaks = cut_points, labels = cut_points[2:11] - 0.0025))
 
 p_freq_neut <- ggplot(impacts, aes(x=freq)) +
   geom_point(aes(y=p_neut_sift, colour="SIFT")) +
   geom_point(aes(y=p_neut_foldx, colour="FoldX")) +
-  geom_point(aes(y=p_neut_blosum, colour="BLOSUM62")) + 
+#  geom_point(aes(y=p_neut_blosum, colour="BLOSUM62")) + 
   xlab('Allele Frequency') + 
   ylab('P(Neutral)') + 
   guides(colour=guide_legend(title = 'Method'))
@@ -362,7 +364,9 @@ impact_summary <- group_by(impacts, gene) %>%
             prob_neutral_foldx = prod(1 - freq[foldx_ddG > 2], na.rm = TRUE)) %>%
   mutate(length = structure(gene_summary$length, names=gene_summary$id)[gene]) %>%
   mutate(count_sift_per_base = count_sift / length) %>%
-  mutate(count_foldx_per_base = count_foldx / length)
+  mutate(count_foldx_per_base = count_foldx / length) %>%
+  mutate(essential = as.factor(essential))
+levels(impact_summary$essential) <- c('Essential', 'Nonessential')
 
 # Filter impacts that only appear in diploids or haploids
 haploid_vars <- genotypes$mut_id[(select(genotypes, one_of(filtered_strains_hap)) %>% rowSums(.)) > 0]
@@ -397,10 +401,11 @@ impact_summary_dip <- filter(impacts, mut_id %in% diploid_vars) %>%
 # Observe same result as Omars Mutfunc paper
 p_essential_sift_per_base <- ggplot(filter(impact_summary, !is.na(essential)), aes(x=essential, y=count_sift_per_base, colour=essential)) + 
   geom_boxplot(notch = TRUE, varwidth = TRUE) +
-  xlab('Gene Essential?') +
-  ylab('Number of variants with SIFT < 0.05 per base') +
-  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
-  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.005, label = length(x)))}) +
+  ylim(0, 0.055) +
+  xlab('') +
+  ylab('variants with SIFT < 0.05 per base') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('Essential', 'Nonessential'))) +
+#  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.005, label = length(x)))}) +
   stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
   guides(colour = FALSE)
 ggsave('figures/paff_checks/gene_count_low_sift_per_base_essential_box.pdf', p_essential_sift_per_base, width = 12, height = 10)
@@ -431,10 +436,11 @@ ggsave('figures/paff_checks/gene_count_low_sift_per_base_essential_box_hap.pdf',
 # but less so here?
 p_essential_foldx_per_base <- ggplot(filter(impact_summary, !is.na(essential)), aes(x=essential, y=count_foldx_per_base, colour=essential)) + 
   geom_boxplot(varwidth = TRUE) +
-  xlab('Gene Essential?') +
-  ylab('Number of variants with FoldX |ddG| > 2 per base') +
-  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
-  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.005, label = length(x)))}) +
+  ylim(0, 0.04) +
+  xlab('') +
+  ylab('variants with |ddG| > 2 per base') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('Essential', 'Nonessential'))) +
+#  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.005, label = length(x)))}) +
   stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
   guides(colour = FALSE)
 ggsave('figures/paff_checks/gene_count_high_foldx_per_base_essential_box.pdf', p_essential_foldx_per_base, width = 12, height = 10)

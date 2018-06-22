@@ -125,7 +125,9 @@ gene_summary_both <- group_by(probs, gene) %>%
             mean_worst_paff_cor = mean(worst_paff_both_cor),
             mean_count = mean(count),
             mean_count_cor = mean(count_both_cor)) %>%
-  mutate(essential = unname(essential_hash[gene]))
+  mutate(essential = unname(essential_hash[gene])) %>%
+  mutate(essential = as.factor(essential))
+levels(gene_summary_both$essential) <- c('Essential', 'Nonessential')
 
 # Just ref dist normalisation
 p_before_ref_correction <- ggplot(strain_summary, aes(x=ref_dist, y=mean_paff)) + 
@@ -226,13 +228,13 @@ p_count_both_ref <- ggplot(strain_summary, aes(x=ref_dist, y=mean_count_cor)) +
 ## Analyse essentiality
 p_corrected_essential <- ggplot(filter(gene_summary_both, !is.na(essential)), aes(x=essential, y=mean_paff_both_cor, colour=essential)) +
   geom_boxplot(notch = TRUE, varwidth = TRUE) + 
-  xlab('Gene Essential?') +
+  ylim(-0.25, 0.35) +
+  xlab('') +
   ylab('Mean Normalised P(Aff)') +
-  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
-  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.26, label = length(x)))}) +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('Essential', 'Nonessential'))) +
+#  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.26, label = length(x)))}) +
   stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
-  guides(colour = FALSE) +
-  ggtitle('Using euploid diploid and haploid strains')
+  guides(colour = FALSE)
 ggsave('figures/paff_checks/normalised_essential_box.pdf', p_corrected_essential, width = 12, height = 10)
 
 p_corrected_essential_all <- ggplot(filter(probs, !is.na(essential)), aes(x=essential, y=p_aff_both_cor, colour=essential)) +
@@ -259,14 +261,19 @@ t.test(mean_worst_paff_cor ~ essential, data = gene_summary)
 
 p_corrected_count_essential <- ggplot(filter(gene_summary_both, !is.na(essential)), aes(x=essential, y=mean_count_cor, colour=essential)) +
   geom_boxplot(notch = TRUE, varwidth = TRUE) + 
-  xlab('Gene Essential?') +
+  ylim(-1.5, 2.6) +
+  xlab('') +
   ylab('Mean Normalised Variant Count') +
-  stat_compare_means(method = 'wilcox.test', comparisons = list(c('E', 'NE'))) +
-  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -1.5, label = length(x)))}) +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('Essential', 'Nonessential'))) +
+#  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -1.5, label = length(x)))}) +
   stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
   guides(colour = FALSE)
 ggsave('figures/paff_checks/normalised_count_essential_box.pdf', p_corrected_count_essential, width = 12, height = 10)
 t.test(mean_count_cor ~ essential, data = gene_summary)
+
+# Essential presentation figure (requires sift and soldX vs essential figures loaded from )
+p <- ggarrange(p_corrected_count_essential, p_corrected_essential, p_essential_sift_per_base, p_essential_foldx_per_base, ncol = 2, nrow = 2, labels = 'auto')
+ggsave('figures/paff_checks/essential_genes_boxes.pdf', p, width = 7, height = 7)
 
 ## Filter by haploid/diplod strains
 p_corrected_essential_dip <- ggplot(filter(gene_summary_dip, !is.na(essential)), aes(x=essential, y=mean_paff_both_cor, colour=essential)) +
