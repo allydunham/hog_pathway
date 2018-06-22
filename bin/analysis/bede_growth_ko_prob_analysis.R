@@ -147,10 +147,13 @@ t.test(sscore~any, data = growth, alternative='l')
 
 
 #### Analyse whole pathway ko prob ####
-path_active <- read_tsv('data/hog-gene-variants.path.blosum', col_names = TRUE) %>%
+path_active <- read_tsv('data/hog-gene-variants.path', col_names = TRUE) %>%
   filter(strain %in% growth$strain) %>%
   left_join(., growth, by = 'strain') %>%
-  mutate(hog_active=as.logical(hog_active))
+  mutate(hog_active=as.factor(hog_active)) %>%
+  mutate(condition=as.factor(condition))
+levels(path_active$hog_active) <- c('Inactive', 'Active')
+levels(path_active$condition) <- c('0.4mM NaCl', '0.6 mM NaCl')
 
 count_categories <- function(x){
   return(c(y = -3.5, label=length(x)))
@@ -159,13 +162,12 @@ count_categories <- function(x){
 p_bin_path_growth <- ggplot(path_active, aes(x=hog_active, y=sscore, colour=hog_active)) + 
   geom_boxplot() + 
   facet_wrap(~condition) + 
-  xlab('HOG Path Active') + ylab('S-Score') +
-  stat_compare_means(method = 'wilcox.test', comparisons = list(c('TRUE', 'FALSE'))) +
-  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -4, label = length(x)))}, size = 8) +
-  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black", size=8) +
-  guides(colour = FALSE) +
-  theme(text = element_text(size = 20))
-ggsave('figures/bede_growth/bin-path-vs-growth.pdf', width = 12, height = 10, plot = p_bin_path_growth)
+  xlab('Predicted HOG Pathway Activity') + ylab('S-Score') +
+  stat_compare_means(method = 'wilcox.test', comparisons = list(c('Active', 'Inactive'))) +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -4, label = length(x)))}) +
+  stat_summary(geom ="text", fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), digits = 3)))}, color="black") +
+  guides(colour = FALSE)
+ggsave('figures/bede_growth/bin-path-vs-growth.pdf', width = 7, height = 5, plot = p_bin_path_growth)
 
 t.test(sscore ~ hog_active, data = path_active, alternative='less')
 

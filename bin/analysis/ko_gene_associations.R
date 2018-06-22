@@ -91,15 +91,15 @@ p_ypdnacl15m_sig_kos <- ggplot(filter(strain_summary, condition == 'ypdnacl15m')
   geom_point() +
   geom_smooth(method = 'lm') +
   ylab('Growth Relative to YPD Media') +
-  xlab(paste0('Number of NaCl Stress Significant Genes with P(Aff) > ', ko_thresh)) +
-  annotate('text', x = 25, y = 0.4, label=paste0('y = ',
+  xlab(paste0('Number of NaCl Stress Significant Genes with P(Aff) > ', ko_thresh)) #+
+  annotate('text', x = 25, y = 0.425, label=paste0('y = ',
                                                  signif(fit$coefficients[2], 4),
                                                  'x + ',
                                                  signif(fit$coefficients[1], 4),
                                                  ', Adj. R-Squared = ',
-                                                 signif(summary(fit)$adj.r.squared), 4))
+                                                 signif(summary(fit)$adj.r.squared, 2)))
 
-ggsave(paste0(figure_root, 'nacl15_growth_vs_number_sig_kos.pdf'), p_ypdnacl15m_sig_kos, width = 12, height = 10)
+ggsave(paste0(figure_root, 'nacl15_growth_vs_number_sig_kos.pdf'), p_ypdnacl15m_sig_kos, width = 7, height = 5)
 
 ## By individual gene
 probs %<>% mutate(ko = p_aff > ko_thresh)
@@ -120,8 +120,10 @@ kos_nacl <- filter(probs, gene==!!hog_id | gene == !!pbs2_id, condition=='ypdnac
   mutate(ko = factor(ko, levels = c('Neither', 'Hog1', 'Pbs2', 'Both'))) %>%
   mutate(condition = factor(condition, levels = c('ypdnacl15m', 'ypd14')))
 
+levels(kos_nacl$condition) <- c('1.5M NaCl', '14°C')
+
 p_osmotic_shock_ko_growth_box <- ggplot(kos_nacl, aes(x = ko, y = growth, colour = ko)) +
-  facet_wrap(~ condition) +
+  facet_wrap(~ condition, labeller = label_bquote(cols=.(condition))) +
   geom_boxplot(varwidth = TRUE) +
   xlab(paste0('Genes with P(aff) > ', ko_thresh)) +
   ylab('Growth Relative to YPD Media') + 
@@ -129,7 +131,7 @@ p_osmotic_shock_ko_growth_box <- ggplot(kos_nacl, aes(x = ko, y = growth, colour
                      comparisons = list(c('Hog1', 'Neither'), c('Pbs2', 'Neither'))) +
   stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.03, label = length(x)))}) +
   guides(colour = FALSE)
-ggsave(paste0(figure_root, 'osmotic_shock_ko_growth_pbs2_hog1.pdf'), p_osmotic_shock_ko_growth_box, width = 14, height = 10)
+ggsave(paste0(figure_root, 'osmotic_shock_ko_growth_pbs2_hog1.pdf'), p_osmotic_shock_ko_growth_box, width = 7, height = 5)
 
 
 # Investigate full distribution of P(Aff)'s vs growth
@@ -156,7 +158,7 @@ p_hog_pbs_p_aff_growth_both <- ggarrange(p_hog_pbs_p_aff_growth, p_hog_pbs_p_aff
 ggsave(paste0(figure_root, 'p_aff_distribution_vs_growth.pdf'), p_hog_pbs_p_aff_growth_both, width = 22, height = 10)
 
 # Generic function for gene ko growth box plots
-plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL, prob_tbl=probs){
+plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL, prob_tbl=probs, ylab=NULL, xlab=NULL){
   if (!is.null(gene_ids)){
     gene_names <- structure(genes$name, names=genes$id)[gene_ids]
     gene_names[is.na(gene_names)] <- gene_ids[is.na(gene_names)]
@@ -176,19 +178,27 @@ plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL, prob_t
     mutate(ko = factor(ifelse(ko, 'True', 'False'), levels = c('False', 'True'))) %>%
     mutate(gene = factor(gene, levels = gene_names))
   
+  if (is.null(ylab)){
+    ylab = paste0('Growth in ', condition, ' Relative to YPD Media')
+  }
+  if (is.null(xlab)){
+    xlab = paste0('P(Aff) > ', ko_thresh)
+  }
+  
   p <- ggplot(probs_filter, aes(x=ko, y=growth)) +
     geom_boxplot(aes(fill=gene), varwidth = TRUE, alpha=0.4) +
     facet_wrap(~gene) +
     stat_compare_means(comparisons = list(c('False','True'))) +
     stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.03, label = length(x)))}) +
-    xlab(paste0('P(aff) > ', ko_thresh)) +
-    ylab(paste0('Growth in ', condition, ' Relative to YPD Media')) +
+    xlab(xlab) +
+    ylab(ylab) +
+    ylim(-0.05,0.6) +
     guides(fill=FALSE)
   return(p)
 }
 
-p_nacl15m_all_sig_kos_box <- plot_ko_growth_box('ypdnacl15m', gene_ids = sig_genes_strong$ypdnacl15m)
-ggsave(paste0(figure_root, 'osmotic_shock_ko_growth_all_genes.pdf'), p_nacl15m_all_sig_kos_box, width = 20, height = 20)
+p_nacl15m_all_sig_kos_box <- plot_ko_growth_box('ypdnacl15m', gene_ids = sig_genes_strong$ypdnacl15m, ylab = 'Relative Growth in 1.5M NaCl')
+ggsave(paste0(figure_root, 'osmotic_shock_ko_growth_all_genes.pdf'), p_nacl15m_all_sig_kos_box, width = 7, height = 10)
 
 p_nacl1m_all_sig_kos_box <- plot_ko_growth_box('ypdnacl1m', gene_ids = sig_genes_strong$ypdnacl15m)
 ggsave(paste0(figure_root, 'low_osmotic_shock_ko_growth_all_genes.pdf'), p_nacl1m_all_sig_kos_box, width = 20, height = 20)
