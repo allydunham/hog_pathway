@@ -296,7 +296,6 @@ p_dist_ref_density <- ggplot(probs, aes(x=p_aff, fill=bin)) +
   geom_density(alpha=0.5)
 
 #### Analyse Individual Variants ####
-cut_points = seq(0,0.05,0.005)
 impacts %<>% mutate(freq=structure(allele_freqs$freq, names=allele_freqs$mut_id)[mut_id]) %>%
 #  filter(freq < 0.05) %>%
   mutate(p_neut_sift= 1/(1 + exp(-1.312424 * log(sift_score + 1.598027e-05) - 4.103955))) %>%
@@ -304,8 +303,14 @@ impacts %<>% mutate(freq=structure(allele_freqs$freq, names=allele_freqs$mut_id)
   mutate(p_neut_blosum = 0.66660 + 0.08293 * blosum62) %>%
   filter(!type == 'synonymous') %>%
   mutate(essential = essential_hash[gene]) %>%
-  mutate(complex = gene %in% complexes$ORF) %>%
-  mutate(freq_bin = cut(freq, breaks = cut_points, labels = cut_points[2:11] - 0.0025))
+  mutate(complex = gene %in% complexes$ORF)
+
+all_hog_impacts %<>% mutate(p_neut_sift= 1/(1 + exp(-1.312424 * log(sift_score + 1.598027e-05) - 4.103955))) %>%
+  mutate(p_neut_foldx= 1/(1 + exp(0.21786182 * foldx_ddG + 0.07351653))) %>%
+  mutate(p_neut_blosum = 0.66660 + 0.08293 * blosum62) %>%
+  filter(!type == 'synonymous') %>%
+  mutate(essential = essential_hash[gene]) %>%
+  mutate(complex = gene %in% complexes$ORF)
 
 p_freq_neut <- ggplot(impacts, aes(x=freq)) +
   geom_point(aes(y=p_neut_sift, colour="SIFT")) +
