@@ -95,11 +95,14 @@ ggsave('figures/liti_growth/hog_prob_growth.pdf', width = 7, height = 5, plot = 
 fit1 <- lm(growth ~ hog_probability, data = path, subset = path$condition == "ypdnacl1m")
 fit15 <- lm(growth ~ hog_probability, data = path, subset = path$condition == "ypdnacl15m")
 
-p_nacl_growth_vs_hog_sum <- ggplot(path, aes(x=count, y=growth, colour=condition)) + 
+p_nacl_growth_vs_hog_sum <- ggplot(path_nacl, aes(x=count, y=growth, colour=condition)) + 
   geom_point() + 
-  geom_smooth(method = 'lm')
+  geom_smooth(method = 'lm') +
+  ylab('Relative Growth') +
+  xlab('Number of HOG genes with P(Aff) > 0.95') +
+  guides(colour=guide_legend(title = 'Condition'))
 
-ggsave('figures/liti_growth/hog_ko_count_growth.pdf', width = 12, height = 10, plot = p_nacl_growth_vs_hog_sum)
+ggsave('figures/liti_growth/hog_ko_count_growth.pdf', width = 7, height = 5, plot = p_nacl_growth_vs_hog_sum)
 
 fit1 <- lm(growth ~ count, data = path, subset = path$condition == "ypdnacl1m")
 fit15 <- lm(growth ~ count, data = path, subset = path$condition == "ypdnacl15m")

@@ -15,7 +15,6 @@ filtered_strains_dip <- filter(strains, Ploidy == 2, Aneuploidies == 'euploid', 
 filtered_strains_hap <- filter(strains, Ploidy == 1, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
 filtered_strains_both <- filter(strains, Ploidy <= 2, Aneuploidies == 'euploid') %>% pull(`Standardized name`)
 
-
 # Filter strains that are unusually distant from the reference genome
 filtered_strains_dip <-  setdiff(filtered_strains_dip , c("AMH", "BAG", "BAH", "BAL", "CEG", "CEI"))
 filtered_strains_hap <-  setdiff(filtered_strains_hap , c("AMH", "BAG", "BAH", "BAL", "CEG", "CEI"))
@@ -38,6 +37,7 @@ allele_freqs <- readRDS('data/Rdata/allele_freqs.rds')
 
 probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
   filter(strain %in% growth$strain) %>%
+  filter(strain %in% filtered_strains_both) %>%
   left_join(. ,growth, by = 'strain') %>%
   gather(key='condition', value = 'growth', -strain, -gene, -p_aff) %>%
   mutate(gene_sig = FALSE)
@@ -45,15 +45,18 @@ probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
 probs_norm <- readRDS('data/Rdata/norm_paff.rds') %>%
   rename(p_aff = norm_p_aff) %>%
   filter(strain %in% growth$strain) %>%
+  filter(strain %in% filtered_strains_both) %>%
   left_join(. ,growth, by = 'strain') %>%
   gather(key='condition', value = 'growth', -strain, -gene, -p_aff) %>%
   mutate(gene_sig = FALSE)
 
 probs_mat <- readRDS('data/Rdata/paff_all_genes_mat.rds') %>%
-  filter(strain %in% growth$strain)
+  filter(strain %in% growth$strain) %>%
+filter(strain %in% filtered_strains_both)
 
 probs_norm_mat <- readRDS('data/Rdata/norm_paff_mat.rds') %>%
-  filter(strain %in% growth$strain)
+  filter(strain %in% growth$strain) %>%
+  filter(strain %in% filtered_strains_both)
 
 # import Ko growth data showing which genes are significant (using 0.01 threshold)
 ko_growth <- readRDS('data/Rdata/gene_ko_growth.rds') %>%
@@ -125,7 +128,7 @@ levels(kos_nacl$condition) <- c('1.5M NaCl', '14°C')
 p_osmotic_shock_ko_growth_box <- ggplot(kos_nacl, aes(x = ko, y = growth, colour = ko)) +
   facet_wrap(~ condition, labeller = label_bquote(cols=.(condition))) +
   geom_boxplot(varwidth = TRUE) +
-  xlab(paste0('Genes with P(aff) > ', ko_thresh)) +
+  xlab(paste0('Genes with P(Aff) > ', ko_thresh)) +
   ylab('Growth Relative to YPD Media') + 
   stat_compare_means(method = 'wilcox.test',
                      comparisons = list(c('Hog1', 'Neither'), c('Pbs2', 'Neither'))) +

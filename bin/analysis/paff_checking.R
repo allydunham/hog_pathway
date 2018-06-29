@@ -303,23 +303,38 @@ impacts %<>% mutate(freq=structure(allele_freqs$freq, names=allele_freqs$mut_id)
   mutate(p_neut_blosum = 0.66660 + 0.08293 * blosum62) %>%
   filter(!type == 'synonymous') %>%
   mutate(essential = essential_hash[gene]) %>%
-  mutate(complex = gene %in% complexes$ORF)
+  mutate(complex = gene %in% complexes$ORF) %>%
+  mutate(freq_bin = cut(freq, breaks = seq(0,1,0.1), labels = as.factor(seq(0,1,0.1)[-1] - 0.05)))
 
-all_hog_impacts %<>% mutate(p_neut_sift= 1/(1 + exp(-1.312424 * log(sift_score + 1.598027e-05) - 4.103955))) %>%
-  mutate(p_neut_foldx= 1/(1 + exp(0.21786182 * foldx_ddG + 0.07351653))) %>%
-  mutate(p_neut_blosum = 0.66660 + 0.08293 * blosum62) %>%
-  filter(!type == 'synonymous') %>%
-  mutate(essential = essential_hash[gene]) %>%
-  mutate(complex = gene %in% complexes$ORF)
+impacts_melt <- gather(impacts, key = 'method', value = 'p_neut', p_neut_foldx, p_neut_sift, p_neut_blosum) %>%
+  mutate(method = unname(structure(c('SIFT', 'FoldX', 'BLOSUM62'), names=c('p_neut_sift', 'p_neut_foldx', 'p_neut_blosum'))[method]))
 
 p_freq_neut <- ggplot(impacts, aes(x=freq)) +
-  geom_point(aes(y=p_neut_sift, colour="SIFT")) +
-  geom_point(aes(y=p_neut_foldx, colour="FoldX")) +
-#  geom_point(aes(y=p_neut_blosum, colour="BLOSUM62")) + 
+  geom_point(aes(y=p_neut_sift, colour='SIFT'), shape=20) +
+  geom_point(aes(y=p_neut_foldx, colour='FoldX'), shape=20) +
+  xlab('') + 
+  ylab('P(Neutral)') +
+  guides(colour = guide_legend(title = '')) + 
+  scale_colour_manual(values = c('cornflowerblue', 'firebrick2'))
+
+p_freq_neut_box_sift <- ggplot(filter(impacts_melt, method=='SIFT', !is.na(p_neut)),
+                          aes(x=freq, y=p_neut, group=cut_width(freq, width = 0.1))) + 
+  geom_boxplot(colour='firebrick2', outlier.shape=20) +
   xlab('Allele Frequency') + 
-  ylab('P(Neutral)') + 
-  guides(colour=guide_legend(title = 'Method'))
-ggsave('figures/paff_checks/freq_vs_p_neut.pdf', p_freq_neut, width = 12, height = 10)  
+  ylab('')
+  
+p_freq_neut_box_foldx <- ggplot(filter(impacts_melt, method=='FoldX', !is.na(p_neut)),
+                               aes(x=freq, y=p_neut, group=cut_width(freq, width = 0.1))) + 
+  geom_boxplot(colour='cornflowerblue', outlier.shape=20) +
+  xlab('') + 
+  ylab('')
+
+p <- ggarrange(p_freq_neut, p_freq_neut_box_sift, p_freq_neut_box_foldx,
+               ncol = 3, nrow = 1, common.legend = TRUE, legend = 'bottom', labels = 'auto') 
+
+ggsave('figures/paff_checks/freq_vs_p_neut.pdf', p_freq_neut + xlab('Allele Frequency'), width = 7, height = 5)  
+ggsave('figures/paff_checks/freq_vs_p_neut_boxes.pdf', p, width = 7, height = 3)  
+ggsave('figures/paff_checks/freq_vs_p_neut_boxes.png', p, width = 7, height = 3)  
 
 p_freq_essential <- ggplot(impacts, aes(x=essential, y=freq)) + 
   geom_boxplot() + 
