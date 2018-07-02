@@ -1,6 +1,7 @@
 ## Script exploring the distribution of neutral probabilities based on data from Jelier et al. 2011
 setwd('~/Projects/hog/')
 library(Biostrings)
+library(ggplot2)
 data("BLOSUM62")
 
 impact <- read.table("data/jelier.impact", sep = '\t', header=TRUE)
@@ -83,11 +84,16 @@ t$p <- p[t$bin]
 
 min_sift <- min(t[t$sift_score > 0,"sift_score"])
 
-f <- function(x,a,b){1/(1 + exp(a*log(x + min_sift) + b))}
-fit_sift <- nls(p ~ f(sift_score,a,b), data = t, start = list(a=-1,b=1))
+f_sift <- function(x,a,b){1/(1 + exp(a*log(x + min_sift) + b))}
+fit_sift <- nls(p ~ f_sift(sift_score,a,b), data = t, start = list(a=-1,b=1))
 
-plot(t$sift_score, t$p, pch=20, main = "Probability of Neutrality (SIFT)", xlab = "Sift Score", ylab = "p", ylim=c(0,1))
-curve(f(x,coef(fit_sift)[1],coef(fit_sift)[2]),add = TRUE)
+p_sift <- ggplot(t, aes(x=sift_score, y=p)) +
+  geom_point(colour='firebrick2') +
+  stat_function(fun=function(x){f_sift(x,coef(fit_sift)[1],coef(fit_sift)[2])}) +
+  xlab('SIFT Score') + 
+  ylab('P(Neut)') +
+  ylim(0,1) +
+  ggtitle('A. SIFT')
 
 # Same workflow on foldx
 t <- impact[!is.na(impact$foldx_ddG),]
@@ -97,11 +103,19 @@ p <- sapply(1:20, function(x){
 })
 
 t$p <- p[t$bin]
-f <- function(x,a,b){1/(1 + exp(a*x + b))}
-fit_foldx <- nls(p ~ f(foldx_ddG,a,b), data = t, start = list(a=0, b=0))
+f_foldx <- function(x,a,b){1/(1 + exp(a*x + b))}
+fit_foldx <- nls(p ~ f_foldx(foldx_ddG,a,b), data = t, start = list(a=0, b=0))
 
-plot(t$foldx_ddG, t$p, ylim = c(0,1), pch=20, main = "Probability of Neutrality (FoldX)", xlab = "ddG", ylab = "p")
-curve(f(x,coef(fit_foldx)[1],coef(fit_foldx)[2]),add = TRUE)
+p_foldx <- ggplot(t, aes(x=foldx_ddG, y=p)) +
+  geom_point(colour='cornflowerblue') +
+  stat_function(fun=function(x){f_foldx(x,coef(fit_foldx)[1],coef(fit_foldx)[2])}) +
+  xlab(expression(Delta*Delta*G~'(kJ/mol)')) + 
+  ylab('') +
+  ylim(0,1) +
+  ggtitle('B. FoldX')
+
+p <- ggarrange(p_sift, p_foldx)
+ggsave('figures/jelier_modeling/p_neut.pdf', p, width = 7, height = 4)
 
 # Same workflow on blosum
 t <- impact[!is.na(impact$blosum) & impact$blosum < 5,]

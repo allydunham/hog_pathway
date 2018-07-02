@@ -82,6 +82,9 @@ for (con in names(sig_genes)){
   probs_norm[probs_norm$condition == con & probs_norm$gene %in% sig_genes[[con]], 'gene_sig'] <- TRUE
 }
 
+# Sig genes plot
+
+
 #### Analysis ####
 ## By strain over all sig genes
 strain_summary <- group_by(probs, condition) %>%
@@ -226,6 +229,32 @@ ggsave(paste0(figure_root, 'glycerol_ko_growth_all_genes.pdf'), p_glycerol_all_s
 
 p_6au_all_sig_kos_box <- plot_ko_growth_box('ypd6au', gene_ids = sig_genes_strong$ypd6au)
 ggsave(paste0(figure_root, '6au_ko_growth_all_genes.pdf'), p_6au_all_sig_kos_box, width = 30, height = 30)
+
+# Compare significance to effect size
+probs_sig <- filter(probs,
+                    condition %in% names(equiv_conditions),
+                    gene %in% unique(unlist(sig_genes_strong)))
+
+probs_sig_summary <- probs_sig %>%
+  group_by(cg = paste(condition, gene)) %>%
+  filter(any(ko)) %>%
+  do(w = wilcox.test(growth ~ ko, data = .), condition = first(.$condition), gene = first(.$gene)) %>%
+  summarise(condition,
+            gene,
+            pVal = w$p.value)
+
+ko_growth_sig <- filter(ko_growth, condition %in% equiv_conditions, gene %in% unique(unlist(sig_genes_strong))) %>%
+  mutate(maxSscore = pmax(`S288C-score`, `UWOP-score`, `Y55-score`, `YPS-score`, na.rm = TRUE)) %>%
+  mutate(condition2 = unname(structure(names(equiv_conditions), names=equiv_conditions)[condition]))
+
+gene_sscore_hash <- structure(ko_growth_sig$maxSscore, names=paste0(ko_growth_sig$condition2, ko_growth_sig$gene))
+
+probs_sig_summary %<>% mutate(maxSscore = unname(gene_sscore_hash[paste0(condition, gene)])) %>%
+  filter(!is.na(maxSscore))
+
+p_sscore_p_val <- ggplot(probs_sig_summary, aes(x=maxSscore, y=pVal)) +
+  geom_point()
+# No Apparant relationship
 
 ## Test interactions between NaCl ko genes
 probs_mat_nacl <- select(probs_mat, one_of(sig_genes_strong$ypdnacl15m))

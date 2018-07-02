@@ -307,7 +307,8 @@ impacts %<>% mutate(freq=structure(allele_freqs$freq, names=allele_freqs$mut_id)
   mutate(freq_bin = cut(freq, breaks = seq(0,1,0.1), labels = as.factor(seq(0,1,0.1)[-1] - 0.05)))
 
 impacts_melt <- gather(impacts, key = 'method', value = 'p_neut', p_neut_foldx, p_neut_sift, p_neut_blosum) %>%
-  mutate(method = unname(structure(c('SIFT', 'FoldX', 'BLOSUM62'), names=c('p_neut_sift', 'p_neut_foldx', 'p_neut_blosum'))[method]))
+  mutate(method = unname(structure(c('SIFT', 'FoldX', 'BLOSUM62'), names=c('p_neut_sift', 'p_neut_foldx', 'p_neut_blosum'))[method])) %>%
+  mutate(method = factor(method, levels = c('SIFT', 'FoldX', 'BLOSUM62')))
 
 p_freq_neut <- ggplot(impacts, aes(x=freq)) +
   geom_point(aes(y=p_neut_sift, colour='SIFT'), shape=20) +
@@ -335,6 +336,16 @@ p <- ggarrange(p_freq_neut, p_freq_neut_box_sift, p_freq_neut_box_foldx,
 ggsave('figures/paff_checks/freq_vs_p_neut.pdf', p_freq_neut + xlab('Allele Frequency'), width = 7, height = 5)  
 ggsave('figures/paff_checks/freq_vs_p_neut_boxes.pdf', p, width = 7, height = 3)  
 ggsave('figures/paff_checks/freq_vs_p_neut_boxes.png', p, width = 7, height = 3)  
+
+p_neut_box_low_freq <- ggplot(filter(impacts_melt, method %in% c('SIFT', 'FoldX'), !is.na(p_neut), freq<0.1),
+                               aes(x=freq, y=p_neut, group=cut_width(freq, width = 0.0005))) + 
+  geom_boxplot(aes(colour=method), outlier.shape=16, outlier.size = 0.5) +
+  facet_wrap(~ method, nrow = 2, ncol = 1) +
+  xlab('Allele Frequency') + 
+  ylab('P(Neut)') +
+  guides(colour = guide_legend(title = 'Method')) + 
+  scale_colour_manual(values = c('firebrick2', 'cornflowerblue')) 
+ggsave('figures/paff_checks/freq_vs_p_neut_boxes_low_freq.pdf', p_neut_box_low_freq, width = 7, height = 7)
 
 p_freq_essential <- ggplot(impacts, aes(x=essential, y=freq)) + 
   geom_boxplot() + 
