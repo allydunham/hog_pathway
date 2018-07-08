@@ -3,6 +3,7 @@ setwd('~/Projects/hog/')
 library(tidyverse)
 library(magrittr)
 library(preprocessCore)
+library(ggpubr)
 
 #### Import Data ####
 ## Meta Data
@@ -91,6 +92,13 @@ p_nacl_growth_vs_hog_prob <- ggplot(path_nacl, aes(x=hog_probability, y=growth, 
   guides(colour=guide_legend(title = 'Condition'))
 
 ggsave('figures/liti_growth/hog_prob_growth.pdf', width = 7, height = 5, plot = p_nacl_growth_vs_hog_prob)
+
+p_nacl_growth_vs_hog_prob_boxes <- ggplot(filter(path_nacl, condition == '1.5M NaCl'), aes(x=hog_probability, y=growth)) + 
+  geom_boxplot(aes(group=cut_width(hog_probability, width = 0.25, center = 0.125))) + 
+  geom_smooth(method = 'lm') +
+  xlab('P(Hog1)') +
+  ylab('Relative Growth in 1.5M NaCl') + 
+  stat_compare_means(aes(group=cut_width(hog_probability, width = 0.25, center = 0.125)), method="anova")
 
 fit1 <- lm(growth ~ hog_probability, data = path, subset = path$condition == "ypdnacl1m")
 fit15 <- lm(growth ~ hog_probability, data = path, subset = path$condition == "ypdnacl15m")

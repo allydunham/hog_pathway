@@ -164,7 +164,7 @@ p_hog_pbs_p_aff_growth_both <- ggarrange(p_hog_pbs_p_aff_growth, p_hog_pbs_p_aff
 ggsave(paste0(figure_root, 'p_aff_distribution_vs_growth.pdf'), p_hog_pbs_p_aff_growth_both, width = 22, height = 10)
 
 # Generic function for gene ko growth box plots
-plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL, prob_tbl=probs, ylab=NULL, xlab=NULL){
+plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL, prob_tbl=probs, ylab=NULL, xlab=NULL, nrow=NULL, ncol=NULL){
   if (!is.null(gene_ids)){
     gene_names <- structure(genes$name, names=genes$id)[gene_ids]
     gene_names[is.na(gene_names)] <- gene_ids[is.na(gene_names)]
@@ -193,7 +193,7 @@ plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL, prob_t
   
   p <- ggplot(probs_filter, aes(x=ko, y=growth)) +
     geom_boxplot(aes(fill=gene), varwidth = TRUE, alpha=0.4) +
-    facet_wrap(~gene) +
+    facet_wrap(~gene, nrow = nrow, ncol = ncol) +
     stat_compare_means(comparisons = list(c('False','True'))) +
     stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.03, label = length(x)))}) +
     xlab(xlab) +
@@ -205,6 +205,11 @@ plot_ko_growth_box <- function(condition, gene_names=NULL, gene_ids=NULL, prob_t
 
 p_nacl15m_all_sig_kos_box <- plot_ko_growth_box('ypdnacl15m', gene_ids = sig_genes_strong$ypdnacl15m, ylab = 'Relative Growth in 1.5M NaCl')
 ggsave(paste0(figure_root, 'osmotic_shock_ko_growth_all_genes.pdf'), p_nacl15m_all_sig_kos_box, width = 7, height = 10)
+
+p_nacl15m_all_sig_kos_box_poster <- plot_ko_growth_box('ypdnacl15m', ylab = 'Relative Growth in 1.5M NaCl', nrow=3,
+                                                       gene_names = c('GEM1', 'STE50','MBP1','RXT3','BRP1','RIM101','PBS2','HOG1','ALG12','PPZ1','SNU66','IXR1'))
+ggsave(paste0(figure_root, 'osmotic_shock_ko_growth_all_genes_poster.pdf'), p_nacl15m_all_sig_kos_box_poster, width = 10, height = 8)
+
 
 p_nacl1m_all_sig_kos_box <- plot_ko_growth_box('ypdnacl1m', gene_ids = sig_genes_strong$ypdnacl15m)
 ggsave(paste0(figure_root, 'low_osmotic_shock_ko_growth_all_genes.pdf'), p_nacl1m_all_sig_kos_box, width = 20, height = 20)
