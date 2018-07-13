@@ -6,6 +6,7 @@ library(magrittr)
 library(ggpubr)
 
 figure_root <- 'figures/bede_growth_all/'
+ko_thresh <- 0.95
 
 #### Import Data ####
 strains <- readRDS('data/Rdata/strain_meta.rds')
@@ -26,7 +27,7 @@ growth <- read_tsv('data/raw/yeasts_liti_fixed.tsv', col_names = TRUE, col_types
   filter(subset == 'liti') %>%
   rename(strain_id = strain, strain=info)
 
-ko_thresh <- 0.95
+
 probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
   filter(strain %in% growth$strain) %>%
   mutate(ko = p_aff > 0.95) %>%
@@ -219,3 +220,18 @@ p_path_prob <- ggplot(filter(path, condition %in% c("NaCl 0.4M (72H)", "NaCl 0.6
 ggsave(paste0(figure_root, 'path_probability.pdf'), p_path_prob, width = 7, height = 7)
 
 
+## General linear model test
+probs_ace <- filter(probs, condition == 'Anaerobic growth (48H)', gene %in% sig_genes_strong$`Anaerobic growth (48H)`) %>%
+  select(-ko) %>%
+  spread(key = 'gene', value = 'p_aff')
+
+fit <- lm(score ~ .^2, data = select(probs_ace, -strain, -condition, -qvalue))
+
+probs_ace %<>% mutate(pred_score = predict(fit, newdata = probs_ace)) %>%
+  mutate(sig = qvalue < 0.05)
+
+p_lm <- ggplot(probs_ace, aes(x=score, y=pred_score, colour=sig)) +
+  geom_point() +
+  ylim(-5, 5) +
+  xlim(-5,5) +
+  geom_abline(slope = 1, intercept = 0)
