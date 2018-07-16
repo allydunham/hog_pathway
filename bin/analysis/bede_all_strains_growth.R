@@ -30,7 +30,7 @@ growth <- read_tsv('data/raw/yeasts_liti_fixed.tsv', col_names = TRUE, col_types
 
 probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
   filter(strain %in% growth$strain) %>%
-  mutate(ko = p_aff > 0.95) %>%
+  mutate(ko = p_aff > ko_thresh) %>%
   left_join(., select(growth, strain, condition, score, qvalue), by='strain')
 
 path <- readRDS('data/Rdata/hog_path_probs.rds') %>%
@@ -204,6 +204,35 @@ assoc_volcano_plots <- lapply(names(sig_genes_strong), function(x){plot_ko_growt
 
 for (i in 1:length(assoc_volcano_plots)){ggsave(paste0(figure_root, 'volcanos/' , cons[i], 'volcano_ko_plot.pdf'), assoc_volcano_plots[[i]],
                                                 width = 10, height = 10)}
+
+## Use fisher method to test variants
+fisher_method <- function(condition, prob_tbl=NULL, gene_ids=NULL, gene_names=NULL, thresh = ko_thresh){
+  if (!is.null(gene_ids)){
+    gene_names <- structure(genes$name, names=genes$id)[gene_ids]
+    gene_names[is.na(gene_names)] <- gene_ids[is.na(gene_names)]
+    gene_ids <- structure(names(gene_names), names=unname(gene_names))
+  } else if (!is.null(gene_names)){
+    gene_ids <- structure(genes$id, names=genes$name)[str_to_upper(gene_names)]
+    gene_names <- structure(names(gene_ids), names=unname(gene_ids))
+  } else {
+    warning('One of "gene_names" or "gene_ids" must be given')
+  }
+  
+  probs_filter <- filter(prob_tbl, gene %in% gene_ids, condition==!!condition, p_aff > thresh) %>%
+    select(strain, gene, qvalue) %>%
+    mutate(gene = factor(gene_names[gene], levels=gene_names)) %>%
+    group_by(gene) %>%
+    summarise(k = n(),fisher_X = -2*sum(log(qvalue))) %>%
+    mutate(p = pchisq(fisher_X, df = 2*k, lower.tail = FALSE)) %>%
+    mutate(p_adj = p.adjust(p, method = 'fdr')) %>%
+    mutate(condition = condition)
+  
+  return(probs_filter)
+}
+
+fisher_thresh <- ko_thresh
+fisher_combined_probs <- bind_rows(lapply(names(sig_genes_strong), function(x){fisher_method(x, gene_ids = sig_genes_strong[[x]], prob_tbl = probs, thresh = fisher_thresh)}))
+write_tsv(fisher_combined_probs, paste0('data/bede_condition_sig_gene_affect_growth_impacts_', fisher_thresh, '.tsv'))
 
 ## Path analysis
 fit4 <- lm(score ~ hog_probability, filter(path, condition == "NaCl 0.4M (72H)"))
