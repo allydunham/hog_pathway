@@ -4,6 +4,7 @@ library(rlang)
 library(tidyverse)
 library(magrittr)
 library(ggpubr)
+library(gplots)
 
 figure_root <- 'figures/bede_growth_all/'
 ko_thresh <- 0.95
@@ -219,12 +220,15 @@ fisher_method <- function(condition, prob_tbl=NULL, gene_ids=NULL, gene_names=NU
   }
   
   probs_filter <- filter(prob_tbl, gene %in% gene_ids, condition==!!condition, p_aff > thresh) %>%
-    select(strain, gene, qvalue) %>%
-    mutate(gene = factor(gene_names[gene], levels=gene_names)) %>%
+    select(strain, gene, score, qvalue) %>%
+    mutate(gene = gene_names[gene]) %>%
     group_by(gene) %>%
-    summarise(k = n(),fisher_X = -2*sum(log(qvalue))) %>%
-    mutate(p = pchisq(fisher_X, df = 2*k, lower.tail = FALSE)) %>%
-    mutate(p_adj = p.adjust(p, method = 'fdr')) %>%
+    summarise(k = n(),
+              sum_pos = sum(score > 0),
+              sum_neg = sum(score < 0),
+              fisher_X = -2*sum(log(qvalue))) %>%
+    mutate(fisher_p = pchisq(fisher_X, df = 2*k, lower.tail = FALSE)) %>%
+    mutate(fisher_p_adj = p.adjust(p, method = 'fdr')) %>%
     mutate(condition = condition)
   
   return(probs_filter)
@@ -233,6 +237,10 @@ fisher_method <- function(condition, prob_tbl=NULL, gene_ids=NULL, gene_names=NU
 fisher_thresh <- ko_thresh
 fisher_combined_probs <- bind_rows(lapply(names(sig_genes_strong), function(x){fisher_method(x, gene_ids = sig_genes_strong[[x]], prob_tbl = probs, thresh = fisher_thresh)}))
 write_tsv(fisher_combined_probs, paste0('data/bede_condition_sig_gene_affect_growth_impacts_', fisher_thresh, '.tsv'))
+
+## Using of FDR adjusted p-values before combining is a problem because it potentially violates the assumption of uniform distribution over [0,1]
+## that means the value follows a chi squared distribution
+
 
 ## Path analysis
 fit4 <- lm(score ~ hog_probability, filter(path, condition == "NaCl 0.4M (72H)"))
@@ -264,3 +272,8 @@ p_lm <- ggplot(probs_ace, aes(x=score, y=pred_score, colour=sig)) +
   ylim(-5, 5) +
   xlim(-5,5) +
   geom_abline(slope = 1, intercept = 0)
+
+
+## Intersection of significant genes
+sig_gene_overlap <- sapply(sig_genes_strong, function(x){sapply(sig_genes_strong, function(y){length(intersect(x,y))/length(x)})})
+heatmap.2(sig_gene_overlap, symm = TRUE, revC = TRUE, trace = 'none', breaks = 31, margins = c(15,15))
