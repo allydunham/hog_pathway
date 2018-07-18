@@ -65,8 +65,10 @@ strain_con_cors <- bind_rows(lapply(strain_ko_scores, get_cor), .id = 'strain') 
   arrange(strain, condition1, condition2) %>%
   spread(strain, cor)
 
-p_test <- ggplot(strain_con_cors, aes(x=S288C, y=UWOP)) +
-  geom_point()
+combs <- combn(c('S288C', 'UWOP', 'Y55', 'YPS'), 2)
+p_strain_con_cor_cors <- mapply(function(x, y){ggplot(strain_con_cors, aes_string(x=x, y=y)) + geom_point()}, combs[1,], combs[2,], SIMPLIFY = FALSE)
+p_strain_con_cor_cors_arr <- ggarrange(plotlist = p_strain_con_cor_cors, ncol = 3, nrow = 2)
+ggsave('figures/ko_growth/strain_condition_condition_cors.pdf', p_strain_con_cor_cors_arr, width = 7, height = 5)
 
 
 
