@@ -46,6 +46,9 @@ ko_growth_full <- readRDS('data/Rdata/gene_ko_growth_full.rds') %>%
 
 
 #### Analysis ####
+sig_genes <- sapply(unique(growth$condition), function(x){filter(ko_growth, condition == x, num_strains >= 1) %>% pull(gene)})
+sig_genes <- sig_genes[sapply(sig_genes, length) > 0]
+
 sig_genes_strong <- sapply(unique(growth$condition), function(x){filter(ko_growth, condition == x, num_strains >= 2) %>% pull(gene)})
 sig_genes_strong <- sig_genes_strong[sapply(sig_genes_strong, length) > 0]
 
@@ -241,8 +244,8 @@ write_tsv(fisher_combined_probs, paste0('data/bede_condition_sig_gene_affect_gro
 ## Using of FDR adjusted p-values before combining is a problem because it potentially violates the assumption of uniform distribution over [0,1]
 ## that means the value follows a chi squared distribution
 
-
 ## Path analysis
+# prob Model
 fit4 <- lm(score ~ hog_probability, filter(path, condition == "NaCl 0.4M (72H)"))
 fit6 <- lm(score ~ hog_probability, filter(path, condition == "NaCl 0.6M (72H)"))
 fitS <- lm(score ~ hog_probability, filter(path, condition == "Sorbitol 1M (48H)"))
@@ -256,6 +259,49 @@ p_path_prob <- ggplot(filter(path, condition %in% c("NaCl 0.4M (72H)", "NaCl 0.6
   ylab('S-Score')
 ggsave(paste0(figure_root, 'path_probability.pdf'), p_path_prob, width = 7, height = 7)
 
+# All conditions vs hog
+hog_prob_lm_test <- function(con, tbl){
+  fit <- summary(lm(score ~ hog_probability, data = filter(tbl, condition == con)))
+  return(c(p_val = pf(fit$fstatistic[1], fit$fstatistic[2], fit$fstatistic[3], lower.tail = FALSE), R_sqr = fit$r.squared, Adj_R_sqr=fit$adj.r.squared))
+}
+
+hog_sig_cons <- c("NaCl 0.4M (48H)", "NaCl 0.4M (72H)", "NaCl 0.6M (48H)", "NaCl 0.6M (72H)", "Sorbitol 1M (48H)")
+hog_semi_sig_cons <- c("NaCl 0.4M + 39ºC (48H)", "NaCl 0.4M + 39ºC (72H)", "NaCl 0.6M + 39ºC (48H)", "NaCl 0.6M + 39ºC (72H)")
+hog_prob_tests <- sapply(unique(path$condition), hog_prob_lm_test, tbl=path) %>%
+  t(.) %>%
+  as_tibble(rownames='condition') %>%
+  rename(p_val = p_val.value) %>%
+  mutate(hog_sig = if_else(condition %in% hog_sig_cons, 'Signif', if_else(condition %in% hog_semi_sig_cons, 'Partial', 'None'))) %>%
+  mutate(log_p = -log10(p_val))
+
+p_hog_prob_conditional_sig_p <- ggplot(hog_prob_tests, aes(x=condition, y=log_p, fill=hog_sig)) +
+  geom_col() +
+  geom_hline(yintercept = -log10(0.01), linetype='dashed') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  guides(fill=guide_legend(title = 'HOG Significance')) +
+  xlab('Condition') +
+  ylab(expr('-log'[10]~'p'))
+  
+ggsave(paste0(figure_root, 'hog_path_prob_condition_cor_p_vals.pdf'), p_hog_prob_conditional_sig_p, width = 8, height = 5)
+
+
+# Number of KO'd OS sig genes
+prob_nacl <- filter(probs,
+                    condition %in% c("NaCl 0.4M (72H)", "NaCl 0.6M (72H)", "Sorbitol 1M (48H)"),
+                    gene %in% sig_genes$`NaCl 0.6M (72H)`) %>%
+  select(strain, gene, ko, condition, score, qvalue) %>%
+  spread(key = gene, value = ko) %>%
+  mutate(ko_sum = rowSums(select(., -strain, -condition, -score,-qvalue)))
+
+fit4 <- lm(score ~ ko_sum, filter(prob_nacl, condition == "NaCl 0.4M (72H)"))
+fit6 <- lm(score ~ ko_sum, filter(prob_nacl, condition == "NaCl 0.6M (72H)"))
+fitS <- lm(score ~ ko_sum, filter(prob_nacl, condition == "Sorbitol 1M (48H)"))
+
+p_nacl_sig_gene_count_growth_cor <- ggplot(prob_nacl, aes(x=ko_sum, y=score)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  facet_wrap(~condition)
+ggsave(paste0(figure_root, 'nacl_sig_ko_count_growth.pdf'), p_nacl_sig_gene_count_growth_cor, width = 7, height = 5)
 
 ## General linear model test
 probs_ace <- filter(probs, condition == 'Anaerobic growth (48H)', gene %in% sig_genes_strong$`Anaerobic growth (48H)`) %>%
@@ -275,5 +321,19 @@ p_lm <- ggplot(probs_ace, aes(x=score, y=pred_score, colour=sig)) +
 
 
 ## Intersection of significant genes
-sig_gene_overlap <- sapply(sig_genes_strong, function(x){sapply(sig_genes_strong, function(y){length(intersect(x,y))/length(x)})})
-heatmap.2(sig_gene_overlap, symm = TRUE, revC = TRUE, trace = 'none', breaks = 31, margins = c(15,15))
+cols <- colorRampPalette(c('white','blue','red'))
+pdf('figures/bede_growth_condition_strong_sig_gene_heatmap.pdf', width = 10, height = 10)
+sig_gene_overlap_strong <- sapply(sig_genes_strong, function(x){sapply(sig_genes_strong, function(y){length(intersect(x,y))/length(x)})})
+width <- dim(sig_gene_overlap_strong)[1]
+den <- as.dendrogram(hclust(dist(sig_gene_overlap_strong)))
+heatmap.2(t(sig_gene_overlap_strong), Rowv = den, Colv = den, revC = TRUE, trace = 'none', breaks = width + 1, margins = c(15,15),
+          colsep = 1:width, rowsep = 1:width, sepwidth = c(0.025,0.025), sepcolor = 'black', col = cols(width))
+dev.off()
+
+pdf('figures/bede_growth_condition_sig_gene_heatmap.pdf', width = 10, height = 10)
+sig_gene_overlap <- sapply(sig_genes, function(x){sapply(sig_genes, function(y){length(intersect(x,y))/length(x)})})
+width <- dim(sig_gene_overlap)[1]
+den <- as.dendrogram(hclust(dist(sig_gene_overlap)))
+heatmap.2(t(sig_gene_overlap), Rowv = den, Colv = den, revC = TRUE, trace = 'none', breaks = width + 1, margins = c(15,15),
+          colsep = 1:width, rowsep = 1:width, sepwidth = c(0.025,0.025), sepcolor = 'black', col = cols(width))
+dev.off()
