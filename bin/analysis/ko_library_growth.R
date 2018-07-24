@@ -18,6 +18,7 @@ non_essential_genes <- filter(essential, essential == 'NE') %>% pull(locus)
 ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   filter(!gene == 'WT') %>%
   filter(!duplicated(.[,c('strain', 'condition', 'gene')])) %>%
+#  filter(qvalue < 0.5) %>% # Possibly worthwhile fitlering to only important kos?
   select(-position) %>%
   mutate(condition = gsub('  ', ' ', condition)) # Some conditions have double spaces in names
 
@@ -103,4 +104,44 @@ names(p_strain_con_cor_cors) <- paste(strain_combs[1,], strain_combs[2,], sep='_
 p_strain_con_cor_cors_arr <- ggarrange(plotlist = p_strain_con_cor_cors, ncol = 3, nrow = 2, common.legend = TRUE)
 ggsave('figures/ko_growth/strain_condition_condition_cors.pdf', p_strain_con_cor_cors_arr, width = 7, height = 5)
 
-ggplotly(p_strain_con_cor_cors$Y55_YPS, tooltip = c('pair'))
+## Interactive plots
+# Single
+ggplotly(p_strain_con_cor_cors$UWOP_YPS, tooltip = c('pair'))
+
+# Multiple
+plotly_strain_cors <- subplot(sapply(p_strain_con_cor_cors, function(x){ggplotly(x, tooltip = c('pair'))}, simplify = FALSE),
+                              nrows = 2, titleX = TRUE, titleY = TRUE, margin = c(0.05, 0.05, 0.07, 0.07))
+
+# 3D Plots - show some joint
+p_strain_cors_3d <- plot_ly(strain_con_cors, x=~S288C, y=~UWOP, z=~Y55, mode = 'markers', text=~pair) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = 'S288C'),
+                      yaxis = list(title = 'UWOP'),
+                      zaxis = list(title = 'Y55')))
+
+
+
+## Per gene correlation
+ko_growth_gene <- mutate(ko_growth, name = if_else(is.na(name),gene,name)) %>%
+  select(-qvalue, -gene) %>%
+  rename(gene = name) %>%
+  spread(key = strain, value = score) %>%
+  group_by(gene) %>%
+  summarise(UWOP_S288C = cor(UWOP, S288C, use = 'na.or.complete'),
+            UWOP_Y55 = cor(UWOP, Y55, use = 'na.or.complete'),
+            UWOP_YPS = cor(UWOP, YPS, use = 'na.or.complete'),
+            S288C_Y55 = cor(S288C, Y55, use = 'na.or.complete'),
+            S288C_YPS = cor(S288C, YPS, use = 'na.or.complete'),
+            YPS_Y55 = cor(YPS, Y55, use = 'na.or.complete')) %>%
+  mutate(mean_cor = (UWOP_S288C + UWOP_Y55 + UWOP_YPS + S288C_Y55 + S288C_YPS + YPS_Y55)/6, 
+         var_cor = (UWOP_S288C^2 + UWOP_Y55^2 + UWOP_YPS^2 + S288C_Y55^2 + S288C_YPS^2 + YPS_Y55^2)/6 - mean_cor^2)
+  
+p_gene_strain_cor_boxes <- ggplot(gather(ko_growth_gene, key = 'strain_pair', value = 'cor', -gene), aes(x=strain_pair, y=cor, text=gene)) +
+  geom_jitter()
+ggplotly(p_gene_strain_cor_boxes, tooltip = c('gene'))
+
+p_gene_mean_var_cor <- ggplot(ko_growth_gene, aes(x=var_cor, y=mean_cor, label=gene)) +
+  geom_point() +
+  xlab('Variance of gene KO s-score correlation accross strains') +
+  ylab('Mean gene KO s-score correlation accross strains')
+ggplotly(p_gene_mean_var_cor)
