@@ -2,6 +2,7 @@
 library(tidyverse)
 library(magrittr)
 library(gplots)
+library(ggpubr)
 
 #### Functions ####
 ## Turn tibble into a matrix with rownames from a column
@@ -26,7 +27,7 @@ split_strains <- function(str, var, tbl, col='gene', row='condition'){
 ## Calculate correlation between pairs of genes or conditions (based on profile according to the other)
 # requires a tibble with the dependant variable in rows labeled by column 'var'
 get_cor <- function(x, cor_meth = 'pearson', cor_use = 'pairwise', upper_tri=TRUE, var='condition'){
-  mat <- as.matrix(select(x, -!!var))
+  mat <- as.matrix(select(x, -one_of(var)))
   rownames(mat) <- pull(x, !!var)
   cors <- cor(t(mat), method = cor_meth, use = cor_use)
   if (upper_tri){
@@ -35,18 +36,13 @@ get_cor <- function(x, cor_meth = 'pearson', cor_use = 'pairwise', upper_tri=TRU
   var1 <- paste0(var,'1')
   var2 <- paste0(var,'2')
   cors %<>% as_tibble(rownames=var1) %>%
-    gather(key = !!var2, value = 'cor', -!!var1) %>%
+    gather(key = !!var2, value = 'cor', -one_of(var1)) %>%
     drop_na()
   return(cors)
 }
 
 
 #### Import and Process Data ####
-genes <- readRDS('data/Rdata/gene_meta_all.rds')
-essential <- readRDS('data/Rdata/essential_genes.rds')
-essential_genes <- filter(essential, essential == 'E') %>% pull(locus)
-non_essential_genes <- filter(essential, essential == 'NE') %>% pull(locus)
-
 ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   filter(!gene == 'WT') %>%
   filter(!duplicated(.[,c('strain', 'condition', 'gene')])) %>%
