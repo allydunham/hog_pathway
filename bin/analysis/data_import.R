@@ -131,14 +131,14 @@ growth_bede_gene_dels_full <- read_tsv('data/raw/ko_scores.txt', col_names = TRU
   filter(!gene == 'WT') %>%
   filter(!duplicated(.[,c('strain', 'condition', 'gene')])) %>%
   select(-position) %>%
-  unite(comb, score, qvalue) %>%
+  unite(comb, score, qvalue, sep = '&') %>%
   spread(key = strain, value = comb) %>%
   mutate(num_strains = (!is.na(S288C)) + (!is.na(UWOP)) + (!is.na(Y55)) + (!is.na(YPS))) %>%
-  separate(S288C, c('S288C-score', 'S288C-qvalue'), sep = '_') %>%
-  separate(UWOP, c('UWOP-score', 'UWOP-qvalue'), sep = '_') %>%
-  separate(Y55, c('Y55-score', 'Y55-qvalue'), sep = '_') %>%
-  separate(YPS, c('YPS-score', 'YPS-qvalue'), sep = '_') %>%
-  mutate_at(vars(contains('-')), funs(as.numeric))
+  separate(S288C, c('S288C_score', 'S288C_qvalue'), sep = '&') %>%
+  separate(UWOP, c('UWOP_score', 'UWOP_qvalue'), sep = '&') %>%
+  separate(Y55, c('Y55_score', 'Y55_qvalue'), sep = '&') %>%
+  separate(YPS, c('YPS_score', 'YPS_qvalue'), sep = '&') %>%
+  mutate_at(vars(contains('_')), funs(as.numeric))
 saveRDS(growth_bede_gene_dels_full, 'data/Rdata/gene_ko_growth_full.rds')
 
 #### Genetic Distance ####
