@@ -94,6 +94,6 @@ strain_gene_cors_mat <- select(strain_gene_cors, gene1, gene2, S288C) %>%
   spread(key = 'gene2', value = 'S288C') %>%
   tbl_to_matrix(., 'gene1')
 
-jpeg('figures/ko_growth/s288c_gene_cor_heatmap2.jpg', width = 10000, height = 10000)
+jpeg('s288c_gene_cor_heatmap.jpg', width = 10000, height = 10000)
 heatmap.2(strain_gene_cors_mat, symm = TRUE, revC = TRUE)
 dev.off()
