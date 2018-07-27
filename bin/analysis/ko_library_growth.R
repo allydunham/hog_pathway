@@ -70,6 +70,32 @@ strain_combs <- combn(c('S288C', 'UWOP', 'Y55', 'YPS'), 2)
 strain_ko_scores <- sapply(unique(ko_growth$strain), split_strains, var='score', tbl=ko_growth, simplify = FALSE)
 strain_ko_qvalues <- sapply(unique(ko_growth$strain), split_strains, var='qvalue', tbl=ko_growth, simplify = FALSE)
 
+# Get gens sig in at least n conditions
+sig_genes <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
+  mutate(name = if_else(is.na(name), gene, name)) %>%
+  filter(qvalue < 0.01) %>%
+  filter(!gene == 'WT') %>%
+  filter(!duplicated(.[,c('strain', 'condition', 'gene')])) %>%
+  select(-position) %>%
+  unite(comb, score, qvalue) %>%
+  spread(key = strain, value = comb) %>%
+  mutate(num_strains = (!is.na(S288C)) + (!is.na(UWOP)) + (!is.na(Y55)) + (!is.na(YPS)))
+
+sig_genes_3 <- sig_genes %>%
+  filter(num_strains > 2) %>%
+  pull(name) %>%
+  unique()
+
+sig_genes_2 <- sig_genes %>%
+  filter(num_strains > 1) %>%
+  pull(name) %>%
+  unique()
+
+sig_genes_1 <- sig_genes %>%
+  filter(num_strains > 0) %>%
+  pull(name) %>%
+  unique()
+
 #### Analysis ####
 ## Dendograms
 strain_con_dends <- lapply(strain_ko_scores, get_dend)
@@ -147,11 +173,14 @@ gene_ko_profile_cor <- group_by(gene_ko_profile, gene) %>%
             S288C_Y55 = cor(S288C, Y55, use = 'na.or.complete'),
             S288C_YPS = cor(S288C, YPS, use = 'na.or.complete'),
             YPS_Y55 = cor(YPS, Y55, use = 'na.or.complete')) %>%
-  mutate(mean_cor = rowMeans(select(., UWOP_S288C, UWOP_Y55, UWOP_YPS, S288C_Y55, S288C_YPS, YPS_Y55), na.rm = TRUE),
-         abs_mean_cor = rowMeans(abs(select(., UWOP_S288C, UWOP_Y55, UWOP_YPS, S288C_Y55, S288C_YPS, YPS_Y55)), na.rm = TRUE),
-         var_cor = apply(select(., UWOP_S288C, UWOP_Y55, UWOP_YPS, S288C_Y55, S288C_YPS, YPS_Y55), 1, var, na.rm = TRUE),
-         concord = apply(sign(select(., UWOP_S288C, UWOP_Y55, UWOP_YPS, S288C_Y55, S288C_YPS, YPS_Y55)), 1, function(x){min(x, na.rm = TRUE) == max(x, na.rm = TRUE)}),
-         num_pos = rowSums(select(., UWOP_S288C, UWOP_Y55, UWOP_YPS, S288C_Y55, S288C_YPS, YPS_Y55) > 0, na.rm = TRUE))
+  mutate(mean_cor = rowMeans(select(., UWOP_S288C:YPS_Y55), na.rm = TRUE),
+         max_cor = apply(select(., UWOP_S288C:YPS_Y55), 1, function(x){ifelse(all(is.na(x)), NA, unname(x)[which.max(abs(x))])}),
+         abs_mean_cor = rowMeans(abs(select(., UWOP_S288C:YPS_Y55)), na.rm = TRUE),
+         var_cor = apply(select(., UWOP_S288C:YPS_Y55), 1, var, na.rm = TRUE),
+         concord = apply(sign(select(., UWOP_S288C:YPS_Y55)), 1, function(x){ifelse(all(is.na(x)), NA, max(x,na.rm=TRUE)==min(x,na.rm=TRUE))}),
+         num_pos = rowSums(select(., UWOP_S288C:YPS_Y55) > 0, na.rm = TRUE),
+         which_max = apply(select(., UWOP_S288C:YPS_Y55), 1, function(x){ifelse(all(is.na(x)), NA, names(x)[which.max(abs(x))])}),
+         which_min = apply(select(., UWOP_S288C:YPS_Y55), 1, function(x){ifelse(all(is.na(x)), NA, names(x)[which.min(x)])}))
   
 p_gene_strain_cor_boxes <- ggplot(gather(gene_ko_profile_cor, key = 'strain_pair', value = 'cor', -gene), aes(x=strain_pair, y=cor, text=gene)) +
   geom_jitter()
@@ -171,15 +200,21 @@ p_gene_cor_concordance <- ggplot(gene_ko_profile_cor, aes(x=concord, y=abs(mean_
   stat_summary(geom = 'text', aes(colour=concord), fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), 3)))}) +
   guides(colour=FALSE)
   
-gene_ko_profile_cor_strong <- filter(gene_ko_profile_cor, abs_mean_cor > 0.3)
+# Filters tried - mean_cor > or < 0.3, in sig_genes_1/2/3
+gene_ko_profile_cor_strong <- filter(gene_ko_profile_cor, gene %in% sig_genes_3) %>% drop_na(-var_cor)
 
-gene_strain_cor_tsne <- Rtsne(tbl_to_matrix(select(gene_ko_profile_cor_strong, gene, UWOP_S288C, UWOP_Y55, UWOP_YPS, S288C_Y55, S288C_YPS, YPS_Y55) %>% drop_na(), 'gene'))
+gene_strain_cor_tsne <- Rtsne(tbl_to_matrix(select(gene_ko_profile_cor_strong, gene, UWOP_S288C, UWOP_Y55, UWOP_YPS, S288C_Y55, S288C_YPS, YPS_Y55), 'gene'))
 
 gene_strain_cor_tsne_df <- as_tibble(gene_strain_cor_tsne$Y) %>%
   rename(tsne1 = V1, tsne2 = V2) %>%
-  mutate(gene = drop_na(gene_ko_profile_cor_strong) %>% pull(gene),
-         mean_cor = drop_na(gene_ko_profile_cor_strong) %>% pull(abs_mean_cor),
-         num_pos = drop_na(gene_ko_profile_cor_strong) %>% pull(num_pos))
+  mutate(gene = gene_ko_profile_cor_strong$gene, # These vars are mainly used to colour points
+         mean_cor = gene_ko_profile_cor_strong$abs_mean_cor,
+         var_cor = gene_ko_profile_cor_strong$var_cor,
+         num_pos = gene_ko_profile_cor_strong$num_pos,
+         concord = gene_ko_profile_cor_strong$concord,
+         which_max = gene_ko_profile_cor_strong$which_max,
+         which_min = gene_ko_profile_cor_strong$which_min,
+         max_mag = gene_ko_profile_cor_strong$max_cor)
   
 plot_ly(gene_strain_cor_tsne_df, x=~tsne1, y=~tsne2, color=~mean_cor, text=~gene, mode='markers') %>%
   add_markers() %>%
@@ -187,21 +222,8 @@ plot_ly(gene_strain_cor_tsne_df, x=~tsne1, y=~tsne2, color=~mean_cor, text=~gene
          xaxis = list(title = 'tSNE 1'),
          yaxis = list(title = 'tSNE 2'))
 
-# Only use genes which are significant in some condition
-
-sig_genes <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
-  filter(qvalue < 0.001) %>%
-  filter(!gene == 'WT') %>%
-  filter(!duplicated(.[,c('strain', 'condition', 'gene')])) %>%
-  select(-position) %>%
-  unite(comb, score, qvalue) %>%
-  spread(key = strain, value = comb) %>%
-  mutate(num_strains = (!is.na(S288C)) + (!is.na(UWOP)) + (!is.na(Y55)) + (!is.na(YPS))) %>%
-  filter(num_strains > 2) %>%
-  pull(gene) %>%
-  unique()
-
-strain_gene_cors <- bind_rows(lapply(sapply(unique(ko_growth$strain), split_strains, var='score', tbl=filter(ko_growth, gene %in% sig_genes), 
+# Only use genes which are significant in 3 conditions
+strain_gene_cors <- bind_rows(lapply(sapply(unique(ko_growth$strain), split_strains, var='score', tbl=filter(ko_growth, name %in% sig_genes_3), 
                                             col='condition', row='name', simplify = FALSE), 
                                      get_cor, var='name'), .id = 'strain') %>%
   rename(gene1 = name1, gene2 = name2) %>%
@@ -210,8 +232,8 @@ strain_gene_cors <- bind_rows(lapply(sapply(unique(ko_growth$strain), split_stra
   unite(col = 'pair', gene1, gene2, remove = FALSE)
 
 p_strain_gene_gene_cors <- mapply(function(x, y){
-  ggplot(strain_gene_cors, aes_string(x=x, y=y, text='pair')) + 
-    geom_point(size=0.5) + 
+  ggplot(strain_gene_cors, aes_string(x=x, y=y)) + 
+    geom_bin2d(bins=40) + 
     geom_abline(intercept = 0, slope = 1, colour='firebrick2') +
     geom_abline(intercept = -0.2, slope = 1, colour='firebrick2', linetype=2) +
     geom_abline(intercept = 0.2, slope = 1, colour='firebrick2', linetype=2)
@@ -220,7 +242,7 @@ strain_combs[1,], strain_combs[2,], SIMPLIFY = FALSE)
 names(p_strain_gene_gene_cors) <- paste(strain_combs[1,], strain_combs[2,], sep='_')
 
 p_strain_gene_gene_cors_arr <- ggarrange(plotlist = p_strain_gene_gene_cors, ncol = 3, nrow = 2, common.legend = TRUE)
-ggsave('figures/ko_growth/strain_gene_gene_cors.pdf', p_strain_gene_gene_cors_arr, width = 7, height = 5)
+ggsave('figures/ko_growth/strain_sig_gene_gene_cors_dens.pdf', p_strain_gene_gene_cors_arr, width = 7, height = 5)
 
 plotly_strain_gene_cors <- subplot(sapply(p_strain_gene_gene_cors, function(x){ggplotly(x, tooltip = c('pair'))}, simplify = FALSE),
                                    nrows = 2, titleX = TRUE, titleY = TRUE, margin = c(0.05, 0.05, 0.07, 0.07))
