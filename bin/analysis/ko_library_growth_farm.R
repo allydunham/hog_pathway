@@ -7,7 +7,7 @@ library(ggpubr)
 #### Functions ####
 ## Turn tibble into a matrix with rownames from a column
 tbl_to_matrix <- function(x, row){
-  mat <- as.matrix(select(x, -row))
+  mat <- as.matrix(select(x, -one_of(row)))
   rownames(mat) <- pull(x, !!row)
   return(mat)
 }
@@ -95,5 +95,6 @@ strain_gene_cors_mat <- select(strain_gene_cors, gene1, gene2, S288C) %>%
   tbl_to_matrix(., 'gene1')
 
 jpeg('s288c_gene_cor_heatmap.jpg', width = 10000, height = 10000)
-heatmap.2(strain_gene_cors_mat, symm = TRUE, revC = TRUE)
+cols <- colorRampPalette(c('red', 'white','blue'))
+heatmap.2(strain_gene_cors_mat, symm = TRUE, revC = TRUE, col = cols(200), trace = 'none')
 dev.off()
