@@ -192,14 +192,33 @@ p_gene_mean_var_cor <- ggplot(gene_ko_profile_cor, aes(x=var_cor, y=mean_cor, la
   ylab('Mean gene KO s-score correlation accross strains')
 ggplotly(p_gene_mean_var_cor)
 
-## Not meaningful? Genes which share sign have higher mean cor almost by default
-p_gene_cor_concordance <- ggplot(gene_ko_profile_cor, aes(x=concord, y=abs(mean_cor), colour=concord)) +
+## Meaningful? Genes that show concordance tend to have higher absolute correlation values
+p_gene_cor_concordance <- ggplot(filter(gene_ko_profile_cor, !is.na(concord)), aes(x=concord, y=abs_mean_cor, colour=concord)) +
   geom_boxplot() +
   stat_compare_means(comparisons = list(c('TRUE','FALSE'))) +
   stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.05, label = length(x)))}) +
   stat_summary(geom = 'text', aes(colour=concord), fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), 3)))}) +
-  guides(colour=FALSE)
-  
+  guides(colour=FALSE) +
+  xlab('Strain-Strain corelations have the same sign?') +
+  ylab('Mean Absolute Correlation')
+ggsave('figures/ko_growth/abs_gene_profile_correlation_concord_box.pdf', p_gene_cor_concordance, width = 7, height = 5)
+
+p_gene_cor_num_pos <- ggplot(filter(gene_ko_profile_cor, !is.na(concord)), aes(x=num_pos, y=abs_mean_cor, group=cut_width(num_pos, width = 1))) +
+  geom_boxplot() +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.05, label = length(x)))}) +
+  stat_summary(geom = 'text', colour='firebrick2', fun.data = function(x){return(c(y = mean(x), label = signif(mean(x), 3)))}) +
+  guides(colour=FALSE) +
+  xlab('Number of positive strain-strain correlations') +
+  ylab('Mean Absolute Correlation')
+ggsave('figures/ko_growth/abs_gene_profile_correlation_num_pos.pdf', p_gene_cor_num_pos, width = 7, height = 5)
+
+
+plot_ly(data = gene_ko_profile_cor, x=~concord, y=~abs_mean_cor, text=~gene, color=~concord, type='box') %>%
+  add_markers() %>%
+  layout(title = "Relationship between correlation sign agreement and absolute correlation",
+         xaxis = list(title = 'Gene Corrrelation Sign Agreement'),
+         yaxis = list(title = 'Mean Absolute Correlation'))
+
 # Filters tried - mean_cor > or < 0.3, in sig_genes_1/2/3
 gene_ko_profile_cor_strong <- filter(gene_ko_profile_cor, gene %in% sig_genes_3) %>% drop_na(-var_cor)
 
