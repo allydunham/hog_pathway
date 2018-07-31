@@ -33,7 +33,7 @@ genotypes_hog <- read_tsv("data/hog-gene-variants.all-genotypes", col_names = TR
   arrange(strain)
 saveRDS(genotypes_hog, file = 'data/Rdata/genotypes_hog_genes.rds')
 
-genotypes_all <- read_tsv('data/all-genes-no-missing.genotype', col_names = TRUE)
+genotypes_all <- read_tsv('data/all-gene-variants/all-genes-no-missing.genotype', col_names = TRUE)
 saveRDS(genotypes_all, file = 'data/Rdata/genotypes_all_genes.rds')
 
 #### Variant Impacts ####

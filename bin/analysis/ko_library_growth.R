@@ -53,6 +53,17 @@ get_cor <- function(x, cor_meth = 'pearson', cor_use = 'pairwise', upper_tri=TRU
   return(cors)
 }
 
+# Determine which level list a gene is in
+# sig_list should have the most desirable category last if there are overlaps
+get_sig <- function(item, sig_list){
+  for (i in length(sig_list):1){
+    if (item %in% sig_list[[i]]){
+      return(i)
+    }
+  }
+  return(0)
+}
+
 #### Import and Process Data ####
 genes <- readRDS('data/Rdata/gene_meta_all.rds')
 essential <- readRDS('data/Rdata/essential_genes.rds')
@@ -80,6 +91,11 @@ sig_genes <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   unite(comb, score, qvalue) %>%
   spread(key = strain, value = comb) %>%
   mutate(num_strains = (!is.na(S288C)) + (!is.na(UWOP)) + (!is.na(Y55)) + (!is.na(YPS)))
+
+sig_genes_4 <- sig_genes %>%
+  filter(num_strains > 3) %>%
+  pull(name) %>%
+  unique()
 
 sig_genes_3 <- sig_genes %>%
   filter(num_strains > 2) %>%
@@ -180,17 +196,52 @@ gene_ko_profile_cor <- group_by(gene_ko_profile, gene) %>%
          concord = apply(sign(select(., UWOP_S288C:YPS_Y55)), 1, function(x){ifelse(all(is.na(x)), NA, max(x,na.rm=TRUE)==min(x,na.rm=TRUE))}),
          num_pos = rowSums(select(., UWOP_S288C:YPS_Y55) > 0, na.rm = TRUE),
          which_max = apply(select(., UWOP_S288C:YPS_Y55), 1, function(x){ifelse(all(is.na(x)), NA, names(x)[which.max(abs(x))])}),
-         which_min = apply(select(., UWOP_S288C:YPS_Y55), 1, function(x){ifelse(all(is.na(x)), NA, names(x)[which.min(x)])}))
+         which_min = apply(select(., UWOP_S288C:YPS_Y55), 1, function(x){ifelse(all(is.na(x)), NA, names(x)[which.min(x)])}),
+         sig_level = as.factor(sapply(gene, get_sig, sig_list=list(sig_genes_1, sig_genes_2, sig_genes_3, sig_genes_4))))
   
-p_gene_strain_cor_boxes <- ggplot(gather(gene_ko_profile_cor, key = 'strain_pair', value = 'cor', -gene), aes(x=strain_pair, y=cor, text=gene)) +
+p_gene_strain_cor_boxes <- ggplot(gather(gene_ko_profile_cor, key = 'strain_pair', value = 'cor', UWOP_S288C:YPS_Y55), aes(x=strain_pair, y=cor, text=gene)) +
   geom_jitter()
 ggplotly(p_gene_strain_cor_boxes, tooltip = c('gene'))
 
-p_gene_mean_var_cor <- ggplot(gene_ko_profile_cor, aes(x=var_cor, y=mean_cor, label=gene)) +
-  geom_point() +
-  xlab('Variance of gene KO s-score correlation accross strains') +
-  ylab('Mean gene KO s-score correlation accross strains')
-ggplotly(p_gene_mean_var_cor)
+plot_ly(gene_ko_profile_cor, x=~var_cor, y=~mean_cor, color=~sig_level, text=~gene) %>%
+  add_markers() %>%
+  layout(title = "Summary of gene profiles correlations between strains",
+         xaxis = list(title = 'Variance of gene KO s-score correlation accross strains'),
+         yaxis = list(title = 'Mean gene KO s-score correlation accross strains'))
+
+p_gene_mean_var_cor <- ggarrange(ggplot(gene_ko_profile_cor, aes(x=var_cor, y=mean_cor, label=gene, colour=sig_level)) +
+                                   geom_point() +
+                                   xlab('') +
+                                   ylab('Mean Correlation') +
+                                   guides(colour=guide_legend(title = 'Conditionally Significant Strains')), 
+                                 ggplot(gene_ko_profile_cor, aes(x=var_cor, y=mean_cor, label=gene, colour=sig_level)) +
+                                   geom_density_2d() +
+                                   xlab('') +
+                                   ylab('') +
+                                   guides(colour=guide_legend(title = 'Conditionally Significant Strains')),
+                                 ggplot(gene_ko_profile_cor, aes(x=var_cor, y=abs_mean_cor, label=gene, colour=sig_level)) +
+                                   geom_point() +
+                                   xlab('Correlation Variance') +
+                                   ylab('Mean Absolute Correlation') +
+                                   guides(colour=guide_legend(title = 'Conditionally Significant Strains')), 
+                                 ggplot(gene_ko_profile_cor, aes(x=var_cor, y=abs_mean_cor, label=gene, colour=sig_level)) +
+                                   geom_density_2d() +
+                                   xlab('Correlation Variance') +
+                                   ylab('') +
+                                   guides(colour=guide_legend(title = 'Conditionally Significant Strains')),
+                                 nrow = 2,
+                                 ncol = 2,
+                                 common.legend = TRUE,
+                                 legend = 'top',
+                                 align = 'hv')
+ggsave('figures/ko_growth/gene_strain_impact_profile_correlations.pdf', p_gene_mean_var_cor, width = 9, height = 9)
+
+p_gene_strain_cor_density <- ggplot(gather(gene_ko_profile_cor, key = 'strain_pair', value = 'cor', UWOP_S288C:YPS_Y55), aes(colour=strain_pair, x=cor)) +
+  geom_density() +
+  xlab('Strain-Strain Gene KO Profile Correlation') +
+  ylab('Density') +
+  guides(colour = guide_legend(title = 'Strain Pair'))
+ggsave('figures/ko_growth/strain_strain_gene_cor_density.pdf', p_gene_strain_cor_density, width = 7, height = 5)
 
 ## Meaningful? Genes that show concordance tend to have higher absolute correlation values
 p_gene_cor_concordance <- ggplot(filter(gene_ko_profile_cor, !is.na(concord)), aes(x=concord, y=abs_mean_cor, colour=concord)) +
@@ -219,8 +270,14 @@ plot_ly(data = gene_ko_profile_cor, x=~concord, y=~abs_mean_cor, text=~gene, col
          xaxis = list(title = 'Gene Corrrelation Sign Agreement'),
          yaxis = list(title = 'Mean Absolute Correlation'))
 
+high_cor_concordant_genes <- gene_ko_profile_cor %>%
+  filter(concord == TRUE, abs_mean_cor > 0.3) %>%
+  select(gene:var_cor) %>%
+  mutate(id = structure(genes$id, names = genes$name)[gene])
+write_tsv(high_cor_concordant_genes, 'data/high_strain_strain_cor_concord_genes.tsv')
+
 # Filters tried - mean_cor > or < 0.3, in sig_genes_1/2/3
-gene_ko_profile_cor_strong <- filter(gene_ko_profile_cor, gene %in% sig_genes_3) %>% drop_na(-var_cor)
+gene_ko_profile_cor_strong <- filter(gene_ko_profile_cor, sig_level == 3) %>% drop_na(-var_cor)
 
 gene_strain_cor_tsne <- Rtsne(tbl_to_matrix(select(gene_ko_profile_cor_strong, gene, UWOP_S288C, UWOP_Y55, UWOP_YPS, S288C_Y55, S288C_YPS, YPS_Y55), 'gene'))
 
