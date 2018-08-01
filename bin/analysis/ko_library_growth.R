@@ -169,16 +169,43 @@ p_strain_cors_3d <- plot_ly(strain_con_cors, x=~S288C, y=~UWOP, z=~Y55, mode = '
                       yaxis = list(title = 'UWOP'),
                       zaxis = list(title = 'Y55')))
 
-
-
-## Per gene correlation
+## Determine conditions that are most deviant
 gene_ko_profile <- ko_growth %>%
-#  mutate(score = if_else(qvalue < 0.9, score, 0)) %>%
+  #  mutate(score = if_else(qvalue < 0.9, score, 0)) %>%
   select(-qvalue, -gene) %>%
   rename(gene = name) %>%
   spread(key = strain, value = score) %>%
   mutate(num_strains = rowSums(abs(select(., S288C, UWOP, YPS, Y55)) > 1, na.rm = TRUE))
-  
+
+condition_profiles <- select(gene_ko_profile, -num_strains) %>%
+  gather(key = 'strain', value = 'score', S288C:YPS) %>%
+  spread(key = gene, value = score)
+
+condition_profiles[is.na(condition_profiles)] <- 0
+
+plot_con_tsne <- function(str, tbl){
+  tbl <- filter(tbl, strain == !!str) %>% select(-strain) %>% tbl_to_matrix(., 'condition')
+  tsne <- Rtsne(tbl, perplexity=10)$Y %>%
+    as_tibble() %>%
+    rename(tSNE1=V1, tSNE2=V2) %>%
+    mutate(condition = rownames(tbl))
+  return(plot_ly(tsne, x=~tSNE1, y=~tSNE2, text=~condition) %>% add_markers() %>% layout(title=str))
+}
+
+p_codition_tsnes <- lapply(c('S288C', 'UWOP', 'YPS', 'Y55'), plot_con_tsne, tbl=condition_profiles)
+
+condition_sensitivity <- ko_growth %>%
+  filter(qvalue < 0.05) %>%
+  select(strain, condition, name, score) %>%
+  group_by(condition) %>%
+  spread(key = strain, value = score) %>%
+  summarise(S288C_sig_gene_count = sum(!is.na(S288C)),
+            UWOP_sig_gene_count = sum(!is.na(UWOP)),
+            Y55_sig_gene_count = sum(!is.na(Y55)),
+            YPS_sig_gene_count = sum(!is.na(YPS)))
+write_tsv(condition_sensitivity, 'data/ko_condition_sensitivity.tsv')
+
+## Per gene correlation
 gene_ko_profile_cor <- group_by(gene_ko_profile, gene) %>%
   summarise(UWOP_S288C = cor(UWOP, S288C, use = 'na.or.complete'),
             UWOP_Y55 = cor(UWOP, Y55, use = 'na.or.complete'),
@@ -266,12 +293,6 @@ plot_ly(data = gene_ko_profile_cor, x=~concord, y=~abs_mean_cor, text=~gene, col
   layout(title = "Relationship between correlation sign agreement and absolute correlation",
          xaxis = list(title = 'Gene Corrrelation Sign Agreement'),
          yaxis = list(title = 'Mean Absolute Correlation'))
-
-high_cor_concordant_genes <- gene_ko_profile_cor %>%
-  filter(concord == TRUE, abs_mean_cor > 0.3) %>%
-  select(gene:var_cor) %>%
-  mutate(id = structure(genes$id, names = genes$name)[gene])
-write_tsv(high_cor_concordant_genes, 'data/high_strain_strain_cor_concord_genes.tsv')
 
 # Filters tried - mean_cor > or < 0.3, in sig_genes_1/2/3
 gene_ko_profile_cor_strong <- filter(gene_ko_profile_cor, sig_level == 3) %>% drop_na(-var_cor)

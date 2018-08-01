@@ -28,7 +28,6 @@ growth <- read_tsv('data/raw/yeasts_liti_fixed.tsv', col_names = TRUE, col_types
   filter(subset == 'liti') %>%
   rename(strain_id = strain, strain=info)
 
-
 probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
   filter(strain %in% growth$strain) %>%
   mutate(ko = p_aff > ko_thresh) %>%
