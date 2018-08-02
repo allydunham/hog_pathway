@@ -77,9 +77,14 @@ ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   mutate(condition = gsub('  ', ' ', condition)) %>% # Some conditions have double spaces in names
   mutate(name = if_else(is.na(name), gene, name))
 
-strain_combs <- combn(c('S288C', 'UWOP', 'Y55', 'YPS'), 2)
+conditions <- unique(ko_growth$condition)
+strains <- c('S288C', 'UWOP', 'Y55', 'YPS')
+
+strain_combs <- combn(strains, 2)
 strain_ko_scores <- sapply(unique(ko_growth$strain), split_strains, var='score', tbl=ko_growth, simplify = FALSE)
 strain_ko_qvalues <- sapply(unique(ko_growth$strain), split_strains, var='qvalue', tbl=ko_growth, simplify = FALSE)
+
+condition_combs <- combn(conditions, 2)
 
 # Get gens sig in at least n conditions
 sig_genes <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
@@ -194,6 +199,7 @@ plot_con_tsne <- function(str, tbl){
 
 p_codition_tsnes <- lapply(c('S288C', 'UWOP', 'YPS', 'Y55'), plot_con_tsne, tbl=condition_profiles)
 
+## Determine number of relavent genes for each strain in each condition
 condition_sensitivity <- ko_growth %>%
   filter(qvalue < 0.05) %>%
   select(strain, condition, name, score) %>%
@@ -204,6 +210,43 @@ condition_sensitivity <- ko_growth %>%
             Y55_sig_gene_count = sum(!is.na(Y55)),
             YPS_sig_gene_count = sum(!is.na(YPS)))
 write_tsv(condition_sensitivity, 'data/ko_condition_sensitivity.tsv')
+
+## Get overlap proportion of conditionally significant genes between conditions in each strain
+ko_growth_spread <- filter(ko_growth, qvalue < 0.01) %>%
+  select(strain, condition, name, score) %>%
+  spread(key = strain, value = score)
+
+get_overlap <- function(con1, con2, strain){
+  con1_genes <- filter(ko_growth_spread, condition == con1) %>% select(name, !!strain) %>% drop_na() %>% pull(name) %>% unique()
+  con2_genes <- filter(ko_growth_spread, condition == con2) %>% select(name, !!strain) %>% drop_na() %>% pull(name) %>% unique()
+  return(length(intersect(con1_genes, con2_genes))/((length(con1_genes) + length(con2_genes))/2))
+}
+
+get_overlap_pairs <- function(strain){
+  return(mapply(get_overlap, MoreArgs = list(strain = strain), condition_combs[1,], condition_combs[2,]))
+}
+
+con_gene_overlaps <- sapply(strains, function(strain){tibble(condition1=condition_combs[1,],
+                                                             condition2=condition_combs[2,],
+                                                             overlap=get_overlap_pairs(strain))}, simplify = FALSE) %>%
+  bind_rows(. ,.id='strain') %>%
+  spread(key = strain, value = overlap) %>%
+  unite(col = 'pair', remove = FALSE, condition1, condition2) %>%
+  filter(!condition1 == condition2) %>%
+  mutate(max = apply(select(., S288C:YPS), 1, max),
+         min = apply(select(., S288C:YPS), 1, min),
+         mean = apply(select(., S288C:YPS), 1, mean),
+         diff = max - mean)
+
+plotly_overlaps <- function(strain1, strain2){
+  return(ggplotly(ggplot(con_gene_overlaps, aes_string(x=strain1, y=strain2, text='pair')) +
+                    geom_point(size=0.5) + 
+                    geom_abline(intercept = 0, slope = 1, colour='firebrick2') +
+                    geom_abline(intercept = -0.2, slope = 1, colour='firebrick2', linetype=2) +
+                    geom_abline(intercept = 0.2, slope = 1, colour='firebrick2', linetype=2)))
+}
+
+subplot(mapply(plotly_overlaps, strain_combs[1,], strain_combs[2,], SIMPLIFY = FALSE), nrows = 2, titleX = TRUE, titleY = TRUE)
 
 ## Per gene correlation
 gene_ko_profile_cor <- group_by(gene_ko_profile, gene) %>%
@@ -347,4 +390,9 @@ odd_genes <- readRDS('data/Rdata/gene_ko_growth_full.rds') %>%
   drop_na() %>%
   mutate(sig_strains = (S288C_qvalue < 0.05) + (UWOP_qvalue < 0.05) + (Y55_qvalue < 0.05) + (YPS_qvalue < 0.05)) %>%
   filter(sig_strains == 3)
+
+## Genes causing a sig difference in opposite directions in strains
+ko_growth_spread_diff <- filter(ko_growth_spread, apply(sign(select(ko_growth_spread,S288C:YPS)), 1,
+                                                        function(x){!(min(x,na.rm = TRUE) == max(x, na.rm = TRUE))}))
+write_tsv(ko_growth_spread_diff, 'data/ko_gene_opposite_growth.tsv')
 
