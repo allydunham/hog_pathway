@@ -86,6 +86,15 @@ strain_ko_qvalues <- sapply(unique(ko_growth$strain), split_strains, var='qvalue
 
 condition_combs <- combn(conditions, 2)
 
+# Based on knowledge plus correlation of gene profiles accross different strains
+equiv_cons <- structure(c("2,4-Dichlorophenoxyacetic acid", "39ºC", "39ºC", "5-FU", "6-AU", "39ºC", "39ºC", "Acetic acid",
+                          "Amphotericin B", "Amphotericin B", "Anaerobic", "Cadmium chloride", "Caffeine", "Caffeine",
+                          "Caspofungin", "Caspofungin", "Clozapine", "Cyclohexamide", "DMSO", "Doxorubicin", "Glucose",
+                          "Glycerol", "Glycerol", "Maltose", "Maltose", "NaCl", "NaCl", "NaCl", "NaCl", "NaCl", "NaCl", "NaCl",
+                          "NiSO4", "Nitrogen starvation", "Nystatin", "Paraquat", "Paraquat", "SC + hepes", "Sorbitol", 
+                          "aa starvation"),
+                        names = conditions)
+
 # Get gens sig in at least n conditions
 sig_genes <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   mutate(name = if_else(is.na(name), gene, name)) %>%
@@ -188,17 +197,73 @@ condition_profiles <- select(gene_ko_profile, -num_strains) %>%
 
 condition_profiles[is.na(condition_profiles)] <- 0
 
-plot_con_tsne <- function(str, tbl){
+## Per strain condition tSNE
+per_strain_con_tsne <- function(str, tbl){
   tbl <- filter(tbl, strain == !!str) %>% select(-strain) %>% tbl_to_matrix(., 'condition')
   tsne <- Rtsne(tbl, perplexity=10)$Y %>%
     as_tibble() %>%
     rename(tSNE1=V1, tSNE2=V2) %>%
     mutate(condition = rownames(tbl))
-  return(plot_ly(tsne, x=~tSNE1, y=~tSNE2, text=~condition) %>% add_markers() %>% layout(title=str))
+  return(tsne)
 }
+condition_tsnes_df <- sapply(c('S288C', 'UWOP', 'YPS', 'Y55'), per_strain_con_tsne,
+                           tbl=select(condition_profiles, condition, strain, AAC1:ZWF1), simplify = FALSE) %>%
+  bind_rows(.id='strain')
 
-p_codition_tsnes <- lapply(c('S288C', 'UWOP', 'YPS', 'Y55'), plot_con_tsne, tbl=condition_profiles)
+p_condition_tsne_by_strain <- ggplot(condition_tsnes_df, aes(x=tSNE1, y=tSNE2, colour=strain, text=condition)) +
+  geom_point() +
+  facet_wrap(~strain, scales = 'free') +
+  guides(colour=FALSE)
+ggplotly(p_condition_tsne_by_strain)
 
+## Per strain condition tSNE
+per_strain_con_pca <- function(str, tbl){
+  tbl <- filter(tbl, strain == !!str) %>% select(-strain) %>% tbl_to_matrix(., 'condition')
+  pca <- prcomp(tbl)$x %>%
+    as_tibble(rownames='condition')
+  return(pca)
+}
+condition_pca_df <- sapply(c('S288C', 'UWOP', 'YPS', 'Y55'), per_strain_con_pca,
+                           tbl=select(condition_profiles, condition, strain, AAC1:ZWF1), simplify = FALSE) %>%
+  bind_rows(.id='strain')
+
+p_condition_pca_by_strain <- ggplot(condition_pca_df, aes(x=PC1, y=PC2, colour=strain, text=condition)) +
+  geom_point() +
+  facet_wrap(~strain) +
+  guides(colour=FALSE)
+ggplotly(p_condition_pca_by_strain)
+
+## Kmeans over all conditions
+condition_profiles %<>% mutate(cluster = kmeans(select(condition_profiles, AAC1:ZWF1), centers = 8, nstart = 5)$cluster,
+                               equiv_con = equiv_cons[condition])
+
+## All strains condition gene profile tSNE
+comb_tsne <- Rtsne(select(condition_profiles, condition, AAC1:ZWF1) %>% tbl_to_matrix(row = 'condition'))$Y %>%
+  as_tibble() %>%
+  rename(tSNE1=V1, tSNE2=V2) %>%
+  mutate(strain = condition_profiles$strain,
+         condition = condition_profiles$condition,
+         equiv_con = condition_profiles$equiv_con,
+         cluster = condition_profiles$cluster)
+
+plot_ly(comb_tsne, x=~tSNE1, y=~tSNE2, color=~strain, text=~condition) %>% add_markers()
+
+## All strains condition gene profile PCA
+con_profile_pca <- prcomp(select(condition_profiles, condition, AAC1:ZWF1) %>% tbl_to_matrix(row = 'condition'))$x %>%
+  as_tibble(rownames = 'condition') %>%
+  mutate(strain = condition_profiles$strain,
+         equiv_con = condition_profiles$equiv_con,
+         cluster = condition_profiles$cluster)
+
+subplot(plot_ly(con_profile_pca, x=~PC1, y=~PC2, color=~strain, text=~condition, type='scatter', mode='markers', legendgroup=~strain),
+        plot_ly(con_profile_pca, x=~PC3, y=~PC4, color=~strain, text=~condition, type='scatter', mode='markers', legendgroup=~strain, showlegend=FALSE),
+        plot_ly(con_profile_pca, x=~PC5, y=~PC6, color=~strain, text=~condition, type='scatter', mode='markers', legendgroup=~strain, showlegend=FALSE),
+        plot_ly(con_profile_pca, x=~PC7, y=~PC8, color=~strain, text=~condition, type='scatter', mode='markers', legendgroup=~strain, showlegend=FALSE),
+        nrows = 2, titleX = TRUE, titleY = TRUE)
+
+
+p_con_clusters <- ggplot(condition_profiles, aes(x=cluster, fill=equiv_con, text=condition)) + geom_bar() + facet_wrap(~strain)
+ggplotly(p_con_clusters)
 ## Determine number of relavent genes for each strain in each condition
 condition_sensitivity <- ko_growth %>%
   filter(qvalue < 0.05) %>%
