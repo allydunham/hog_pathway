@@ -227,7 +227,7 @@ condition_pca_df <- sapply(c('S288C', 'UWOP', 'YPS', 'Y55'), per_strain_con_pca,
                            tbl=select(condition_profiles, condition, strain, AAC1:ZWF1), simplify = FALSE) %>%
   bind_rows(.id='strain')
 
-p_condition_pca_by_strain <- ggplot(condition_pca_df, aes(x=PC1, y=PC2, colour=strain, text=condition)) +
+p_condition_pca_by_strain <- ggplot(condition_pca_df, aes(x=PC5, y=PC6, colour=strain, text=condition)) +
   geom_point() +
   facet_wrap(~strain) +
   guides(colour=FALSE)
