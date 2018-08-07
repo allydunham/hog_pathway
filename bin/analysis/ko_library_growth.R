@@ -9,8 +9,12 @@ library(ggdendro)
 library(dendextend)
 library(plotly)
 library(Rtsne)
+library(EMT)
 
-#### Functions ####
+#######################################################
+##################### Functions #######################
+#######################################################
+
 ## Turn tibble into a matrix with rownames from a column
 tbl_to_matrix <- function(x, row){
   mat <- as.matrix(select(x, -row))
@@ -64,7 +68,10 @@ get_sig <- function(item, sig_list){
   return(0)
 }
 
-#### Import and Process Data ####
+#######################################################
+############# Import and Process Data #################
+#######################################################
+
 genes <- readRDS('data/Rdata/gene_meta_all.rds')
 essential <- readRDS('data/Rdata/essential_genes.rds')
 essential_genes <- filter(essential, essential == 'E') %>% pull(locus)
@@ -76,6 +83,14 @@ ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   select(-position) %>%
   mutate(condition = gsub('  ', ' ', condition)) %>% # Some conditions have double spaces in names
   mutate(name = if_else(is.na(name), gene, name))
+
+ko_growth_spread <- filter(ko_growth, qvalue < 0.01) %>%
+  select(strain, condition, name, score) %>%
+  spread(key = strain, value = score)
+
+ko_growth_spread_all <- ko_growth %>%
+  select(strain, condition, name, score) %>%
+  spread(key = strain, value = score)
 
 conditions <- unique(ko_growth$condition)
 strains <- c('S288C', 'UWOP', 'Y55', 'YPS')
@@ -126,8 +141,11 @@ sig_genes_1 <- sig_genes %>%
   pull(name) %>%
   unique()
 
-#### Analysis ####
-## Dendograms
+#######################################################
+##################### Analysis ########################
+#######################################################
+######### By Condition ########
+#### Condition Dendograms ####
 strain_con_dends <- lapply(strain_ko_scores, get_dend)
 
 p_dend_list <- lapply(strain_con_dends, ggdendrogram, rotate=TRUE)
@@ -151,7 +169,7 @@ for (c in 1:dim(strain_combs)[2]){
 layout(matrix(1, nrow = 1))
 dev.off()
 
-## Correlations
+#### Condition-Condition Correlations ####
 strain_con_cors <- bind_rows(lapply(strain_ko_scores, get_cor), .id = 'strain') %>%
   arrange(strain, condition1, condition2) %>%
   spread(strain, cor) %>%
@@ -183,7 +201,7 @@ p_strain_cors_3d <- plot_ly(strain_con_cors, x=~S288C, y=~UWOP, z=~Y55, mode = '
                       yaxis = list(title = 'UWOP'),
                       zaxis = list(title = 'Y55')))
 
-## Determine conditions that are most deviant
+#### Conditions Clustering ####
 gene_ko_profile <- ko_growth %>%
   #  mutate(score = if_else(qvalue < 0.9, score, 0)) %>%
   select(-qvalue, -gene) %>%
@@ -216,7 +234,7 @@ p_condition_tsne_by_strain <- ggplot(condition_tsnes_df, aes(x=tSNE1, y=tSNE2, c
   guides(colour=FALSE)
 ggplotly(p_condition_tsne_by_strain)
 
-## Per strain condition tSNE
+## Per strain condition PCA
 per_strain_con_pca <- function(str, tbl){
   tbl <- filter(tbl, strain == !!str) %>% select(-strain) %>% tbl_to_matrix(., 'condition')
   pca <- prcomp(tbl)$x %>%
@@ -236,6 +254,9 @@ ggplotly(p_condition_pca_by_strain)
 ## Kmeans over all conditions
 condition_profiles %<>% mutate(cluster = kmeans(select(condition_profiles, AAC1:ZWF1), centers = 8, nstart = 5)$cluster,
                                equiv_con = equiv_cons[condition])
+
+p_con_clusters <- ggplot(condition_profiles, aes(x=cluster, fill=equiv_con, text=condition)) + geom_bar() + facet_wrap(~strain)
+ggplotly(p_con_clusters)
 
 ## All strains condition gene profile tSNE
 comb_tsne <- Rtsne(select(condition_profiles, condition, AAC1:ZWF1) %>% tbl_to_matrix(row = 'condition'))$Y %>%
@@ -261,10 +282,7 @@ subplot(plot_ly(con_profile_pca, x=~PC1, y=~PC2, color=~strain, text=~condition,
         plot_ly(con_profile_pca, x=~PC7, y=~PC8, color=~strain, text=~condition, type='scatter', mode='markers', legendgroup=~strain, showlegend=FALSE),
         nrows = 2, titleX = TRUE, titleY = TRUE)
 
-
-p_con_clusters <- ggplot(condition_profiles, aes(x=cluster, fill=equiv_con, text=condition)) + geom_bar() + facet_wrap(~strain)
-ggplotly(p_con_clusters)
-## Determine number of relavent genes for each strain in each condition
+#### Number of relavent genes for each strain in each condition ####
 condition_sensitivity <- ko_growth %>%
   filter(qvalue < 0.05) %>%
   select(strain, condition, name, score) %>%
@@ -276,11 +294,22 @@ condition_sensitivity <- ko_growth %>%
             YPS_sig_gene_count = sum(!is.na(YPS)))
 write_tsv(condition_sensitivity, 'data/ko_condition_sensitivity.tsv')
 
-## Get overlap proportion of conditionally significant genes between conditions in each strain
-ko_growth_spread <- filter(ko_growth, qvalue < 0.01) %>%
-  select(strain, condition, name, score) %>%
-  spread(key = strain, value = score)
+p_con_sens_bar <- condition_sensitivity %>%
+  rename(S288C = S288C_sig_gene_count,
+         UWOP = UWOP_sig_gene_count,
+         Y55 = Y55_sig_gene_count,
+         YPS = YPS_sig_gene_count) %>%
+  mutate(condition = factor(condition, levels = condition[order(.$S288C/(.$S288C + .$UWOP + .$Y55 + .$YPS))], ordered = TRUE)) %>%
+  gather(key = 'strain', value = 'sig_count', S288C:YPS) %>%
+  ggplot(., aes(x=condition, y=sig_count, fill=strain)) +
+  geom_col(position='fill') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ylab('Relative Number of Conditionally Significant Genes') + 
+  xlab('Condition') +
+  guides(fill = guide_legend(title = 'Strain'))
+ggsave('figures/ko_growth/relative_condition_sensitivity.pdf', p_con_sens_bar, width = 7, height = 5)
 
+#### Proportional Overlap of conditionally significant genes between conditions in each strain ####
 get_overlap <- function(con1, con2, strain){
   con1_genes <- filter(ko_growth_spread, condition == con1) %>% select(name, !!strain) %>% drop_na() %>% pull(name) %>% unique()
   con2_genes <- filter(ko_growth_spread, condition == con2) %>% select(name, !!strain) %>% drop_na() %>% pull(name) %>% unique()
@@ -313,7 +342,35 @@ plotly_overlaps <- function(strain1, strain2){
 
 subplot(mapply(plotly_overlaps, strain_combs[1,], strain_combs[2,], SIMPLIFY = FALSE), nrows = 2, titleX = TRUE, titleY = TRUE)
 
-## Per gene correlation
+
+######### By Gene ########
+#### Gene-Gene Correlations ####
+# Only use genes which are significant in 3 conditions
+strain_gene_cors <- bind_rows(lapply(sapply(unique(ko_growth$strain), split_strains, var='score', tbl=filter(ko_growth, name %in% sig_genes_3), 
+                                            col='condition', row='name', simplify = FALSE), 
+                                     get_cor, var='name'), .id = 'strain') %>%
+  rename(gene1 = name1, gene2 = name2) %>%
+  arrange(strain, gene1, gene2) %>%
+  spread(strain, cor) %>%
+  unite(col = 'pair', gene1, gene2, remove = FALSE)
+
+p_strain_gene_gene_cors <- mapply(function(x, y){
+  ggplot(strain_gene_cors, aes_string(x=x, y=y)) + 
+    geom_bin2d(bins=40) + 
+    geom_abline(intercept = 0, slope = 1, colour='firebrick2') +
+    geom_abline(intercept = -0.2, slope = 1, colour='firebrick2', linetype=2) +
+    geom_abline(intercept = 0.2, slope = 1, colour='firebrick2', linetype=2)
+}, 
+strain_combs[1,], strain_combs[2,], SIMPLIFY = FALSE)
+names(p_strain_gene_gene_cors) <- paste(strain_combs[1,], strain_combs[2,], sep='_')
+
+p_strain_gene_gene_cors_arr <- ggarrange(plotlist = p_strain_gene_gene_cors, ncol = 3, nrow = 2, common.legend = TRUE)
+ggsave('figures/ko_growth/strain_sig_gene_gene_cors_dens.pdf', p_strain_gene_gene_cors_arr, width = 7, height = 5)
+
+plotly_strain_gene_cors <- subplot(sapply(p_strain_gene_gene_cors, function(x){ggplotly(x, tooltip = c('pair'))}, simplify = FALSE),
+                                   nrows = 2, titleX = TRUE, titleY = TRUE, margin = c(0.05, 0.05, 0.07, 0.07))
+
+#### Per gene between strain correlation ####
 gene_ko_profile_cor <- group_by(gene_ko_profile, gene) %>%
   summarise(UWOP_S288C = cor(UWOP, S288C, use = 'na.or.complete'),
             UWOP_Y55 = cor(UWOP, Y55, use = 'na.or.complete'),
@@ -424,39 +481,29 @@ plot_ly(gene_strain_cor_tsne_df, x=~tsne1, y=~tsne2, color=~mean_cor, text=~gene
          xaxis = list(title = 'tSNE 1'),
          yaxis = list(title = 'tSNE 2'))
 
-# Only use genes which are significant in 3 conditions
-strain_gene_cors <- bind_rows(lapply(sapply(unique(ko_growth$strain), split_strains, var='score', tbl=filter(ko_growth, name %in% sig_genes_3), 
-                                            col='condition', row='name', simplify = FALSE), 
-                                     get_cor, var='name'), .id = 'strain') %>%
-  rename(gene1 = name1, gene2 = name2) %>%
-  arrange(strain, gene1, gene2) %>%
-  spread(strain, cor) %>%
-  unite(col = 'pair', gene1, gene2, remove = FALSE)
+#### Genes not required in one strain ####
+odd_genes <- group_by(ko_growth, condition) %>%
+  group_by(name, add = TRUE) %>%
+  filter(qvalue < 0.01) %>%
+  summarise(sig = n(),
+            pos = sum(score > 0),
+            neg = sum(score < 0),
+            gene = first(gene),
+            S288C_sig = 'S288C' %in% strain,
+            UWOP_sig = 'UWOP' %in% strain,
+            YPS_sig = 'YPS' %in% strain,
+            Y55_sig = 'Y55' %in% strain) %>%
+  filter(sig == 3, neg > 2) %>%
+  left_join(., ko_growth_spread_all) %>%
+  drop_na()
 
-p_strain_gene_gene_cors <- mapply(function(x, y){
-  ggplot(strain_gene_cors, aes_string(x=x, y=y)) + 
-    geom_bin2d(bins=40) + 
-    geom_abline(intercept = 0, slope = 1, colour='firebrick2') +
-    geom_abline(intercept = -0.2, slope = 1, colour='firebrick2', linetype=2) +
-    geom_abline(intercept = 0.2, slope = 1, colour='firebrick2', linetype=2)
-}, 
-strain_combs[1,], strain_combs[2,], SIMPLIFY = FALSE)
-names(p_strain_gene_gene_cors) <- paste(strain_combs[1,], strain_combs[2,], sep='_')
+num_outliers <- dim(odd_genes)[1] - colSums(select(ungroup(odd_genes), S288C_sig:Y55_sig))
+## Seems unlikely to have occured by chance
+binom_tests <- sapply(num_outliers, binom.test, n=dim(odd_genes)[1], p=0.25)
+multinom_test <- multinomial.test(num_outliers, rep(0.25, 4))
 
-p_strain_gene_gene_cors_arr <- ggarrange(plotlist = p_strain_gene_gene_cors, ncol = 3, nrow = 2, common.legend = TRUE)
-ggsave('figures/ko_growth/strain_sig_gene_gene_cors_dens.pdf', p_strain_gene_gene_cors_arr, width = 7, height = 5)
 
-plotly_strain_gene_cors <- subplot(sapply(p_strain_gene_gene_cors, function(x){ggplotly(x, tooltip = c('pair'))}, simplify = FALSE),
-                                   nrows = 2, titleX = TRUE, titleY = TRUE, margin = c(0.05, 0.05, 0.07, 0.07))
-
-## Genes not required in one
-odd_genes <- readRDS('data/Rdata/gene_ko_growth_full.rds') %>%
-  mutate(name = if_else(is.na(name), gene, name)) %>%
-  drop_na() %>%
-  mutate(sig_strains = (S288C_qvalue < 0.05) + (UWOP_qvalue < 0.05) + (Y55_qvalue < 0.05) + (YPS_qvalue < 0.05)) %>%
-  filter(sig_strains == 3)
-
-## Genes causing a sig difference in opposite directions in strains
+#### Genes with sig opposite effects ####
 ko_growth_spread_diff <- filter(ko_growth_spread, apply(sign(select(ko_growth_spread,S288C:YPS)), 1,
                                                         function(x){!(min(x,na.rm = TRUE) == max(x, na.rm = TRUE))}))
 write_tsv(ko_growth_spread_diff, 'data/ko_gene_opposite_growth.tsv')
