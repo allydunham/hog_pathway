@@ -68,6 +68,21 @@ get_sig <- function(item, sig_list){
   return(0)
 }
 
+# Determine genes significant in a condition
+get_sig_genes <- function(con, growth_tbl, threshold = 0.01){
+  gene <- growth_tbl %>%
+           filter(condition == con, qvalue < threshold) %>%
+           pull(name) %>%
+           table()
+  return(names(gene[gene > 1]))
+}
+
+#set all NA values to a generic value
+set_na <- function(x, val){
+  x[is.na(x)] <- 0
+  return(x)
+}
+
 #######################################################
 ############# Import and Process Data #################
 #######################################################
@@ -507,4 +522,23 @@ multinom_test <- multinomial.test(num_outliers, rep(0.25, 4))
 ko_growth_spread_diff <- filter(ko_growth_spread, apply(sign(select(ko_growth_spread,S288C:YPS)), 1,
                                                         function(x){!(min(x,na.rm = TRUE) == max(x, na.rm = TRUE))}))
 write_tsv(ko_growth_spread_diff, 'data/ko_gene_opposite_growth.tsv')
+
+
+#### Clustering Genes ####
+## Selecting a small group of genes
+cons_of_interest <- grep('NaCl', conditions, value = TRUE)
+
+genes_of_interest <- sapply(cons_of_interest, get_sig_genes, growth_tbl = ko_growth, threshold=0.001) %>%
+  unlist() %>%
+  unique() %>%
+  setdiff(., 'OPI9')
+
+ko_growth_filt <- filter(ko_growth, name %in% genes_of_interest)
+gene_profile_mat <- sapply(strains,
+                           function(x){split_strains(str=x, tbl=ko_growth_filt, row='name', col='condition', var='score') %>%
+                                            tbl_to_matrix(., row = 'name') %>%
+                                            set_na(., 0)},
+                           simplify = FALSE)
+
+heatmap.2(gene_profile_mat$Y55, col = colorRampPalette(c('red','white','blue'))(100), trace = 'none', margins = c(13,6), na.rm = TRUE)
 

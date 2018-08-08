@@ -69,52 +69,52 @@ sig_genes <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
 
 
 #### Analysis ####
-# strain_gene_cors <- bind_rows(lapply(sapply(unique(ko_growth$strain), split_strains, var='score', tbl=ko_growth, 
-#                                             col='condition', row='name', simplify = FALSE), 
-#                                      get_cor, var='name'), .id = 'strain') %>%
-#   rename(gene1 = name1, gene2 = name2) %>%
-#   arrange(strain, gene1, gene2) %>%
-#   spread(strain, cor) %>%
-#   unite(col = 'pair', gene1, gene2, remove = FALSE)
+strain_gene_cors <- bind_rows(lapply(sapply(unique(ko_growth$strain), split_strains, var='score', tbl=ko_growth,
+                                            col='condition', row='name', simplify = FALSE),
+                                     get_cor, var='name'), .id = 'strain') %>%
+  rename(gene1 = name1, gene2 = name2) %>%
+  arrange(strain, gene1, gene2) %>%
+  spread(strain, cor) %>%
+  unite(col = 'pair', gene1, gene2, remove = FALSE)
 
-# p_strain_gene_gene_cors <- mapply(function(x, y){
-#   ggplot(strain_gene_cors, aes_string(x=x, y=y)) +
-#     geom_point(size=0.3) +
-#     geom_abline(intercept = 0, slope = 1, colour='firebrick2') +
-#     geom_abline(intercept = -0.2, slope = 1, colour='firebrick2', linetype=2) +
-#     geom_abline(intercept = 0.2, slope = 1, colour='firebrick2', linetype=2)
-# },
-# strain_combs[1,], strain_combs[2,], SIMPLIFY = FALSE)
-# names(p_strain_gene_gene_cors) <- paste(strain_combs[1,], strain_combs[2,], sep='_')
-# 
-# p_strain_gene_gene_cors_arr <- ggarrange(plotlist = p_strain_gene_gene_cors, ncol = 3, nrow = 2, common.legend = TRUE)
-# ggsave('strain_gene_gene_cors_all.jpg', p_strain_gene_gene_cors_arr, width = 7, height = 5)
+p_strain_gene_gene_cors <- mapply(function(x, y){
+  ggplot(strain_gene_cors, aes_string(x=x, y=y)) +
+    geom_point(size=0.3) +
+    geom_abline(intercept = 0, slope = 1, colour='firebrick2') +
+    geom_abline(intercept = -0.2, slope = 1, colour='firebrick2', linetype=2) +
+    geom_abline(intercept = 0.2, slope = 1, colour='firebrick2', linetype=2)
+},
+strain_combs[1,], strain_combs[2,], SIMPLIFY = FALSE)
+names(p_strain_gene_gene_cors) <- paste(strain_combs[1,], strain_combs[2,], sep='_')
 
-# p_strain_gene_gene_cors_dens <- mapply(function(x, y){
-#   ggplot(strain_gene_cors, aes_string(x=x, y=y)) +
-#     geom_bin2d(bins=40) +
-#     geom_abline(intercept = 0, slope = 1, colour='firebrick2') +
-#     geom_abline(intercept = -0.2, slope = 1, colour='firebrick2', linetype=2) +
-#     geom_abline(intercept = 0.2, slope = 1, colour='firebrick2', linetype=2)
-# },
-# strain_combs[1,], strain_combs[2,], SIMPLIFY = FALSE)
-# names(p_strain_gene_gene_cors_dens) <- paste(strain_combs[1,], strain_combs[2,], sep='_')
-# 
-# p_strain_gene_gene_cors_dens_arr <- ggarrange(plotlist = p_strain_gene_gene_cors_dens, ncol = 3, nrow = 2, common.legend = TRUE)
-# ggsave('strain_gene_gene_cors_dens_all.jpg', p_strain_gene_gene_cors_dens_arr, width = 7, height = 5)
+p_strain_gene_gene_cors_arr <- ggarrange(plotlist = p_strain_gene_gene_cors, ncol = 3, nrow = 2, common.legend = TRUE)
+ggsave('strain_gene_gene_cors_all.jpg', p_strain_gene_gene_cors_arr, width = 7, height = 5)
 
-# p_strain_gene_gene_cors_contour <- mapply(function(x, y){
-#   ggplot(strain_gene_cors, aes_string(x=x, y=y)) +
-#     geom_density_2d() +
-#     geom_abline(intercept = 0, slope = 1, colour='firebrick2') +
-#     geom_abline(intercept = -0.2, slope = 1, colour='firebrick2', linetype=2) +
-#     geom_abline(intercept = 0.2, slope = 1, colour='firebrick2', linetype=2)
-# },
-# strain_combs[1,], strain_combs[2,], SIMPLIFY = FALSE)
-# names(p_strain_gene_gene_cors_contour) <- paste(strain_combs[1,], strain_combs[2,], sep='_')
-# 
-# p_strain_gene_gene_cors_contour_arr <- ggarrange(plotlist = p_strain_gene_gene_cors_contour, ncol = 3, nrow = 2, common.legend = TRUE)
-# ggsave('strain_gene_gene_cors_contour_all.jpg', p_strain_gene_gene_cors_contour_arr, width = 7, height = 5)
+p_strain_gene_gene_cors_dens <- mapply(function(x, y){
+  ggplot(strain_gene_cors, aes_string(x=x, y=y)) +
+    geom_bin2d(bins=40) +
+    geom_abline(intercept = 0, slope = 1, colour='firebrick2') +
+    geom_abline(intercept = -0.2, slope = 1, colour='firebrick2', linetype=2) +
+    geom_abline(intercept = 0.2, slope = 1, colour='firebrick2', linetype=2)
+},
+strain_combs[1,], strain_combs[2,], SIMPLIFY = FALSE)
+names(p_strain_gene_gene_cors_dens) <- paste(strain_combs[1,], strain_combs[2,], sep='_')
+
+p_strain_gene_gene_cors_dens_arr <- ggarrange(plotlist = p_strain_gene_gene_cors_dens, ncol = 3, nrow = 2, common.legend = TRUE)
+ggsave('strain_gene_gene_cors_dens_all.jpg', p_strain_gene_gene_cors_dens_arr, width = 7, height = 5)
+
+p_strain_gene_gene_cors_contour <- mapply(function(x, y){
+  ggplot(strain_gene_cors, aes_string(x=x, y=y)) +
+    geom_density_2d() +
+    geom_abline(intercept = 0, slope = 1, colour='firebrick2') +
+    geom_abline(intercept = -0.2, slope = 1, colour='firebrick2', linetype=2) +
+    geom_abline(intercept = 0.2, slope = 1, colour='firebrick2', linetype=2)
+},
+strain_combs[1,], strain_combs[2,], SIMPLIFY = FALSE)
+names(p_strain_gene_gene_cors_contour) <- paste(strain_combs[1,], strain_combs[2,], sep='_')
+
+p_strain_gene_gene_cors_contour_arr <- ggarrange(plotlist = p_strain_gene_gene_cors_contour, ncol = 3, nrow = 2, common.legend = TRUE)
+ggsave('strain_gene_gene_cors_contour_all.jpg', p_strain_gene_gene_cors_contour_arr, width = 7, height = 5)
 
 
 strain_gene_cors_mat <- filter(ko_growth, strain == 'S288C') %>%
