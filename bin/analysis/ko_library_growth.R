@@ -1,15 +1,19 @@
 # Script performing analying ko library growth
 setwd('~/Projects/hog/')
+library(gplots)
+library(Rtsne)
+library(EMT)
+library(gridGraphics)
+library(gridExtra)
+
 library(rlang)
 library(tidyverse)
 library(magrittr)
 library(ggpubr)
-library(gplots)
 library(ggdendro)
 library(dendextend)
 library(plotly)
-library(Rtsne)
-library(EMT)
+library(cowplot)
 
 #######################################################
 ##################### Functions #######################
@@ -81,6 +85,12 @@ get_sig_genes <- function(con, growth_tbl, threshold = 0.01){
 set_na <- function(x, val){
   x[is.na(x)] <- 0
   return(x)
+}
+
+# Extract grob
+grab_grob <- function(){
+  grid.echo()
+  grid.grab()
 }
 
 #######################################################
@@ -526,19 +536,126 @@ write_tsv(ko_growth_spread_diff, 'data/ko_gene_opposite_growth.tsv')
 
 #### Clustering Genes ####
 ## Selecting a small group of genes
-cons_of_interest <- grep('NaCl', conditions, value = TRUE)
+# Prelininary exploration with NaCl
+cons_of_interest <- grep('NaCl 0\\..M \\(', conditions, value = TRUE)
 
-genes_of_interest <- sapply(cons_of_interest, get_sig_genes, growth_tbl = ko_growth, threshold=0.001) %>%
+genes_of_interest <- sapply(cons_of_interest, get_sig_genes, growth_tbl = ko_growth, threshold=0.01) %>%
   unlist() %>%
   unique() %>%
-  setdiff(., 'OPI9')
+  setdiff(., c('OPI9', 'ARV1', 'YOR345C')) # Excluded because not tested in UWOP
 
-ko_growth_filt <- filter(ko_growth, name %in% genes_of_interest)
+ko_growth_filt <- filter(ko_growth, name %in% genes_of_interest, !condition == 'Maltose 2% (72H)') # Not tested in Y55
 gene_profile_mat <- sapply(strains,
                            function(x){split_strains(str=x, tbl=ko_growth_filt, row='name', col='condition', var='score') %>%
                                             tbl_to_matrix(., row = 'name') %>%
                                             set_na(., 0)},
                            simplify = FALSE)
 
-heatmap.2(gene_profile_mat$Y55, col = colorRampPalette(c('red','white','blue'))(100), trace = 'none', margins = c(13,6), na.rm = TRUE)
+gene_order <- as.dendrogram(hclust(dist(gene_profile_mat$S288C)))
+con_order <- as.dendrogram(hclust(dist(t(gene_profile_mat$S288C))))
+heatmap.2(gene_profile_mat$YPS, col = colorRampPalette(c('red','white','blue'))(100), trace = 'none', margins = c(13,6), na.rm = TRUE,
+          Rowv = gene_order)
 
+heatmap_grobs <- lapply(names(gene_profile_mat), function(x){
+  heatmap.2(gene_profile_mat[[x]],
+            col = colorRampPalette(c('red','white','blue'))(100),
+            trace = 'none',
+            margins = c(13,6),
+            na.rm = TRUE,
+            Rowv = gene_order,
+            Colv = con_order)
+  grab_grob()
+})
+
+grid.newpage()
+grid.arrange(grobs=heatmap_grobs, ncol=2, clip=TRUE)
+
+for (i in names(gene_profile_mat)){
+  rownames(gene_profile_mat[[i]]) <- paste(rownames(gene_profile_mat[[i]]), i, sep = '_')
+}
+
+gene_profile_mat_comb <- do.call(rbind, gene_profile_mat)
+heatmap.2(gene_profile_mat_comb, col = colorRampPalette(c('red','white','blue'))(100), trace = 'none', margins = c(13,6), na.rm = TRUE,
+          RowSideColors = c(rep('blue',20), rep('red',20), rep('green',20), rep('yellow',20)))
+
+## Generic function to give heatmaps for genes in a set of cons
+plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_strain='S288C'){
+  if (is.null(cons)){
+    cons <- unique(tbl$condition)
+  }
+  if (is.null(strains)){
+    strains <- unique(tbl$strain)
+  }
+  if (is.null(primary_strain) | !primary_strain %in% strains){
+    primary_strain <- strains[1]
+  }
+  
+  tbl <- filter(tbl, name %in% genes, condition %in% cons) %>%
+    select(strain, condition, name, score) %>%
+    spread(key = condition, value = score) %>%
+    gather(key = 'condition', value = 'score', -strain, -name)
+  
+  limits <- c(min(tbl$score), max(tbl$score))
+  
+  #### Plot heatmap faceted by strain
+  ## Determine ordering based on primary strain
+  mat <- split_strains(str=primary_strain, tbl=tbl, row='name', col='condition', var='score') %>%
+                     tbl_to_matrix(., row = 'name') %>%
+                     set_na(., 0)
+
+  gene_dend <- as.dendrogram(hclust(dist(mat)))
+  con_dend <- as.dendrogram(hclust(dist(t(mat))))
+  gene_order <- rownames(mat)[order.dendrogram(gene_dend)]
+  con_order <- colnames(mat)[order.dendrogram(con_dend)]
+  
+  tbl %<>% mutate(name = factor(name, levels = gene_order, ordered = TRUE),
+                  condition = factor(condition, levels = con_order, ordered = TRUE)) 
+  
+  p_prim_gene_dend <- ggdendrogram(gene_dend, rotate=TRUE)
+  p_prim_con_dend <- ggdendrogram(con_dend, rotate=TRUE)
+  
+  ## plot heatmap
+  p_strain_heatmaps <- ggplot(tbl, aes(x=condition, y=name, fill=score)) +
+    geom_raster() +
+    facet_wrap(~strain, ncol = 1) +
+    xlab('Condition') +
+    ylab('Gene') +
+    scale_fill_gradient2(low = 'firebrick2', high = 'cornflowerblue', limits=limits, na.value = 'black') +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    guides(fill=guide_colourbar(title = 'S-Score'))
+  
+  #### Plot general combined heatmap
+  ## Determine ordering
+  mat <- tbl %>% spread(key = condition, value = score) %>%
+    unite(col='name', strain, name) %>%
+    tbl_to_matrix(., row = 'name') %>%
+    set_na(., 0)
+  
+  gene_dend <- as.dendrogram(hclust(dist(mat)))
+  con_dend <- as.dendrogram(hclust(dist(t(mat))))
+  gene_order <- rownames(mat)[order.dendrogram(gene_dend)]
+  con_order <- colnames(mat)[order.dendrogram(con_dend)]
+  
+  tbl %<>% unite(col='unit', strain, name, remove = FALSE) %>%
+    mutate(name = factor(unit, levels = gene_order, ordered = TRUE),
+                  condition = factor(condition, levels = con_order, ordered = TRUE)) 
+  
+  p_all_gene_dend <- ggdendrogram(gene_dend, rotate=TRUE, labels = FALSE)
+  p_all_con_dend <- ggdendrogram(con_dend, labels = FALSE)
+  
+  ## Plot heatmap
+  p_all_heatmap <- ggplot(tbl, aes(x=condition, y=unit, fill=score)) +
+    geom_raster() +
+    xlab('Condition') +
+    ylab('Gene') +
+    scale_fill_gradient2(low = 'firebrick2', high = 'cornflowerblue', na.value = 'black') +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    guides(fill=guide_colourbar(title = 'S-Score'))
+  
+  return(list(strain_heatmap=p_strain_heatmaps,
+              strain_gene_dend=p_prim_gene_dend,
+              strain_condition_dend=p_prim_con_dend,
+              all_heatmap=p_all_heatmap,
+              all_gene_dend=p_all_gene_dend,
+              all_condition_dend=p_all_con_dend))
+}
