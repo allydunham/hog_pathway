@@ -534,52 +534,9 @@ ko_growth_spread_diff <- filter(ko_growth_spread, apply(sign(select(ko_growth_sp
 write_tsv(ko_growth_spread_diff, 'data/ko_gene_opposite_growth.tsv')
 
 
-#### Clustering Genes ####
-## Selecting a small group of genes
-# Prelininary exploration with NaCl
-cons_of_interest <- grep('NaCl 0\\..M \\(', conditions, value = TRUE)
-
-genes_of_interest <- sapply(cons_of_interest, get_sig_genes, growth_tbl = ko_growth, threshold=0.01) %>%
-  unlist() %>%
-  unique() %>%
-  setdiff(., c('OPI9', 'ARV1', 'YOR345C')) # Excluded because not tested in UWOP
-
-ko_growth_filt <- filter(ko_growth, name %in% genes_of_interest, !condition == 'Maltose 2% (72H)') # Not tested in Y55
-gene_profile_mat <- sapply(strains,
-                           function(x){split_strains(str=x, tbl=ko_growth_filt, row='name', col='condition', var='score') %>%
-                                            tbl_to_matrix(., row = 'name') %>%
-                                            set_na(., 0)},
-                           simplify = FALSE)
-
-gene_order <- as.dendrogram(hclust(dist(gene_profile_mat$S288C)))
-con_order <- as.dendrogram(hclust(dist(t(gene_profile_mat$S288C))))
-heatmap.2(gene_profile_mat$YPS, col = colorRampPalette(c('red','white','blue'))(100), trace = 'none', margins = c(13,6), na.rm = TRUE,
-          Rowv = gene_order)
-
-heatmap_grobs <- lapply(names(gene_profile_mat), function(x){
-  heatmap.2(gene_profile_mat[[x]],
-            col = colorRampPalette(c('red','white','blue'))(100),
-            trace = 'none',
-            margins = c(13,6),
-            na.rm = TRUE,
-            Rowv = gene_order,
-            Colv = con_order)
-  grab_grob()
-})
-
-grid.newpage()
-grid.arrange(grobs=heatmap_grobs, ncol=2, clip=TRUE)
-
-for (i in names(gene_profile_mat)){
-  rownames(gene_profile_mat[[i]]) <- paste(rownames(gene_profile_mat[[i]]), i, sep = '_')
-}
-
-gene_profile_mat_comb <- do.call(rbind, gene_profile_mat)
-heatmap.2(gene_profile_mat_comb, col = colorRampPalette(c('red','white','blue'))(100), trace = 'none', margins = c(13,6), na.rm = TRUE,
-          RowSideColors = c(rep('blue',20), rep('red',20), rep('green',20), rep('yellow',20)))
-
+#### Heatmaps of Genes of Interest ####
 ## Generic function to give heatmaps for genes in a set of cons
-plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_strain='S288C'){
+plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_strain='S288C', facet_cols=2, facet_rows=2){
   if (is.null(cons)){
     cons <- unique(tbl$condition)
   }
@@ -600,9 +557,9 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
   #### Plot heatmap faceted by strain
   ## Determine ordering based on primary strain
   mat <- split_strains(str=primary_strain, tbl=tbl, row='name', col='condition', var='score') %>%
-                     tbl_to_matrix(., row = 'name') %>%
-                     set_na(., 0)
-
+    tbl_to_matrix(., row = 'name') %>%
+    set_na(., 0)
+  
   gene_dend <- as.dendrogram(hclust(dist(mat)))
   con_dend <- as.dendrogram(hclust(dist(t(mat))))
   gene_order <- rownames(mat)[order.dendrogram(gene_dend)]
@@ -617,7 +574,7 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
   ## plot heatmap
   p_strain_heatmaps <- ggplot(tbl, aes(x=condition, y=name, fill=score)) +
     geom_raster() +
-    facet_wrap(~strain, ncol = 1) +
+    facet_wrap(~strain, ncol=facet_cols, nrow=facet_rows) +
     xlab('Condition') +
     ylab('Gene') +
     scale_fill_gradient2(low = 'firebrick2', high = 'cornflowerblue', limits=limits, na.value = 'black') +
@@ -637,11 +594,11 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
   con_order <- colnames(mat)[order.dendrogram(con_dend)]
   
   tbl %<>% unite(col='unit', strain, name, remove = FALSE) %>%
-    mutate(name = factor(unit, levels = gene_order, ordered = TRUE),
-                  condition = factor(condition, levels = con_order, ordered = TRUE)) 
+    mutate(unit = factor(unit, levels = gene_order, ordered = TRUE),
+           condition = factor(condition, levels = con_order, ordered = TRUE)) 
   
-  p_all_gene_dend <- ggdendrogram(gene_dend, rotate=TRUE, labels = FALSE)
-  p_all_con_dend <- ggdendrogram(con_dend, labels = FALSE)
+  p_all_gene_dend <- ggdendrogram(gene_dend, rotate=TRUE, labels = TRUE)
+  p_all_con_dend <- ggdendrogram(con_dend, labels = TRUE)
   
   ## Plot heatmap
   p_all_heatmap <- ggplot(tbl, aes(x=condition, y=unit, fill=score)) +
@@ -659,3 +616,29 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
               all_gene_dend=p_all_gene_dend,
               all_condition_dend=p_all_con_dend))
 }
+
+## NaCl
+nacl_cons <- grep('NaCl 0\\..M \\(', conditions, value = TRUE)
+nacl_genes <- sapply(nacl_cons, get_sig_genes, growth_tbl = ko_growth, threshold=0.01) %>%
+  unlist() %>%
+  unique() %>%
+  setdiff(., c('OPI9', 'ARV1', 'YOR345C')) # Excluded because not tested in UWOP
+
+nacl_plots <- plot_con_gene_heatmaps(ko_growth, nacl_genes)
+ggsave('figures/ko_growth/nacl_genes_strain_heatmaps.pdf', plot = nacl_plots$strain_heatmap, width = 13, height = 13)
+ggsave('figures/ko_growth/nacl_genes_full_heatmaps.pdf', plot = nacl_plots$all_heatmap, width = 13, height = 15)
+## Maltose/Glycerol
+malt_cons <- c('Maltose 2% (48H)', 'Maltose 2% (72H)', 'Glycerol 2% (48H)', 'Glycerol 2% (72H)')
+malt_genes <- sapply(malt_cons, get_sig_genes, growth_tbl = ko_growth, threshold=0.001) %>%
+  unlist() %>%
+  unique()
+
+malt_plots <- plot_con_gene_heatmaps(ko_growth, malt_genes, primary_strain = 'UWOP')
+ggsave('figures/ko_growth/malt_genes_strain_heatmaps.pdf', plot = malt_plots$strain_heatmap, width = 15, height = 17)
+ggsave('figures/ko_growth/malt_genes_full_heatmaps.pdf', plot = malt_plots$all_heatmap, width = 15, height = 30)
+
+## TODO
+# - better selection of gene sets
+# - literal gene sets
+
+#### Gene set analysis ####
