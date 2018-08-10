@@ -15,6 +15,7 @@ library(dendextend)
 library(plotly)
 library(cowplot)
 
+library(GSA)
 #######################################################
 ##################### Functions #######################
 #######################################################
@@ -83,7 +84,13 @@ get_sig_genes <- function(con, growth_tbl, threshold = 0.01){
 
 #set all NA values to a generic value
 set_na <- function(x, val){
-  x[is.na(x)] <- 0
+  x[is.na(x)] <- val
+  return(x)
+}
+
+#set all NA values to a generic value
+set_inf <- function(x, val){
+  x[is.infinite(x)] <- val
   return(x)
 }
 
@@ -565,8 +572,12 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
   gene_order <- rownames(mat)[order.dendrogram(gene_dend)]
   con_order <- colnames(mat)[order.dendrogram(con_dend)]
   
+  # Add any gene/cons not in the primary strain in a random order
+  gene_order <- c(gene_order, genes[!genes %in% gene_order])
+  con_order <- c(con_order, cons[!cons %in% con_order])
+  
   tbl %<>% mutate(name = factor(name, levels = gene_order, ordered = TRUE),
-                  condition = factor(condition, levels = con_order, ordered = TRUE)) 
+                  condition = factor(condition, levels = con_order, ordered = TRUE))
   
   p_prim_gene_dend <- ggdendrogram(gene_dend, rotate=TRUE)
   p_prim_con_dend <- ggdendrogram(con_dend, rotate=TRUE)
@@ -578,7 +589,7 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
     xlab('Condition') +
     ylab('Gene') +
     scale_fill_gradient2(low = 'firebrick2', high = 'cornflowerblue', limits=limits, na.value = 'black') +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
     guides(fill=guide_colourbar(title = 'S-Score'))
   
   #### Plot general combined heatmap
@@ -593,6 +604,10 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
   gene_order <- rownames(mat)[order.dendrogram(gene_dend)]
   con_order <- colnames(mat)[order.dendrogram(con_dend)]
   
+  # Add any gene/cons not in the primary strain in a random order
+  gene_order <- c(gene_order, genes[!genes %in% gene_order])
+  con_order <- c(con_order, cons[!cons %in% con_order])
+  
   tbl %<>% unite(col='unit', strain, name, remove = FALSE) %>%
     mutate(unit = factor(unit, levels = gene_order, ordered = TRUE),
            condition = factor(condition, levels = con_order, ordered = TRUE)) 
@@ -606,7 +621,7 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
     xlab('Condition') +
     ylab('Gene') +
     scale_fill_gradient2(low = 'firebrick2', high = 'cornflowerblue', na.value = 'black') +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
     guides(fill=guide_colourbar(title = 'S-Score'))
   
   return(list(strain_heatmap=p_strain_heatmaps,
@@ -617,6 +632,8 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
               all_condition_dend=p_all_con_dend))
 }
 
+# Version of ko_growth with non sig s-scores replaced with 0 to reduce heatmap noise
+ko_growth_sig <- mutate(ko_growth, score = if_else(qvalue < 0.01, score, 0))
 ## NaCl
 nacl_cons <- grep('NaCl 0\\..M \\(', conditions, value = TRUE)
 nacl_genes <- sapply(nacl_cons, get_sig_genes, growth_tbl = ko_growth, threshold=0.01) %>%
@@ -627,6 +644,10 @@ nacl_genes <- sapply(nacl_cons, get_sig_genes, growth_tbl = ko_growth, threshold
 nacl_plots <- plot_con_gene_heatmaps(ko_growth, nacl_genes)
 ggsave('figures/ko_growth/nacl_genes_strain_heatmaps.pdf', plot = nacl_plots$strain_heatmap, width = 13, height = 13)
 ggsave('figures/ko_growth/nacl_genes_full_heatmaps.pdf', plot = nacl_plots$all_heatmap, width = 13, height = 15)
+nacl_plots_sig <- plot_con_gene_heatmaps(ko_growth_sig, nacl_genes)
+ggsave('figures/ko_growth/nacl_genes_strain_heatmaps_no_noise.pdf', plot = nacl_plots_sig$strain_heatmap, width = 13, height = 13)
+ggsave('figures/ko_growth/nacl_genes_full_heatmaps_no_noise.pdf', plot = nacl_plots_sig$all_heatmap, width = 13, height = 15)
+
 ## Maltose/Glycerol
 malt_cons <- c('Maltose 2% (48H)', 'Maltose 2% (72H)', 'Glycerol 2% (48H)', 'Glycerol 2% (72H)')
 malt_genes <- sapply(malt_cons, get_sig_genes, growth_tbl = ko_growth, threshold=0.001) %>%
@@ -636,9 +657,61 @@ malt_genes <- sapply(malt_cons, get_sig_genes, growth_tbl = ko_growth, threshold
 malt_plots <- plot_con_gene_heatmaps(ko_growth, malt_genes, primary_strain = 'UWOP')
 ggsave('figures/ko_growth/malt_genes_strain_heatmaps.pdf', plot = malt_plots$strain_heatmap, width = 15, height = 17)
 ggsave('figures/ko_growth/malt_genes_full_heatmaps.pdf', plot = malt_plots$all_heatmap, width = 15, height = 30)
-
-## TODO
-# - better selection of gene sets
-# - literal gene sets
+malt_plots_sig <- plot_con_gene_heatmaps(ko_growth_sig, malt_genes, primary_strain = 'UWOP')
+ggsave('figures/ko_growth/malt_genes_strain_heatmaps_no_noise.pdf', plot = malt_plots_sig$strain_heatmap, width = 15, height = 17)
+ggsave('figures/ko_growth/malt_genes_full_heatmaps_no_noise.pdf', plot = malt_plots_sig$all_heatmap, width = 15, height = 30)
 
 #### Gene set analysis ####
+# Gene sets sourced from http://www.go2msig.org/cgi-bin/prebuilt.cgi?taxid=559292
+gene_sets_bp <- GSA.read.gmt('meta/cerevisiae_bp_go_gene_sets.gmt')
+gene_sets_mf <- GSA.read.gmt('meta/cerevisiae_mf_go_gene_sets.gmt')
+
+osmotic_genes <- gene_sets_bp$genesets[grep('osmo', gene_sets$geneset.names)] %>% unlist() %>% unique()
+osmo_plots <- plot_con_gene_heatmaps(ko_growth, osmotic_genes, primary_strain = 'UWOP')
+ggsave('figures/ko_growth/osmo_genes_strain_heatmaps.pdf', plot = osmo_plots$strain_heatmap, width = 20, height = 23)
+ggsave('figures/ko_growth/osmo_genes_full_heatmaps.pdf', plot = osmo_plots$all_heatmap, width = 20, height = 40)
+osmo_plots_sig <- plot_con_gene_heatmaps(ko_growth_sig, osmotic_genes, primary_strain = 'UWOP')
+ggsave('figures/ko_growth/osmo_genes_strain_heatmaps_no_noise.pdf', plot = osmo_plots_sig$strain_heatmap, width = 20, height = 23)
+ggsave('figures/ko_growth/osmo_genes_full_heatmaps_no_noise.pdf', plot = osmo_plots_sig$all_heatmap, width = 20, height = 40)
+
+heat_genes <- gene_sets_bp$genesets[grep('(temper|heat)', gene_sets_bp$geneset.names)] %>% unlist %>% unique
+heat_plots <- plot_con_gene_heatmaps(ko_growth, heat_genes)
+ggsave('figures/ko_growth/heat_genes_strain_heatmaps.pdf', plot = heat_plots$strain_heatmap, width = 15, height = 17)
+ggsave('figures/ko_growth/heat_genes_full_heatmaps.pdf', plot = heat_plots$all_heatmap, width = 15, height = 30)
+heat_plots_sig <- plot_con_gene_heatmaps(ko_growth_sig, heat_genes)
+ggsave('figures/ko_growth/heat_genes_strain_heatmaps_no_noise.pdf', plot = heat_plots_sig$strain_heatmap, width = 15, height = 17)
+ggsave('figures/ko_growth/heat_genes_full_heatmaps_no_noise.pdf', plot = heat_plots_sig$all_heatmap, width = 15, height = 30)
+
+
+gene_set_test <- function(set, con, tbl){
+  tbl %<>% filter(condition == con)
+  if (sum(tbl$name %in% set) > 0){
+    return(ks.test(filter(tbl, name %in% set) %>% pull(score), filter(tbl, !name %in% set) %>% pull(score))$p.value)
+  }
+  return(NA)
+}
+
+set_ks_tests <- expand.grid(1:length(gene_sets_bp$geneset.names), conditions) %>%
+  as_tibble() %>%
+  rename(gene_set_id = Var1, condition = Var2) %>%
+  mutate(gene_set_name = gene_sets_bp$geneset.names[gene_set_id],
+         p.val = mapply(function(x,y){gene_set_test(gene_sets_bp$genesets[[x]],y,ko_growth)}, gene_set_id, condition),
+         p.adj = p.adjust(p.val,method = 'fdr'))
+
+set_ks_tests_mat <- select(set_ks_tests, -gene_set_name, -p.val) %>%
+  mutate(p.adj = -log10(p.adj)) %>%
+  spread(key = condition, value = p.adj) %>%
+  tbl_to_matrix(., row = 'gene_set_id') %>%
+  set_na(., 0) %>%
+  set_inf(., 16)
+heatmap.2(set_ks_tests_mat, col = colorRampPalette(colors = c('white','red'))(100), trace = 'none', margins = c(13,3))
+
+test_genes <- gene_sets_bp$genesets[gene_sets_bp$geneset.names %in% c('DNA_repair(4)')] %>% unlist %>% unique
+test_plots <- plot_con_gene_heatmaps(ko_growth, test_genes)
+
+set_ks_tests <- expand.grid(1:length(gene_sets_bp$geneset.names), conditions) %>%
+  as_tibble() %>%
+  rename(gene_set_id = Var1, condition = Var2) %>%
+  mutate(gene_set_name = gene_sets_bp$geneset.names[gene_set_id],
+         p.val = mapply(function(x,y){gene_set_test(gene_sets_bp$genesets[[x]], y, ko_growth)}, gene_set_id, condition),
+         p.adj = p.adjust(p.val,method = 'fdr'))
