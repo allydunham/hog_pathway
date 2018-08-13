@@ -719,31 +719,80 @@ set_ks_tests <- expand.grid(1:length(gene_sets_bp$geneset.names), conditions) %>
          p.adj = p.adjust(p.val,method = 'fdr'))
 
 ### Gene set scores
-gene_sets_df <- tibble(name=unlist(gene_sets_bp$genesets),
-                       gene_set_bp=unlist(
-                                         sapply(1:length(gene_sets_bp$genesets),
-                                                function(i){rep(gene_sets_bp$geneset.names[i], length(gene_sets_bp$genesets[[i]]))}
-                                                )
-                                          )
-                       ) %>%
-  left_join(., select(ko_growth, strain, condition, name, score), by='name')
-
-gene_sets_df_sum <- group_by(gene_sets_df, gene_set_bp, strain, condition) %>%
-  summarise(mean_score = mean(score))
-
-## Compare known gene sets to random sets of genes in various forms
+# Compare known gene sets to random sets of genes in various forms
 genes <- unique(ko_growth$name)
-# Determine group size
+
+# Determine group sizes for random samples
 set_sizes <- sapply(gene_sets_bp$genesets, length)
+set_size_exp_fit <- fitdistr(set_sizes, 'exponential')
 
+hist(set_sizes, freq = FALSE)
+curve(dexp(x, rate = set_size_exp_fit$estimate), from = 0, to = 700, add = TRUE)
 
-# Selection functions
-select_random_genes <- function(num, tbl){
-  g <- sample(genes, num)
-  return(tbl %>% filter(name %in% g) %>% pull(score) %>% var())
+# functions
+range_span <- function(x, na.rm=TRUE){
+  r <- range(x)
+  if (is.infinite(r[1])){
+    return(NA)
+  } else{
+    return(range(x, na.rm=na.rm)[2] - range(x, na.rm=na.rm)[1])
+  }
 }
 
-gene_set_vars <- list(random_genes = replicate(100, select_random_genes()))
-  
-  
+apply_gene_score_fun <- function(genes, tbl){
+  tbl <- filter(tbl, name %in% genes)
+  none <- data_frame(var=var(tbl$score, na.rm = TRUE), range=range_span(tbl$score), mean=mean(tbl$score, na.rm = TRUE), median=median(tbl$score, na.rm = TRUE))
+  strain <- summarise(group_by(tbl, strain), var=var(score, na.rm = TRUE), range=range_span(score), mean=mean(score, na.rm = TRUE), median=median(score, na.rm = TRUE))
+  con <- summarise(group_by(tbl, condition), var=var(score, na.rm = TRUE), range=range_span(score), mean=mean(score, na.rm = TRUE), median=median(score, na.rm = TRUE))
+  strain_con <- summarise(group_by(tbl, strain, condition), var=var(score, na.rm = TRUE), range=range_span(score), mean=mean(score, na.rm = TRUE), median=median(score, na.rm = TRUE))
+  return(bind_rows(list(none=none, strain=strain, condition=con, strain_condition=strain_con), .id = 'subgroup'))
+}
+
+set_vars <- bind_rows(
+  list(
+    random_genes = bind_rows(
+                    sapply(
+                      replicate(1000, 
+                                sample(genes, max(rexp(1, rate = set_size_exp_fit$estimate), 5))
+                                ),
+                      apply_gene_score_fun,
+                      tbl=ko_growth,
+                      simplify = FALSE),
+                    .id = 'gene_set') %>%
+                    mutate(gene_set = paste0('randGroup', gene_set)),
+    gene_sets = bind_rows(
+                  sapply(
+                    gene_sets_bp$genesets,
+                    apply_gene_score_fun,
+                    tbl=ko_growth,
+                    simplify = FALSE),
+                  .id = 'gene_set') %>%
+                  mutate(gene_set = gene_sets_bp$geneset.names[as.integer(gene_set)])
+  ),
+  .id = 'type'
+) %>%
+  mutate(subgroup = factor(subgroup, levels = c('none', 'strain', 'condition', 'strain_condition'), ordered = TRUE),
+         type = factor(type, levels = c('random_genes', 'gene_sets'), ordered = TRUE))
+
+p_gene_set_var <- ggplot(set_vars, aes(x=subgroup, y=var, colour=type)) +
+    geom_boxplot() +
+    theme(axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45))
+
+p_gene_set_range <- ggplot(set_vars, aes(x=subgroup, y=range, colour=type)) +
+    geom_boxplot() +
+    theme(axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45))
+
+p_gene_set_mean <- ggplot(set_vars, aes(x=subgroup, y=mean, colour=type)) +
+    geom_boxplot() +
+    theme(axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45))
+
+p_gene_set_median <- ggplot(set_vars, aes(x=subgroup, y=median, colour=type)) +
+    geom_boxplot() +
+    theme(axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45))
+
+p_gene_set_mean_med <- ggplot(set_vars, aes(x=mean, y=median, colour=subgroup)) +
+    geom_point() +
+    theme(axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45)) +
+    geom_abline(intercept = 0, slope = 1) +
+    facet_wrap(facets = vars(type))
   
