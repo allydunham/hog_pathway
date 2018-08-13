@@ -5,6 +5,7 @@ library(Rtsne)
 library(EMT)
 library(gridGraphics)
 library(gridExtra)
+library(MASS)
 
 library(rlang)
 library(tidyverse)
@@ -634,6 +635,7 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
 
 # Version of ko_growth with non sig s-scores replaced with 0 to reduce heatmap noise
 ko_growth_sig <- mutate(ko_growth, score = if_else(qvalue < 0.01, score, 0))
+
 ## NaCl
 nacl_cons <- grep('NaCl 0\\..M \\(', conditions, value = TRUE)
 nacl_genes <- sapply(nacl_cons, get_sig_genes, growth_tbl = ko_growth, threshold=0.01) %>%
@@ -715,3 +717,33 @@ set_ks_tests <- expand.grid(1:length(gene_sets_bp$geneset.names), conditions) %>
   mutate(gene_set_name = gene_sets_bp$geneset.names[gene_set_id],
          p.val = mapply(function(x,y){gene_set_test(gene_sets_bp$genesets[[x]], y, ko_growth)}, gene_set_id, condition),
          p.adj = p.adjust(p.val,method = 'fdr'))
+
+### Gene set scores
+gene_sets_df <- tibble(name=unlist(gene_sets_bp$genesets),
+                       gene_set_bp=unlist(
+                                         sapply(1:length(gene_sets_bp$genesets),
+                                                function(i){rep(gene_sets_bp$geneset.names[i], length(gene_sets_bp$genesets[[i]]))}
+                                                )
+                                          )
+                       ) %>%
+  left_join(., select(ko_growth, strain, condition, name, score), by='name')
+
+gene_sets_df_sum <- group_by(gene_sets_df, gene_set_bp, strain, condition) %>%
+  summarise(mean_score = mean(score))
+
+## Compare known gene sets to random sets of genes in various forms
+genes <- unique(ko_growth$name)
+# Determine group size
+set_sizes <- sapply(gene_sets_bp$genesets, length)
+
+
+# Selection functions
+select_random_genes <- function(num, tbl){
+  g <- sample(genes, num)
+  return(tbl %>% filter(name %in% g) %>% pull(score) %>% var())
+}
+
+gene_set_vars <- list(random_genes = replicate(100, select_random_genes()))
+  
+  
+  
