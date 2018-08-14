@@ -6,6 +6,7 @@ library(EMT)
 library(gridGraphics)
 library(gridExtra)
 library(MASS)
+library(e1071)
 
 library(rlang)
 library(tidyverse)
@@ -95,6 +96,12 @@ set_inf <- function(x, val){
   return(x)
 }
 
+#set all NaN values to a generic value
+set_nan <- function(x, val){
+  x[is.nan(x)] <- val
+  return(x)
+}
+
 # Extract grob
 grab_grob <- function(){
   grid.echo()
@@ -127,6 +134,7 @@ ko_growth_spread_all <- ko_growth %>%
 
 conditions <- unique(ko_growth$condition)
 strains <- c('S288C', 'UWOP', 'Y55', 'YPS')
+genes <- unique(ko_growth$name)
 
 strain_combs <- combn(strains, 2)
 strain_ko_scores <- sapply(unique(ko_growth$strain), split_strains, var='score', tbl=ko_growth, simplify = FALSE)
@@ -666,7 +674,11 @@ ggsave('figures/ko_growth/malt_genes_full_heatmaps_no_noise.pdf', plot = malt_pl
 #### Gene set analysis ####
 # Gene sets sourced from http://www.go2msig.org/cgi-bin/prebuilt.cgi?taxid=559292
 gene_sets_bp <- GSA.read.gmt('meta/cerevisiae_bp_go_gene_sets.gmt')
+names(gene_sets_bp$genesets) <- gene_sets_bp$geneset.names
+gene_sets_bp_filt <- gene_sets_bp$genesets[sapply(gene_sets_bp$genesets, function(x){sum(x %in% genes) > 5})]
+
 gene_sets_mf <- GSA.read.gmt('meta/cerevisiae_mf_go_gene_sets.gmt')
+names(gene_sets_mf$genesets) <- gene_sets_mf$geneset.names
 
 osmotic_genes <- gene_sets_bp$genesets[grep('osmo', gene_sets$geneset.names)] %>% unlist() %>% unique()
 osmo_plots <- plot_con_gene_heatmaps(ko_growth, osmotic_genes, primary_strain = 'UWOP')
@@ -684,11 +696,19 @@ heat_plots_sig <- plot_con_gene_heatmaps(ko_growth_sig, heat_genes)
 ggsave('figures/ko_growth/heat_genes_strain_heatmaps_no_noise.pdf', plot = heat_plots_sig$strain_heatmap, width = 15, height = 17)
 ggsave('figures/ko_growth/heat_genes_full_heatmaps_no_noise.pdf', plot = heat_plots_sig$all_heatmap, width = 15, height = 30)
 
+aa_genes <- c(grep('amino_acid_biosynthetic',names(gene_sets_bp_filt),value = TRUE),
+              "methionine_biosynthetic_process(7)",
+              "glutamate_biosynthetic_process(8)",
+              "arginine_biosynthetic_process(8)")
+aa_genes <- gene_sets_bp_filt[aa_genes] %>% unlist() %>% unname() %>% unique()
+aa_plots <- plot_con_gene_heatmaps(ko_growth, aa_genes)
+ggsave('figures/ko_growth/aa_genes_strain_heatmaps.pdf', plot = aa_plots$strain_heatmap, width = 15, height = 23)
+
 
 gene_set_test <- function(set, con, tbl){
   tbl %<>% filter(condition == con)
   if (sum(tbl$name %in% set) > 0){
-    return(ks.test(filter(tbl, name %in% set) %>% pull(score), filter(tbl, !name %in% set) %>% pull(score))$p.value)
+    return(ks.test(filter(tbl, name %in% set)$score, filter(tbl, !name %in% set)$score)$p.value)
   }
   return(NA)
 }
@@ -711,17 +731,8 @@ heatmap.2(set_ks_tests_mat, col = colorRampPalette(colors = c('white','red'))(10
 test_genes <- gene_sets_bp$genesets[gene_sets_bp$geneset.names %in% c('DNA_repair(4)')] %>% unlist %>% unique
 test_plots <- plot_con_gene_heatmaps(ko_growth, test_genes)
 
-set_ks_tests <- expand.grid(1:length(gene_sets_bp$geneset.names), conditions) %>%
-  as_tibble() %>%
-  rename(gene_set_id = Var1, condition = Var2) %>%
-  mutate(gene_set_name = gene_sets_bp$geneset.names[gene_set_id],
-         p.val = mapply(function(x,y){gene_set_test(gene_sets_bp$genesets[[x]], y, ko_growth)}, gene_set_id, condition),
-         p.adj = p.adjust(p.val,method = 'fdr'))
-
 ### Gene set scores
 # Compare known gene sets to random sets of genes in various forms
-genes <- unique(ko_growth$name)
-
 # Determine group sizes for random samples
 set_sizes <- sapply(gene_sets_bp$genesets, length)
 set_size_exp_fit <- fitdistr(set_sizes, 'exponential')
@@ -739,13 +750,27 @@ range_span <- function(x, na.rm=TRUE){
   }
 }
 
+summarise_gene_set <- function(tbl){
+  return(summarise(tbl,
+                   var=var(score, na.rm = TRUE),
+                   range=range_span(score), mean=mean(score, na.rm = TRUE),
+                   median=median(score, na.rm = TRUE),
+                   skew=skewness(score, na.rm = TRUE),
+                   max=max(score, na.rm = TRUE),
+                   min=min(score, na.rm = TRUE),
+                   sig_mean=mean(score[qvalue < 0.01], na.rm = TRUE),
+                   abs_mean=mean(abs(score), na.rm = TRUE)))
+}
+
 apply_gene_score_fun <- function(genes, tbl){
   tbl <- filter(tbl, name %in% genes)
-  none <- data_frame(var=var(tbl$score, na.rm = TRUE), range=range_span(tbl$score), mean=mean(tbl$score, na.rm = TRUE), median=median(tbl$score, na.rm = TRUE))
-  strain <- summarise(group_by(tbl, strain), var=var(score, na.rm = TRUE), range=range_span(score), mean=mean(score, na.rm = TRUE), median=median(score, na.rm = TRUE))
-  con <- summarise(group_by(tbl, condition), var=var(score, na.rm = TRUE), range=range_span(score), mean=mean(score, na.rm = TRUE), median=median(score, na.rm = TRUE))
-  strain_con <- summarise(group_by(tbl, strain, condition), var=var(score, na.rm = TRUE), range=range_span(score), mean=mean(score, na.rm = TRUE), median=median(score, na.rm = TRUE))
-  return(bind_rows(list(none=none, strain=strain, condition=con, strain_condition=strain_con), .id = 'subgroup'))
+  
+  none <- summarise_gene_set(tbl)
+  strain <- summarise_gene_set(group_by(tbl, strain))
+  con <- summarise_gene_set(group_by(tbl, condition))
+  strain_con <- summarise_gene_set(group_by(tbl, strain, condition))
+  
+  return(mutate(bind_rows(list(none=none, strain=strain, condition=con, strain_condition=strain_con), .id = 'subgroup'), set_size=length(genes)))
 }
 
 set_vars <- bind_rows(
@@ -762,37 +787,74 @@ set_vars <- bind_rows(
                     mutate(gene_set = paste0('randGroup', gene_set)),
     gene_sets = bind_rows(
                   sapply(
-                    gene_sets_bp$genesets,
+                    gene_sets_bp_filt,
                     apply_gene_score_fun,
                     tbl=ko_growth,
                     simplify = FALSE),
-                  .id = 'gene_set') %>%
-                  mutate(gene_set = gene_sets_bp$geneset.names[as.integer(gene_set)])
+                  .id = 'gene_set')
   ),
   .id = 'type'
 ) %>%
   mutate(subgroup = factor(subgroup, levels = c('none', 'strain', 'condition', 'strain_condition'), ordered = TRUE),
          type = factor(type, levels = c('random_genes', 'gene_sets'), ordered = TRUE))
 
-p_gene_set_var <- ggplot(set_vars, aes(x=subgroup, y=var, colour=type)) +
-    geom_boxplot() +
-    theme(axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45))
+p_gene_set_boxes <- sapply(c('var', 'range', 'mean', 'median', 'skew', 'min', 'max', 'sig_mean', 'abs_mean'),
+                           function(x){ggplot(set_vars, aes_string(x='subgroup', y=x, colour='type')) +
+                                        geom_boxplot() +
+                                        theme(axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45))},
+                           simplify = FALSE)
 
-p_gene_set_range <- ggplot(set_vars, aes(x=subgroup, y=range, colour=type)) +
-    geom_boxplot() +
-    theme(axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45))
+p_gene_set_scatters <- sapply(list(mean_med=c('mean','median'), min_max=c('min', 'max'), size_var=c('set_size', 'var'), sigmean_mean=c('mean','sig_mean')),
+                              function(x){ggplot(set_vars, aes_string(x=x[1], y=x[2], colour='subgroup')) + 
+                                            geom_point() +
+                                            facet_wrap(facets = vars(type))},
+                              simplify = FALSE)
 
-p_gene_set_mean <- ggplot(set_vars, aes(x=subgroup, y=mean, colour=type)) +
-    geom_boxplot() +
-    theme(axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45))
+set_mat <- set_vars %>%
+  filter(type == 'gene_sets', subgroup == 'condition', set_size > 10) %>%
+  select(gene_set, abs_mean, condition) %>%
+  spread(key = condition, value = abs_mean) %>%
+  tbl_to_matrix(., row = 'gene_set')
 
-p_gene_set_median <- ggplot(set_vars, aes(x=subgroup, y=median, colour=type)) +
-    geom_boxplot() +
-    theme(axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45))
+pdf('figures/ko_growth/gene_set_abs_mean_sscore_heatmap.pdf', width = 20, height = 20)
+heatmap.2(set_mat, trace = 'none', col = colorRampPalette(c('white','red'))(100), margins = c(13,5), labRow = '')
+dev.off()
 
-p_gene_set_mean_med <- ggplot(set_vars, aes(x=mean, y=median, colour=subgroup)) +
-    geom_point() +
-    theme(axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45)) +
-    geom_abline(intercept = 0, slope = 1) +
-    facet_wrap(facets = vars(type))
-  
+set_con_summary <- set_vars %>% 
+  filter(type == 'gene_sets', subgroup=='condition') %>%
+  group_by(gene_set) %>%
+  summarise(ind = which.max(abs_mean),
+            condition=condition[ind],
+            max_abs_mean=abs_mean[ind],
+            max_mean = mean[ind],
+            max_var = var[ind],
+            enrich_abs_mean=max_abs_mean/mean(abs_mean),
+            enrich_mean=max_mean/mean(mean),
+            enrich_var=max_var/mean(var))
+
+set_str_con_summary <- set_vars %>% 
+  filter(type == 'gene_sets', subgroup=='strain_condition') %>%
+  group_by(gene_set, strain) %>%
+  summarise(ind = which.max(abs_mean),
+            condition=condition[ind],
+            max_abs_mean=abs_mean[ind],
+            max_mean = mean[ind],
+            max_var = var[ind],
+            enrich_abs_mean=max_abs_mean/mean(abs_mean),
+            enrich_mean=max_mean/mean(mean),
+            enrich_var=max_var/mean(var))
+
+## Bigger differentiation between gene sets effect in most impactful strain than average in S288C
+p_mean_enrich <- ggplot(set_str_con_summary, aes(x=strain, y=enrich_abs_mean)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(hjust = 1, vjust = 0.5, angle = 90)) +
+  geom_hline(yintercept = 1)
+p_mean_enrich_per_con <- ggplot(set_str_con_summary, aes(x=condition, y=enrich_abs_mean, colour=strain)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(hjust = 1, vjust = 0.5, angle = 90)) +
+  geom_hline(yintercept = 1)
+ggsave('figures/ko_growth/abs_mean_enrichment_of_most_impacted_con.pdf',
+       ggarrange(p_mean_enrich, p_mean_enrich_per_con,
+                 nrow = 1, ncol = 2, widths = c(1,4),align = 'hv'),
+       width = 20, height = 10)
+
