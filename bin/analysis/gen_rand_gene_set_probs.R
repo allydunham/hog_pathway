@@ -2,7 +2,6 @@
 library(rlang)
 library(tidyverse)
 library(magrittr)
-library(broom)
 
 sig_thresh <- 0.01
 num_genes_per_set <- 100
