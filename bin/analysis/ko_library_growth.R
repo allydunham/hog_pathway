@@ -11,6 +11,7 @@ library(e1071)
 library(rlang)
 library(tidyverse)
 library(magrittr)
+library(broom)
 library(ggpubr)
 library(ggdendro)
 library(dendextend)
@@ -28,7 +29,16 @@ tbl_to_matrix <- function(x, row){
   rownames(mat) <- pull(x, !!row)
   return(mat)
 }
-  
+
+## Extract a list of variables by group from a data frame
+tbl_var_to_list <- function(tbl, var, group=NULL){
+  if (is.null(group)){
+    group <- group_vars(tbl)[1]
+  }
+  items <- pull(tbl, !!var)
+  labs <- pull(tbl, !!group)
+  sapply(unique(labs), function(x){items[labs == x]}, simplify = FALSE)
+}
 
 ## Split ko_growth tibble into subtable of a strain giving a variable spread over gene or condition
 # Does not apply sorting because ko_scores tsv comes sorted
@@ -671,6 +681,38 @@ malt_plots_sig <- plot_con_gene_heatmaps(ko_growth_sig, malt_genes, primary_stra
 ggsave('figures/ko_growth/malt_genes_strain_heatmaps_no_noise.pdf', plot = malt_plots_sig$strain_heatmap, width = 15, height = 17)
 ggsave('figures/ko_growth/malt_genes_full_heatmaps_no_noise.pdf', plot = malt_plots_sig$all_heatmap, width = 15, height = 30)
 
+#### KO growth distances ####
+ko_dists <- ko_growth_spread_all %>%
+  mutate(S288C_UWOP = abs(S288C - UWOP),
+         S288C_YPS = abs(S288C - YPS),
+         S288C_Y55 = abs(S288C - Y55),
+         Y55_UWOP = abs(Y55 - UWOP),
+         YPS_UWOP = abs(YPS - UWOP),
+         YPS_Y55 = abs(YPS - Y55))
+
+p_dists <- ggplot(gather(ko_dists, key = 'pair', value = 'score_dist', S288C_UWOP:YPS_Y55), aes(x=pair, y=score_dist, colour=pair)) +
+  geom_boxplot() +
+  facet_wrap(~condition) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+
+p_dists_scatters <- ggpairs(ko_dists, columns = 3:8)
+
+ko_dists_sum <- gather(ko_dists, key = 'pair', value = 'score_dist', S288C_UWOP:YPS_Y55) %>%
+  group_by(condition, name) %>%
+  summarise(mean_dist=mean(score_dist, na.rm = TRUE),
+            max_dist=max(score_dist, na.rm = TRUE),
+            min_dist=min(score_dist, na.rm = TRUE),
+            num_large=sum(score_dist > 3, na.rm = TRUE),
+            var_dist=var(score_dist, na.rm = TRUE),
+            range=max_dist - min_dist,
+            na_count=sum(is.na(score_dist)))
+
+top_diff_genes <- filter(ko_dists_sum, na_count < 4, num_large > 2) %>%
+  top_n(20, wt = mean_dist) %>%
+  tbl_var_to_list(., 'name')
+
+p <- plot_con_gene_heatmaps(ko_growth, top_diff_genes$`NaCl 0.6M (48H)`)
+
 #### Gene set analysis ####
 # Gene sets sourced from http://www.go2msig.org/cgi-bin/prebuilt.cgi?taxid=559292
 gene_sets_bp <- GSA.read.gmt('meta/cerevisiae_bp_go_gene_sets.gmt')
@@ -773,18 +815,16 @@ apply_gene_score_fun <- function(genes, tbl){
   return(mutate(bind_rows(list(none=none, strain=strain, condition=con, strain_condition=strain_con), .id = 'subgroup'), set_size=length(genes)))
 }
 
+random_gene_sets <- replicate(1000, sample(genes, max(rexp(1, rate = set_size_exp_fit$estimate), 5)))
+names(random_gene_sets) <- paste0('randGroup', 1:length(random_gene_sets))
 set_vars <- bind_rows(
   list(
     random_genes = bind_rows(
-                    sapply(
-                      replicate(1000, 
-                                sample(genes, max(rexp(1, rate = set_size_exp_fit$estimate), 5))
-                                ),
+                    sapply(random_gene_sets,
                       apply_gene_score_fun,
                       tbl=ko_growth,
                       simplify = FALSE),
-                    .id = 'gene_set') %>%
-                    mutate(gene_set = paste0('randGroup', gene_set)),
+                    .id = 'gene_set'),
     gene_sets = bind_rows(
                   sapply(
                     gene_sets_bp_filt,
@@ -857,4 +897,34 @@ ggsave('figures/ko_growth/abs_mean_enrichment_of_most_impacted_con.pdf',
        ggarrange(p_mean_enrich, p_mean_enrich_per_con,
                  nrow = 1, ncol = 2, widths = c(1,4),align = 'hv'),
        width = 20, height = 10)
+
+## Test number of sig genes in real vs random sets
+gs <- gene_sets_bp_filt
+gene_set_lengths <- sapply(gs, length)
+set_strain_con_num_sig <- data_frame(gene_set = rep(names(gs), gene_set_lengths),
+                                   name = unname(unlist(gs)),
+                                   set_size = rep(gene_set_lengths, gene_set_lengths)) %>%
+  left_join(., ko_growth, by='name') %>%
+  mutate(abs_score = abs(score)) %>%
+  group_by(strain, condition, gene_set) %>%
+  summarise(set_size=first(set_size),
+            n_sig = sum(qvalue < 0.01, na.rm = TRUE),
+            prop_sig = n_sig/set_size)
+
+
+## Determine expected number of significant genes for a set of size n in given strain/condition
+random_gene_sets <- lapply(unique(gene_set_lengths), function(x){replicate(10, sample(genes, x), simplify = FALSE)}) %>% unlist(recursive = FALSE)
+names(random_gene_sets) <- paste0('randGroup', 1:length(random_gene_sets))
+random_set_lengths <- sapply(random_gene_sets, length)
+random_strain_con_num_sig <- data_frame(gene_set = rep(names(random_gene_sets), random_set_lengths),
+                                     name = unname(unlist(random_gene_sets)),
+                                     set_size = rep(random_set_lengths, random_set_lengths)) %>%
+  left_join(., ko_growth, by='name') %>%
+  mutate(abs_score = abs(score)) %>%
+  group_by(strain, condition, gene_set) %>%
+  summarise(set_size=first(set_size),
+            n_sig = sum(qvalue < 0.01, na.rm = TRUE),
+            prop_sig = n_sig/set_size) %>%
+  group_by(set_size, add = TRUE) %>%
+  summarise(mean_sig = mean(n_sig))
 
