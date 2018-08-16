@@ -1,3 +1,5 @@
+#### DEPRECIATED ####
+## Easier to determine analytically via proportions than via simulation
 ### Script to generate a set of random gene sets and determine the expected number of sig genes in each strain/condition
 library(rlang)
 library(tidyverse)

@@ -12,6 +12,7 @@ library(rlang)
 library(tidyverse)
 library(magrittr)
 library(broom)
+library(GGally)
 library(ggpubr)
 library(ggdendro)
 library(dendextend)
@@ -711,7 +712,8 @@ top_diff_genes <- filter(ko_dists_sum, na_count < 4, num_large > 2) %>%
   top_n(20, wt = mean_dist) %>%
   tbl_var_to_list(., 'name')
 
-p <- plot_con_gene_heatmaps(ko_growth, top_diff_genes$`NaCl 0.6M (48H)`)
+p_heat <- plot_con_gene_heatmaps(ko_growth, top_diff_genes$`39ºC (72H)`)
+ggsave('figures/ko_growth/diff_heat_genes_strain_heatmap.pdf', p_heat$strain_heatmap, width = 12, height = 14)
 
 #### Gene set analysis ####
 # Gene sets sourced from http://www.go2msig.org/cgi-bin/prebuilt.cgi?taxid=559292
@@ -755,12 +757,13 @@ gene_set_test <- function(set, con, tbl){
   return(NA)
 }
 
-set_ks_tests <- expand.grid(1:length(gene_sets_bp$geneset.names), conditions) %>%
-  as_tibble() %>%
-  rename(gene_set_id = Var1, condition = Var2) %>%
-  mutate(gene_set_name = gene_sets_bp$geneset.names[gene_set_id],
-         p.val = mapply(function(x,y){gene_set_test(gene_sets_bp$genesets[[x]],y,ko_growth)}, gene_set_id, condition),
-         p.adj = p.adjust(p.val,method = 'fdr'))
+# set_ks_tests <- expand.grid(1:length(gene_sets_bp$geneset.names), conditions) %>%
+#   as_tibble() %>%
+#   rename(gene_set_id = Var1, condition = Var2) %>%
+#   mutate(gene_set_name = gene_sets_bp$geneset.names[gene_set_id],
+#          p.val = mapply(function(x,y){gene_set_test(gene_sets_bp$genesets[[x]],y,ko_growth)}, gene_set_id, condition),
+#          p.adj = p.adjust(p.val,method = 'fdr'))
+saveRDS(set_ks_tests, 'data/Rdata/gene_set_condition_ks_tests.RDS')
 
 set_ks_tests_mat <- select(set_ks_tests, -gene_set_name, -p.val) %>%
   mutate(p.adj = -log10(p.adj)) %>%
@@ -843,12 +846,16 @@ p_gene_set_boxes <- sapply(c('var', 'range', 'mean', 'median', 'skew', 'min', 'm
                                         geom_boxplot() +
                                         theme(axis.text.x = element_text(hjust = 1, vjust = 1, angle = 45))},
                            simplify = FALSE)
+p_gene_set_boxes_arr <- ggarrange(plotlist = p_gene_set_boxes, common.legend = TRUE)
+ggsave('figures/ko_growth/gene_set_stats_boxes.pdf', p_gene_set_boxes_arr, width=14, height = 14)
 
 p_gene_set_scatters <- sapply(list(mean_med=c('mean','median'), min_max=c('min', 'max'), size_var=c('set_size', 'var'), sigmean_mean=c('mean','sig_mean')),
                               function(x){ggplot(set_vars, aes_string(x=x[1], y=x[2], colour='subgroup')) + 
                                             geom_point() +
                                             facet_wrap(facets = vars(type))},
                               simplify = FALSE)
+p_gene_set_scatters_arr <- ggarrange(plotlist = p_gene_set_scatters, common.legend = TRUE)
+ggsave('figures/ko_growth/gene_set_stats_scatters.jpg', p_gene_set_scatters_arr, width = 14, height = 14)
 
 set_mat <- set_vars %>%
   filter(type == 'gene_sets', subgroup == 'condition', set_size > 10) %>%
@@ -913,18 +920,24 @@ set_strain_con_num_sig <- data_frame(gene_set = rep(names(gs), gene_set_lengths)
 
 
 ## Determine expected number of significant genes for a set of size n in given strain/condition
-random_gene_sets <- lapply(unique(gene_set_lengths), function(x){replicate(10, sample(genes, x), simplify = FALSE)}) %>% unlist(recursive = FALSE)
-names(random_gene_sets) <- paste0('randGroup', 1:length(random_gene_sets))
-random_set_lengths <- sapply(random_gene_sets, length)
-random_strain_con_num_sig <- data_frame(gene_set = rep(names(random_gene_sets), random_set_lengths),
-                                     name = unname(unlist(random_gene_sets)),
-                                     set_size = rep(random_set_lengths, random_set_lengths)) %>%
-  left_join(., ko_growth, by='name') %>%
-  mutate(abs_score = abs(score)) %>%
-  group_by(strain, condition, gene_set) %>%
-  summarise(set_size=first(set_size),
-            n_sig = sum(qvalue < 0.01, na.rm = TRUE),
-            prop_sig = n_sig/set_size) %>%
-  group_by(set_size, add = TRUE) %>%
-  summarise(mean_sig = mean(n_sig))
+rand_sets <- read_tsv('data/rand_gene_set_expected_sig_counts.tsv', col_names = TRUE)
 
+rand_strain_set_mean_props <- rand_sets %>%
+  mutate(mean_prop = mean_sig/set_size) %>%
+  group_by(strain, condition) %>%
+  summarise(mean = mean(mean_prop), var=var(mean_prop))
+
+N <- length(genes)
+strain_set_props <- ko_growth %>%
+  group_by(strain, condition) %>%
+  summarise(expected_prop = sum(qvalue<0.01)/N)
+
+func_set_sizes <- data_frame(func_size=sapply(gene_sets_bp_filt, function(x){sum(x %in% genes)}), gene_set = names(gene_sets_bp_filt))
+
+# Binomial test?
+set_strain_con_num_sig %<>% left_join(., strain_set_props, by = c('strain', 'condition')) %>%
+  left_join(., func_set_sizes, by = 'gene_set') %>%
+  mutate(expected_n_sig = func_size * expected_prop,
+         prop_enriched = prop_sig/expected_prop)
+
+p <- plot_con_gene_heatmaps(ko_growth, gene_sets_bp_filt[['arginine_biosynthetic_process(8)']])
