@@ -724,7 +724,13 @@ gene_sets_bp_filt <- gene_sets_bp$genesets[sapply(gene_sets_bp$genesets, functio
 gene_sets_mf <- GSA.read.gmt('meta/cerevisiae_mf_go_gene_sets.gmt')
 names(gene_sets_mf$genesets) <- gene_sets_mf$geneset.names
 
-osmotic_genes <- gene_sets_bp$genesets[grep('osmo', gene_sets$geneset.names)] %>% unlist() %>% unique()
+gene_sets_cc <- GSA.read.gmt('meta/cerevisiae_cc_go_gene_sets.gmt')
+names(gene_sets_cc$genesets) <- gene_sets_cc$geneset.names
+
+gene_sets <- list(bp=gene_sets_bp$genesets, cc=gene_sets_cc$genesets, mf=gene_sets_mf$genesets)
+gene_sets_filt <- lapply(gene_sets, function(sets){sets[sapply(sets, function(x){sum(x %in% genes) > 5})]})
+
+osmotic_genes <- gene_sets_filt$bp[grep('osmo', names(gene_sets_filt$bp))] %>% unlist() %>% unique()
 osmo_plots <- plot_con_gene_heatmaps(ko_growth, osmotic_genes, primary_strain = 'UWOP')
 ggsave('figures/ko_growth/osmo_genes_strain_heatmaps.pdf', plot = osmo_plots$strain_heatmap, width = 20, height = 23)
 ggsave('figures/ko_growth/osmo_genes_full_heatmaps.pdf', plot = osmo_plots$all_heatmap, width = 20, height = 40)
@@ -732,7 +738,7 @@ osmo_plots_sig <- plot_con_gene_heatmaps(ko_growth_sig, osmotic_genes, primary_s
 ggsave('figures/ko_growth/osmo_genes_strain_heatmaps_no_noise.pdf', plot = osmo_plots_sig$strain_heatmap, width = 20, height = 23)
 ggsave('figures/ko_growth/osmo_genes_full_heatmaps_no_noise.pdf', plot = osmo_plots_sig$all_heatmap, width = 20, height = 40)
 
-heat_genes <- gene_sets_bp$genesets[grep('(temper|heat)', gene_sets_bp$geneset.names)] %>% unlist %>% unique
+heat_genes <- gene_sets_filt$bp[grep('(temper|heat)', names(gene_sets_filt$bp))] %>% unlist %>% unique
 heat_plots <- plot_con_gene_heatmaps(ko_growth, heat_genes)
 ggsave('figures/ko_growth/heat_genes_strain_heatmaps.pdf', plot = heat_plots$strain_heatmap, width = 15, height = 17)
 ggsave('figures/ko_growth/heat_genes_full_heatmaps.pdf', plot = heat_plots$all_heatmap, width = 15, height = 30)
@@ -740,11 +746,11 @@ heat_plots_sig <- plot_con_gene_heatmaps(ko_growth_sig, heat_genes)
 ggsave('figures/ko_growth/heat_genes_strain_heatmaps_no_noise.pdf', plot = heat_plots_sig$strain_heatmap, width = 15, height = 17)
 ggsave('figures/ko_growth/heat_genes_full_heatmaps_no_noise.pdf', plot = heat_plots_sig$all_heatmap, width = 15, height = 30)
 
-aa_genes <- c(grep('amino_acid_biosynthetic',names(gene_sets_bp_filt),value = TRUE),
+aa_genes <- c(grep('amino_acid_biosynthetic',names(gene_sets_filt$bp),value = TRUE),
               "methionine_biosynthetic_process(7)",
               "glutamate_biosynthetic_process(8)",
               "arginine_biosynthetic_process(8)")
-aa_genes <- gene_sets_bp_filt[aa_genes] %>% unlist() %>% unname() %>% unique()
+aa_genes <- gene_sets_filt$bp[aa_genes] %>% unlist() %>% unname() %>% unique()
 aa_plots <- plot_con_gene_heatmaps(ko_growth, aa_genes)
 ggsave('figures/ko_growth/aa_genes_strain_heatmaps.pdf', plot = aa_plots$strain_heatmap, width = 15, height = 23)
 
@@ -763,7 +769,8 @@ gene_set_test <- function(set, con, tbl){
 #   mutate(gene_set_name = gene_sets_bp$geneset.names[gene_set_id],
 #          p.val = mapply(function(x,y){gene_set_test(gene_sets_bp$genesets[[x]],y,ko_growth)}, gene_set_id, condition),
 #          p.adj = p.adjust(p.val,method = 'fdr'))
-saveRDS(set_ks_tests, 'data/Rdata/gene_set_condition_ks_tests.RDS')
+# saveRDS(set_ks_tests, 'data/Rdata/gene_set_condition_ks_tests.RDS')
+set_ks_tests <- readRDS('data/Rdata/gene_set_condition_ks_tests.RDS')
 
 set_ks_tests_mat <- select(set_ks_tests, -gene_set_name, -p.val) %>%
   mutate(p.adj = -log10(p.adj)) %>%
@@ -772,9 +779,6 @@ set_ks_tests_mat <- select(set_ks_tests, -gene_set_name, -p.val) %>%
   set_na(., 0) %>%
   set_inf(., 16)
 heatmap.2(set_ks_tests_mat, col = colorRampPalette(colors = c('white','red'))(100), trace = 'none', margins = c(13,3))
-
-test_genes <- gene_sets_bp$genesets[gene_sets_bp$geneset.names %in% c('DNA_repair(4)')] %>% unlist %>% unique
-test_plots <- plot_con_gene_heatmaps(ko_growth, test_genes)
 
 ### Gene set scores
 # Compare known gene sets to random sets of genes in various forms
@@ -830,7 +834,7 @@ set_vars <- bind_rows(
                     .id = 'gene_set'),
     gene_sets = bind_rows(
                   sapply(
-                    gene_sets_bp_filt,
+                    gene_sets_filt$bp,
                     apply_gene_score_fun,
                     tbl=ko_growth,
                     simplify = FALSE),
@@ -906,7 +910,7 @@ ggsave('figures/ko_growth/abs_mean_enrichment_of_most_impacted_con.pdf',
        width = 20, height = 10)
 
 ## Test number of sig genes in real vs random sets
-gs <- gene_sets_bp_filt
+gs <- gene_sets_filt$bp
 gene_set_lengths <- sapply(gs, length)
 set_strain_con_num_sig <- data_frame(gene_set = rep(names(gs), gene_set_lengths),
                                    name = unname(unlist(gs)),
@@ -932,7 +936,7 @@ strain_set_props <- ko_growth %>%
   group_by(strain, condition) %>%
   summarise(expected_prop = sum(qvalue<0.01)/N)
 
-func_set_sizes <- data_frame(func_size=sapply(gene_sets_bp_filt, function(x){sum(x %in% genes)}), gene_set = names(gene_sets_bp_filt))
+func_set_sizes <- data_frame(func_size=sapply(gene_sets_filt$bp, function(x){sum(x %in% genes)}), gene_set = names(gene_sets_filt$bp))
 
 # Binomial test?
 set_strain_con_num_sig %<>% left_join(., strain_set_props, by = c('strain', 'condition')) %>%
