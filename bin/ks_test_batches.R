@@ -5,7 +5,7 @@ library(broom)
 library(GSA)
 
 #### Process Arguments and set Params ####
-args <- commandArgs()
+args <- commandArgs(trailingOnly = TRUE)
 
 ## Get list of conditions to test in batch from args
 condition_inds <- args
@@ -75,4 +75,4 @@ do_set_tests <- function(tbl, gene_sets){
 ks_tests <- group_by(ko_growth, condition, strain) %>%
   do(do_set_tests(., gene_sets_filt))
 
-write_tsv(ks_tests, paste0('data/ko_ks_tests/', gsub('º', '', gsub(' ','_',conditions))))
+write_tsv(ks_tests, paste0('data/ko_ks_tests/', paste0(gsub('º', '', gsub(' ','_',conditions)), collapse = '_')))
