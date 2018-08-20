@@ -6,10 +6,9 @@ library(GSA)
 
 #### Process Arguments and set Params ####
 args <- commandArgs()
-outfile <- args[1]
 
 ## Get list of conditions to test in batch from args
-conditions <- args[-1]
+condition_inds <- args
 
 ## Number of genes in a set required to have been tested overall
 minimum_genes <- 10
@@ -27,6 +26,7 @@ minimum_genes_test <- 5
 # 
 # genes <- unique(ko_growth$name)
 # strains <- c('S288C', 'UWOP', 'Y55', 'YPS')
+# conditions <- sort(unique(ko_growth$condition))
 # 
 # ## Gene sets
 # gene_sets_bp <- GSA.read.gmt('meta/cerevisiae_bp_go_gene_sets.gmt')
@@ -43,6 +43,7 @@ minimum_genes_test <- 5
 # save.image('data/Rdata/batch_ks_tests.Rdata')
 
 load('data/Rdata/batch_ks_tests.Rdata')
+conditions <- conditions[condition_inds]
 ko_growth <- filter(ko_growth, condition %in% conditions)
 
 #### Functions ####
@@ -74,4 +75,4 @@ do_set_tests <- function(tbl, gene_sets){
 ks_tests <- group_by(ko_growth, condition, strain) %>%
   do(do_set_tests(., gene_sets_filt))
 
-write_tsv(ks_tests, outfile)
+write_tsv(ks_tests, paste0('data/ko_ks_tests/', gsub('º', '', gsub(' ','_',conditions))))
