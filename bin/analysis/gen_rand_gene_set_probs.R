@@ -4,7 +4,7 @@ library(tidyverse)
 library(magrittr)
 
 sig_thresh <- 0.01
-num_genes_per_set <- 100
+num_genes_per_set <- 25 
 
 ## Load growth data
 ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
