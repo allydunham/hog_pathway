@@ -6,9 +6,10 @@ library(GSA)
 
 #### Process Arguments and set Params ####
 args <- commandArgs(trailingOnly = TRUE)
-print(args)
+
 ## Get list of conditions to test in batch from args
-condition_inds <- args
+condition_inds <- as.integer(args)
+print(paste('Using condition at index(s)', condition_inds))
 
 ## Number of genes in a set required to have been tested overall
 minimum_genes <- 10
