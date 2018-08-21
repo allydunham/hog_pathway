@@ -806,9 +806,74 @@ p <- plot_con_gene_heatmaps(ko_growth, genes=gene_sets_filt$cc[c('ribosomal_subu
 
 ## Complexes
 p_kornberg_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Kornberg\'s mediator (SRB) complex')$gene))
-p_rpd3lcomplex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Rpd3L complex')$gene))
-p_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Rpd3L complex')$gene))
+p_rpd3l_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Rpd3L complex')$gene))
+p_ub_ligase_eradl_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'ubiquitin ligase ERAD-L complex')$gene))
 
+# Complex T-tests
+comp_t_test <- function(tbl, comp){
+  ind <- tbl$name %in% comp
+  # Return NAs if not enough genes in the set have been tested
+  if (sum(ind) < 5){
+    return(data_frame(estimate=NA, estimate1=NA, estimate2=NA,
+                      statistic=NA, p.value=NA, parameter=NA,
+                      conf.low=NA, conf.high=NA, method='Welch Two Sample t-test',
+                      alternative='two.sided'))
+  } else {
+    return(tidy(t.test(tbl[ind,]$score, tbl[!ind,]$score)))
+  }
+}
+
+do_comp_t_tests <- function(tbl, comps){
+  return(
+    bind_rows(
+      sapply(comps, comp_t_test, tbl = tbl, simplify = FALSE),
+      .id = 'complex'
+    )
+  )
+}
+
+complex_t_tests <- group_by(ko_growth, condition, strain) %>%
+  do(do_comp_t_tests(., structure(complexes$gene, names=complexes$Complex)))%>%
+  mutate(p.adj=p.adjust(p.value, method = 'fdr'))
+
+comp_strain_t_test <- function(tbl, str){
+  ind <- tbl$strain == str
+  # Return NAs if not enough genes in the set have been tested
+  if (sum(ind) < 3 | sum(!ind) < 3){
+    return(data_frame(estimate=NA, estimate1=NA, estimate2=NA,
+                      statistic=NA, p.value=NA, parameter=NA,
+                      conf.low=NA, conf.high=NA, method='Welch Two Sample t-test',
+                      alternative='two.sided'))
+  } else {
+    return(tidy(t.test(tbl[ind,]$score, tbl[!ind,]$score)))
+  }
+}
+
+do_comp_strain_t_tests <- function(tbl, comps, strains){
+  return(
+    bind_rows(
+      sapply(strains, function(str){
+        bind_rows(
+          sapply(comps,
+                 function(comp){comp_strain_t_test(tbl=filter(tbl, name %in% comp), str=str)},
+                 simplify = FALSE),
+          .id = 'complex'
+          )
+        },
+        simplify = FALSE
+      ),
+      .id = 'strain'
+    )
+  )
+}
+
+complex_strain_t_tests <- group_by(ko_growth, condition) %>%
+  do(do_comp_strain_t_tests(., structure(complexes$gene, names=complexes$Complex), strains)) %>%
+  mutate(p.adj=p.adjust(p.value, method = 'fdr'))
+
+set_strain_t_tests <- group_by(ko_growth, condition) %>%
+  do(do_comp_strain_t_tests(., unlist(gene_sets_filt, recursive = FALSE), strains)) %>%
+  mutate(p.adj=p.adjust(p.value, method = 'fdr'))
 
 ### Gene set vs random set
 # Compare known gene sets to random sets of genes in various forms
