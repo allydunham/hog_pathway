@@ -128,6 +128,12 @@ essential <- readRDS('data/Rdata/essential_genes.rds')
 essential_genes <- filter(essential, essential == 'E') %>% pull(locus)
 non_essential_genes <- filter(essential, essential == 'NE') %>% pull(locus)
 
+complexes <- readRDS('data/Rdata/complex_members.rds') %>%
+  group_by(Complex) %>%
+  do(gene=c(.$Name)) %>%
+  mutate(size = length(gene),
+         num_tested = sum(gene %in% genes))
+
 ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   filter(!gene == 'WT') %>%
   filter(!duplicated(.[,c('strain', 'condition', 'gene')])) %>%
@@ -192,6 +198,8 @@ sig_genes_1 <- sig_genes %>%
   filter(num_strains > 0) %>%
   pull(name) %>%
   unique()
+
+ks_batches <- read_tsv('data/ko_ks_tests/all_tests.tsv')
 
 #######################################################
 ##################### Analysis ########################
@@ -579,7 +587,15 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
     spread(key = condition, value = score) %>%
     gather(key = 'condition', value = 'score', -strain, -name)
   
-  limits <- c(min(tbl$score), max(tbl$score))
+  limits <- c(min(tbl$score, na.rm = TRUE), max(tbl$score, na.rm = TRUE))
+  
+  if (limits[2] - limits[1] < 10){
+    clrs <- c('firebrick2', 'white', 'cornflowerblue')
+    vals <- scales::rescale(c(limits[1], 0, limits[2]))
+  } else {
+    clrs <- c('firebrick2', 'darkgoldenrod1', 'white', 'cornflowerblue', 'darkorchid')
+    vals <- scales::rescale(c(limits[1], limits[1]/2, 0, limits[2]/2, limits[2]))
+  }
   
   #### Plot heatmap faceted by strain
   ## Determine ordering based on primary strain
@@ -608,7 +624,7 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
     facet_wrap(~strain, ncol=facet_cols, nrow=facet_rows) +
     xlab('Condition') +
     ylab('Gene') +
-    scale_fill_gradient2(low = 'firebrick2', high = 'cornflowerblue', limits=limits, na.value = 'black') +
+    scale_fill_gradientn(colours = clrs, limits=limits, na.value = 'black', values = vals) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
     guides(fill=guide_colourbar(title = 'S-Score'))
   
@@ -640,7 +656,7 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
     geom_raster() +
     xlab('Condition') +
     ylab('Gene') +
-    scale_fill_gradient2(low = 'firebrick2', high = 'cornflowerblue', na.value = 'black') +
+    scale_fill_gradientn(colours = clrs, na.value = 'black', values = vals) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
     guides(fill=guide_colourbar(title = 'S-Score'))
   
@@ -780,7 +796,21 @@ set_ks_tests_mat <- select(set_ks_tests, -gene_set_name, -p.val) %>%
   set_inf(., 16)
 heatmap.2(set_ks_tests_mat, col = colorRampPalette(colors = c('white','red'))(100), trace = 'none', margins = c(13,3))
 
-### Gene set scores
+## KS tests over all strain/condition pairs with all gene sets
+ks_batches %<>% mutate(p.adj = p.adjust(p.value, method = 'fdr'))
+
+p_pval_strain_density <- ggplot(ks_batches, aes(x=p.adj, colour=gene_set_group)) + geom_density() + facet_wrap(~strain)
+p_pval_con_dist <- ggplot(ks_batches, aes(y=p.adj, x=condition)) + geom_boxplot() + theme(axis.text.x = element_text(hjust = 1, vjust = 0.5, angle = 90))
+
+p <- plot_con_gene_heatmaps(ko_growth, genes=gene_sets_filt$cc[c('ribosomal_subunit(4)')] %>% unlist() %>% unique())
+
+## Complexes
+p_kornberg_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Kornberg\'s mediator (SRB) complex')$gene))
+p_rpd3lcomplex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Rpd3L complex')$gene))
+p_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Rpd3L complex')$gene))
+
+
+### Gene set vs random set
 # Compare known gene sets to random sets of genes in various forms
 # Determine group sizes for random samples
 set_sizes <- sapply(gene_sets_bp$genesets, length)

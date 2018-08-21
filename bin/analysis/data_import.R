@@ -194,3 +194,8 @@ saveRDS(worst_norm, 'data/Rdata/norm_worst_mat.rds')
 worst_norm %<>% gather(key = 'gene', value = 'norm_worst_p_aff', -strain)
 saveRDS(worst_norm, 'data/Rdata/norm_worst.rds')
 
+#### Load Batch KS Tests ####
+setwd('data/ko_ks_tests/')
+ks_batches <- lapply(dir(), read_tsv) %>%
+  bind_rows()
+write_tsv(ks_batches, 'all_tests.tsv')
