@@ -1,205 +1,27 @@
 # Script performing analying ko library growth
 setwd('~/Projects/hog/')
+
+## Load Packages and Import data
+# Packages loaded before Tidyverse
 library(gplots)
 library(Rtsne)
 library(EMT)
-library(gridGraphics)
-library(gridExtra)
 library(MASS)
 library(e1071)
 
-library(rlang)
-library(tidyverse)
-library(magrittr)
-library(broom)
+# Import data and load Tidyverse
+source('bin/general_functions.R')
+source('bin/ko_growth_analysis/ko_analysis_functions.R')
+source('bin/ko_growth_analysis/load_ko_data.R')
+
+# Other Packages
 library(GGally)
 library(ggpubr)
 library(ggdendro)
 library(dendextend)
 library(plotly)
 library(cowplot)
-
-library(GSA)
-#######################################################
-##################### Functions #######################
-#######################################################
-
-## Turn tibble into a matrix with rownames from a column
-tbl_to_matrix <- function(x, row){
-  mat <- as.matrix(select(x, -row))
-  rownames(mat) <- pull(x, !!row)
-  return(mat)
-}
-
-## Extract a list of variables by group from a data frame
-tbl_var_to_list <- function(tbl, var, group=NULL){
-  if (is.null(group)){
-    group <- group_vars(tbl)[1]
-  }
-  items <- pull(tbl, !!var)
-  labs <- pull(tbl, !!group)
-  sapply(unique(labs), function(x){items[labs == x]}, simplify = FALSE)
-}
-
-## Split ko_growth tibble into subtable of a strain giving a variable spread over gene or condition
-# Does not apply sorting because ko_scores tsv comes sorted
-split_strains <- function(str, var, tbl, col='gene', row='condition'){
-  # Function to filter ko_growth to a given strain with a matrix of condition against 'var' (score or qvalue)
-  ko <- filter(tbl, strain == str) %>%
-    select(!!row, !!col, !!var) %>%
-    spread(key = col, value = !!var)
-  return(ko)
-}
-
-## calculate condition ko growth profile dendogram from a tibble of strain scores
-get_dend <- function(x){
-  mat <- as.matrix(select(x, -condition))
-  rownames(mat) <- x$condition
-  return(as.dendrogram(hclust(dist(mat))))
-}
-
-## Calculate correlation between pairs of genes or conditions (based on profile according to the other)
-# requires a tibble with the dependant variable in rows labeled by column 'var'
-get_cor <- function(x, cor_meth = 'pearson', cor_use = 'pairwise', upper_tri=TRUE, var='condition'){
-  mat <- as.matrix(select(x, -!!var))
-  rownames(mat) <- pull(x, !!var)
-  cors <- cor(t(mat), method = cor_meth, use = cor_use)
-  if (upper_tri){
-    cors[lower.tri(cors, diag = TRUE)] <- NA
-  }
-  var1 <- paste0(var,'1')
-  var2 <- paste0(var,'2')
-  cors %<>% as_tibble(rownames=var1) %>%
-    gather(key = !!var2, value = 'cor', -!!var1) %>%
-    drop_na()
-  return(cors)
-}
-
-# Determine which level list a gene is in
-# sig_list should have the most desirable category last if there are overlaps
-get_sig <- function(item, sig_list){
-  for (i in length(sig_list):1){
-    if (item %in% sig_list[[i]]){
-      return(i)
-    }
-  }
-  return(0)
-}
-
-# Determine genes significant in a condition
-get_sig_genes <- function(con, growth_tbl, threshold = 0.01){
-  gene <- growth_tbl %>%
-           filter(condition == con, qvalue < threshold) %>%
-           pull(name) %>%
-           table()
-  return(names(gene[gene > 1]))
-}
-
-#set all NA values to a generic value
-set_na <- function(x, val){
-  x[is.na(x)] <- val
-  return(x)
-}
-
-#set all NA values to a generic value
-set_inf <- function(x, val){
-  x[is.infinite(x)] <- val
-  return(x)
-}
-
-#set all NaN values to a generic value
-set_nan <- function(x, val){
-  x[is.nan(x)] <- val
-  return(x)
-}
-
-# Extract grob
-grab_grob <- function(){
-  grid.echo()
-  grid.grab()
-}
-
-#######################################################
-############# Import and Process Data #################
-#######################################################
-
-genes <- readRDS('data/Rdata/gene_meta_all.rds')
-essential <- readRDS('data/Rdata/essential_genes.rds')
-essential_genes <- filter(essential, essential == 'E') %>% pull(locus)
-non_essential_genes <- filter(essential, essential == 'NE') %>% pull(locus)
-
-complexes <- readRDS('data/Rdata/complex_members.rds') %>%
-  group_by(Complex) %>%
-  do(gene=c(.$Name)) %>%
-  mutate(size = length(gene),
-         num_tested = sum(gene %in% genes))
-
-ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
-  filter(!gene == 'WT') %>%
-  filter(!duplicated(.[,c('strain', 'condition', 'gene')])) %>%
-  select(-position) %>%
-  mutate(condition = gsub('  ', ' ', condition)) %>% # Some conditions have double spaces in names
-  mutate(name = if_else(is.na(name), gene, name))
-
-ko_growth_spread <- filter(ko_growth, qvalue < 0.01) %>%
-  select(strain, condition, name, score) %>%
-  spread(key = strain, value = score)
-
-ko_growth_spread_all <- ko_growth %>%
-  select(strain, condition, name, score) %>%
-  spread(key = strain, value = score)
-
-conditions <- unique(ko_growth$condition)
-strains <- c('S288C', 'UWOP', 'Y55', 'YPS')
-genes <- unique(ko_growth$name)
-
-strain_combs <- combn(strains, 2)
-strain_ko_scores <- sapply(unique(ko_growth$strain), split_strains, var='score', tbl=ko_growth, simplify = FALSE)
-strain_ko_qvalues <- sapply(unique(ko_growth$strain), split_strains, var='qvalue', tbl=ko_growth, simplify = FALSE)
-
-condition_combs <- combn(conditions, 2)
-
-# Based on knowledge plus correlation of gene profiles accross different strains
-equiv_cons <- structure(c("2,4-Dichlorophenoxyacetic acid", "39ºC", "39ºC", "5-FU", "6-AU", "39ºC", "39ºC", "Acetic acid",
-                          "Amphotericin B", "Amphotericin B", "Anaerobic", "Cadmium chloride", "Caffeine", "Caffeine",
-                          "Caspofungin", "Caspofungin", "Clozapine", "Cyclohexamide", "DMSO", "Doxorubicin", "Glucose",
-                          "Glycerol", "Glycerol", "Maltose", "Maltose", "NaCl", "NaCl", "NaCl", "NaCl", "NaCl", "NaCl", "NaCl",
-                          "NiSO4", "Nitrogen starvation", "Nystatin", "Paraquat", "Paraquat", "SC + hepes", "Sorbitol", 
-                          "aa starvation"),
-                        names = conditions)
-
-# Get gens sig in at least n conditions
-sig_genes <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
-  mutate(name = if_else(is.na(name), gene, name)) %>%
-  filter(qvalue < 0.01) %>%
-  filter(!gene == 'WT') %>%
-  filter(!duplicated(.[,c('strain', 'condition', 'gene')])) %>%
-  select(-position) %>%
-  unite(comb, score, qvalue) %>%
-  spread(key = strain, value = comb) %>%
-  mutate(num_strains = (!is.na(S288C)) + (!is.na(UWOP)) + (!is.na(Y55)) + (!is.na(YPS)))
-
-sig_genes_4 <- sig_genes %>%
-  filter(num_strains > 3) %>%
-  pull(name) %>%
-  unique()
-
-sig_genes_3 <- sig_genes %>%
-  filter(num_strains > 2) %>%
-  pull(name) %>%
-  unique()
-
-sig_genes_2 <- sig_genes %>%
-  filter(num_strains > 1) %>%
-  pull(name) %>%
-  unique()
-
-sig_genes_1 <- sig_genes %>%
-  filter(num_strains > 0) %>%
-  pull(name) %>%
-  unique()
-
-ks_batches <- read_tsv('data/ko_ks_tests/all_tests.tsv')
+library(kSamples)
 
 #######################################################
 ##################### Analysis ########################
@@ -731,21 +553,11 @@ top_diff_genes <- filter(ko_dists_sum, na_count < 4, num_large > 2) %>%
 p_heat <- plot_con_gene_heatmaps(ko_growth, top_diff_genes$`39ºC (72H)`)
 ggsave('figures/ko_growth/diff_heat_genes_strain_heatmap.pdf', p_heat$strain_heatmap, width = 12, height = 14)
 
+p_caff <- plot_con_gene_heatmaps(ko_growth, top_diff_genes$`Caffeine 20mM (48H)`)
+
+
 #### Gene set analysis ####
 # Gene sets sourced from http://www.go2msig.org/cgi-bin/prebuilt.cgi?taxid=559292
-gene_sets_bp <- GSA.read.gmt('meta/cerevisiae_bp_go_gene_sets.gmt')
-names(gene_sets_bp$genesets) <- gene_sets_bp$geneset.names
-gene_sets_bp_filt <- gene_sets_bp$genesets[sapply(gene_sets_bp$genesets, function(x){sum(x %in% genes) > 5})]
-
-gene_sets_mf <- GSA.read.gmt('meta/cerevisiae_mf_go_gene_sets.gmt')
-names(gene_sets_mf$genesets) <- gene_sets_mf$geneset.names
-
-gene_sets_cc <- GSA.read.gmt('meta/cerevisiae_cc_go_gene_sets.gmt')
-names(gene_sets_cc$genesets) <- gene_sets_cc$geneset.names
-
-gene_sets <- list(bp=gene_sets_bp$genesets, cc=gene_sets_cc$genesets, mf=gene_sets_mf$genesets)
-gene_sets_filt <- lapply(gene_sets, function(sets){sets[sapply(sets, function(x){sum(x %in% genes) > 5})]})
-
 osmotic_genes <- gene_sets_filt$bp[grep('osmo', names(gene_sets_filt$bp))] %>% unlist() %>% unique()
 osmo_plots <- plot_con_gene_heatmaps(ko_growth, osmotic_genes, primary_strain = 'UWOP')
 ggsave('figures/ko_growth/osmo_genes_strain_heatmaps.pdf', plot = osmo_plots$strain_heatmap, width = 20, height = 23)
@@ -771,6 +583,7 @@ aa_plots <- plot_con_gene_heatmaps(ko_growth, aa_genes)
 ggsave('figures/ko_growth/aa_genes_strain_heatmaps.pdf', plot = aa_plots$strain_heatmap, width = 15, height = 23)
 
 
+## Set Ks Tests - different to background in condition or strain-con pair
 gene_set_test <- function(set, con, tbl){
   tbl %<>% filter(condition == con)
   if (sum(tbl$name %in% set) > 0){
@@ -809,7 +622,7 @@ p_kornberg_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes,
 p_rpd3l_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Rpd3L complex')$gene))
 p_ub_ligase_eradl_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'ubiquitin ligase ERAD-L complex')$gene))
 
-# Complex T-tests
+# Complex T-tests - complexes different to background in strain-con pair
 comp_t_test <- function(tbl, comp){
   ind <- tbl$name %in% comp
   # Return NAs if not enough genes in the set have been tested
@@ -836,6 +649,7 @@ complex_t_tests <- group_by(ko_growth, condition, strain) %>%
   do(do_comp_t_tests(., structure(complexes$gene, names=complexes$Complex)))%>%
   mutate(p.adj=p.adjust(p.value, method = 'fdr'))
 
+## Compare each strain to the rest in each con
 comp_strain_t_test <- function(tbl, str){
   ind <- tbl$strain == str
   # Return NAs if not enough genes in the set have been tested
@@ -875,7 +689,46 @@ set_strain_t_tests <- group_by(ko_growth, condition) %>%
   do(do_comp_strain_t_tests(., unlist(gene_sets_filt, recursive = FALSE), strains)) %>%
   mutate(p.adj=p.adjust(p.value, method = 'fdr'))
 
-### Gene set vs random set
+## Strain difference Anderson Darling tests
+strain_diff_ad_tests <- function(tbl){
+  str_sizes <- table(tbl$strain)
+  strs <- names(str_sizes)[str_sizes > 4]
+  # Return NAs if not enough genes in the set have been tested
+  if (length(strs) < 2){
+    return(data_frame(strains=0, S288C=str_sizes['S288C'], UWOP=str_sizes['UWOP'],
+                      Y55=str_sizes['Y55'], YPS=str_sizes['YPS'], sample_total = sum(str_sizes),
+                      ties=NA, sig=NA, ad=NA, t.ad=NA, p.val=NA, method='Anderson-Darling'))
+  } else {
+    t <- ad.test(lapply(strs, function(str){pull(filter(tbl, strain == str), score)}), method = 'asymptotic')
+    return(data_frame(strains=length(strs), S288C=str_sizes['S288C'], UWOP=str_sizes['UWOP'],
+                      Y55=str_sizes['Y55'], YPS=str_sizes['YPS'], sample_total = sum(str_sizes),
+                      ties=t$n.ties, sig=t$sig, ad=t$ad[1,1], t.ad=t$ad[1,2], asymp.p.val=t$ad[1,3], method='Anderson-Darling'))
+  }
+}
+
+do_strain_diff_ad_tests <- function(tbl, sets){
+  return(
+    bind_rows(
+      sapply(sets,
+             function(set){strain_diff_ad_tests(tbl=filter(tbl, name %in% set))},
+             simplify = FALSE),
+      .id = 'gene_set')
+  )
+}
+
+complex_strain_diff_ad_tests <- group_by(ko_growth, condition) %>%
+  do(do_strain_diff_ad_tests(., structure(complexes$gene, names=complexes$Complex))) %>%
+  mutate(p.adj = p.adjust(asymp.p.val, method = 'fdr'))
+
+gene_set_strain_diff_ad_tests <- group_by(ko_growth, condition) %>%
+  do(do_strain_diff_ad_tests(., sets[1:100])) %>%
+  mutate(p.adj = p.adjust(asymp.p.val, method = 'fdr'))
+
+## Caffiene related sets based on tests performed
+p_caff_dichol <- plot_con_gene_heatmaps(ko_growth, sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']], primary_strain = 'UWOP')
+p_caff_swr1_comp <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Swr1p complex')$gene))
+
+#### Compare Gene sets vs random set ####
 # Compare known gene sets to random sets of genes in various forms
 # Determine group sizes for random samples
 set_sizes <- sapply(gene_sets_bp$genesets, length)
@@ -1005,10 +858,9 @@ ggsave('figures/ko_growth/abs_mean_enrichment_of_most_impacted_con.pdf',
        width = 20, height = 10)
 
 ## Test number of sig genes in real vs random sets
-gs <- gene_sets_filt$bp
-gene_set_lengths <- sapply(gs, length)
-set_strain_con_num_sig <- data_frame(gene_set = rep(names(gs), gene_set_lengths),
-                                   name = unname(unlist(gs)),
+gene_set_lengths <- sapply(sets, length)
+set_strain_con_num_sig <- data_frame(gene_set = rep(names(sets), gene_set_lengths),
+                                   name = unname(unlist(sets)),
                                    set_size = rep(gene_set_lengths, gene_set_lengths)) %>%
   left_join(., ko_growth, by='name') %>%
   mutate(abs_score = abs(score)) %>%
@@ -1031,7 +883,7 @@ strain_set_props <- ko_growth %>%
   group_by(strain, condition) %>%
   summarise(expected_prop = sum(qvalue<0.01)/N)
 
-func_set_sizes <- data_frame(func_size=sapply(gene_sets_filt$bp, function(x){sum(x %in% genes)}), gene_set = names(gene_sets_filt$bp))
+func_set_sizes <- data_frame(func_size=sapply(sets, function(x){sum(x %in% genes)}), gene_set = names(sets))
 
 # Binomial test?
 set_strain_con_num_sig %<>% left_join(., strain_set_props, by = c('strain', 'condition')) %>%
@@ -1040,3 +892,4 @@ set_strain_con_num_sig %<>% left_join(., strain_set_props, by = c('strain', 'con
          prop_enriched = prop_sig/expected_prop)
 
 p <- plot_con_gene_heatmaps(ko_growth, gene_sets_bp_filt[['arginine_biosynthetic_process(8)']])
+
