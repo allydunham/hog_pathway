@@ -557,7 +557,16 @@ p_caff <- plot_con_gene_heatmaps(ko_growth, top_diff_genes$`Caffeine 20mM (48H)`
 
 
 #### Gene set analysis ####
-# Gene sets sourced from http://www.go2msig.org/cgi-bin/prebuilt.cgi?taxid=559292
+## Complexes
+p_kornberg_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Kornberg\'s mediator (SRB) complex')$gene))
+p_rpd3l_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Rpd3L complex')$gene))
+p_ub_ligase_eradl_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'ubiquitin ligase ERAD-L complex')$gene))
+
+## Caffiene related sets based on tests performed
+p_caff_dichol <- plot_con_gene_heatmaps(ko_growth, sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']], primary_strain = 'UWOP')
+p_caff_swr1_comp <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Swr1p complex')$gene))
+
+## Gene Sets
 osmotic_genes <- gene_sets_filt$bp[grep('osmo', names(gene_sets_filt$bp))] %>% unlist() %>% unique()
 osmo_plots <- plot_con_gene_heatmaps(ko_growth, osmotic_genes, primary_strain = 'UWOP')
 ggsave('figures/ko_growth/osmo_genes_strain_heatmaps.pdf', plot = osmo_plots$strain_heatmap, width = 20, height = 23)
@@ -616,11 +625,6 @@ p_pval_strain_density <- ggplot(ks_batches, aes(x=p.adj, colour=gene_set_group))
 p_pval_con_dist <- ggplot(ks_batches, aes(y=p.adj, x=condition)) + geom_boxplot() + theme(axis.text.x = element_text(hjust = 1, vjust = 0.5, angle = 90))
 
 p <- plot_con_gene_heatmaps(ko_growth, genes=gene_sets_filt$cc[c('ribosomal_subunit(4)')] %>% unlist() %>% unique())
-
-## Complexes
-p_kornberg_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Kornberg\'s mediator (SRB) complex')$gene))
-p_rpd3l_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Rpd3L complex')$gene))
-p_ub_ligase_eradl_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'ubiquitin ligase ERAD-L complex')$gene))
 
 # Complex T-tests - complexes different to background in strain-con pair
 comp_t_test <- function(tbl, comp){
@@ -723,10 +727,6 @@ complex_strain_diff_ad_tests <- group_by(ko_growth, condition) %>%
 gene_set_strain_diff_ad_tests <- group_by(ko_growth, condition) %>%
   do(do_strain_diff_ad_tests(., sets[1:100])) %>%
   mutate(p.adj = p.adjust(asymp.p.val, method = 'fdr'))
-
-## Caffiene related sets based on tests performed
-p_caff_dichol <- plot_con_gene_heatmaps(ko_growth, sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']], primary_strain = 'UWOP')
-p_caff_swr1_comp <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Swr1p complex')$gene))
 
 #### Compare Gene sets vs random set ####
 # Compare known gene sets to random sets of genes in various forms

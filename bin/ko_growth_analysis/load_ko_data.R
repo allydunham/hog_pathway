@@ -56,6 +56,7 @@ complexes <- readRDS('data/Rdata/complex_members.rds') %>%
          num_tested = sum(gene %in% genes))
 
 # Sets split into GO types from which they were derived
+# Gene sets sourced from http://www.go2msig.org/cgi-bin/prebuilt.cgi?taxid=559292
 gene_sets_bp <- GSA.read.gmt('meta/cerevisiae_bp_go_gene_sets.gmt')
 names(gene_sets_bp$genesets) <- gene_sets_bp$geneset.names
 gene_sets_bp_filt <- gene_sets_bp$genesets[sapply(gene_sets_bp$genesets, function(x){sum(x %in% genes) > 5})]
