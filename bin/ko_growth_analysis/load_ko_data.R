@@ -10,6 +10,11 @@ library(magrittr)
 library(broom)
 library(GSA)
 
+## Gene Meta
+gene_meta <- readRDS('data/Rdata/gene_meta_all.rds') %>%
+  mutate(name = ifelse(is.na(name), id, name)) %>%
+  rename(gene = id)
+
 ## KO Growth data
 ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   filter(!gene == 'WT') %>%
@@ -74,6 +79,9 @@ gene_sets_filt <- lapply(gene_sets, function(sets){sets[sapply(sets, function(x)
 # Flattened combined list
 sets <- unlist(gene_sets_filt, recursive = FALSE)
 
+set_genes <- unlist(sets) %>% unique()
+
+set_meta <- bind_rows(sapply(sets, function(x){data_frame(set_size=length(x))}, simplify = FALSE), .id = 'gene_set')
 
 ## Extract S-Scores and Q-Values into per strain matrices
 strain_ko_scores <- sapply(unique(ko_growth$strain), split_strains, var='score', tbl=ko_growth, simplify = FALSE)
@@ -115,3 +123,7 @@ ks_batches <- read_tsv('data/ko_ks_tests/all_tests.tsv')
 
 ## Growth rate of each strain in each condition relative to S288C
 strain_relative_growth <- read_tsv('data/relative_fitness.tsv')
+
+## Switching probabilities (probability difference in growth between strains for a gene ko is by chance)
+switch_probs <- read_tsv('data/gene_switch_probabilities.tsv') %>%
+  left_join(., select(gene_meta, gene, name))

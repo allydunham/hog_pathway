@@ -701,7 +701,7 @@ strain_diff_ad_tests <- function(tbl){
   if (length(strs) < 2){
     return(data_frame(strains=0, S288C=str_sizes['S288C'], UWOP=str_sizes['UWOP'],
                       Y55=str_sizes['Y55'], YPS=str_sizes['YPS'], sample_total = sum(str_sizes),
-                      ties=NA, sig=NA, ad=NA, t.ad=NA, p.val=NA, method='Anderson-Darling'))
+                      ties=NA, sig=NA, ad=NA, t.ad=NA, asymp.p.val=NA, method='Anderson-Darling'))
   } else {
     t <- ad.test(lapply(strs, function(str){pull(filter(tbl, strain == str), score)}), method = 'asymptotic')
     return(data_frame(strains=length(strs), S288C=str_sizes['S288C'], UWOP=str_sizes['UWOP'],
@@ -711,6 +711,7 @@ strain_diff_ad_tests <- function(tbl){
 }
 
 do_strain_diff_ad_tests <- function(tbl, sets){
+  t <- unique(tbl$condition)
   return(
     bind_rows(
       sapply(sets,
@@ -724,9 +725,26 @@ complex_strain_diff_ad_tests <- group_by(ko_growth, condition) %>%
   do(do_strain_diff_ad_tests(., structure(complexes$gene, names=complexes$Complex))) %>%
   mutate(p.adj = p.adjust(asymp.p.val, method = 'fdr'))
 
-gene_set_strain_diff_ad_tests <- group_by(ko_growth, condition) %>%
-  do(do_strain_diff_ad_tests(., sets[1:100])) %>%
-  mutate(p.adj = p.adjust(asymp.p.val, method = 'fdr'))
+# gene_set_strain_diff_ad_tests <- group_by(ko_growth, condition) %>%
+#   do(do_strain_diff_ad_tests(., sets)) %>%
+#   mutate(p.adj = p.adjust(asymp.p.val, method = 'fdr'))
+# saveRDS(gene_set_strain_diff_ad_tests, 'data/Rdata/gene_set_ad_tests.RDS')
+gene_set_strain_diff_ad_tests <- readRDS('data/Rdata/gene_set_ad_tests.RDS') %>%
+  left_join(., set_meta)
+View(filter(gene_set_strain_diff_ad_tests,
+            p.adj < 0.05,
+            condition %in% c('Paraquat (48H)', 'Caffeine 20mM (48H)', 'Caffeine 15mM (48H)', 'Acetic acid (48H)'),
+            set_size < 20))
+
+switch_prob_summary <- filter(switch_probs, name %in% set_genes) %>%
+  group_by(condition, name) %>%
+  summarise(tot_switches=sum(qval < 0.01),
+            YPS_switches=sum((strain1=='YPS' | strain2=='YPS') & qval < 0.01),
+            Y55_switches=sum((strain1=='Y55' | strain2=='Y55') & qval < 0.01),
+            UWOP_switches=sum((strain1=='UWOP' | strain2=='UWOP') & qval < 0.01),
+            S288C_switches=sum((strain1=='S288C' | strain2=='S288C') & qval < 0.01))
+  
+left_join(switch_probs, bind_rows(sapply(sets, function(x){data_frame(name=x)}, simplify = FALSE), .id = 'gene_set')) %>%
 
 #### Compare Gene sets vs random set ####
 # Compare known gene sets to random sets of genes in various forms
