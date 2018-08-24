@@ -393,7 +393,7 @@ write_tsv(ko_growth_spread_diff, 'data/ko_gene_opposite_growth.tsv')
 
 #### Heatmaps of Genes of Interest ####
 ## Generic function to give heatmaps for genes in a set of cons
-plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_strain='S288C', facet_cols=2, facet_rows=2){
+plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_strain='S288C', facet_cols=2, facet_rows=2, sig_level=0.01){
   if (is.null(cons)){
     cons <- unique(tbl$condition)
   }
@@ -404,10 +404,16 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
     primary_strain <- strains[1]
   }
   
-  tbl <- filter(tbl, name %in% genes, condition %in% cons) %>%
-    select(strain, condition, name, score) %>%
+  
+  tbl <- filter(tbl, name %in% genes, condition %in% cons)
+  sig <- mutate(tbl, sig = ifelse(qvalue < sig_level, '*', '')) %>%
+    select(strain, name, condition, sig)
+  
+  tbl <- select(tbl, strain, condition, name, score) %>%
     spread(key = condition, value = score) %>%
-    gather(key = 'condition', value = 'score', -strain, -name)
+    gather(key = 'condition', value = 'score', -strain, -name) %>%
+    left_join(., sig, by = c('strain', 'name', 'condition')) %>%
+    mutate(sig = ifelse(is.na(sig), '', sig))
   
   limits <- c(min(tbl$score, na.rm = TRUE), max(tbl$score, na.rm = TRUE))
   
@@ -443,6 +449,7 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
   ## plot heatmap
   p_strain_heatmaps <- ggplot(tbl, aes(x=condition, y=name, fill=score)) +
     geom_raster() +
+    geom_text(aes(label=sig)) +
     facet_wrap(~strain, ncol=facet_cols, nrow=facet_rows) +
     xlab('Condition') +
     ylab('Gene') +
@@ -452,7 +459,8 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
   
   #### Plot general combined heatmap
   ## Determine ordering
-  mat <- tbl %>% spread(key = condition, value = score) %>%
+  mat <- tbl %>% select(-sig) %>%
+    spread(key = condition, value = score) %>%
     unite(col='name', strain, name) %>%
     tbl_to_matrix(., row = 'name') %>%
     set_na(., 0)
@@ -476,6 +484,7 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
   ## Plot heatmap
   p_all_heatmap <- ggplot(tbl, aes(x=condition, y=unit, fill=score)) +
     geom_raster() +
+    geom_text(aes(label=sig)) +
     xlab('Condition') +
     ylab('Gene') +
     scale_fill_gradientn(colours = clrs, na.value = 'black', values = vals) +
@@ -489,9 +498,6 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
               all_gene_dend=p_all_gene_dend,
               all_condition_dend=p_all_con_dend))
 }
-
-# Version of ko_growth with non sig s-scores replaced with 0 to reduce heatmap noise
-ko_growth_sig <- mutate(ko_growth, score = if_else(qvalue < 0.01, score, 0))
 
 ## NaCl
 nacl_cons <- grep('NaCl 0\\..M \\(', conditions, value = TRUE)
@@ -725,6 +731,8 @@ complex_strain_diff_ad_tests <- group_by(ko_growth, condition) %>%
   do(do_strain_diff_ad_tests(., structure(complexes$gene, names=complexes$Complex))) %>%
   mutate(p.adj = p.adjust(asymp.p.val, method = 'fdr'))
 
+growth_diff_cons <- c('Paraquat (48H)', 'Caffeine 20mM (48H)', 'Caffeine 15mM (48H)', 'Acetic acid (48H)', 'Maltose 2% (48H)', 'Maltose 2% (72H)')
+
 # gene_set_strain_diff_ad_tests <- group_by(ko_growth, condition) %>%
 #   do(do_strain_diff_ad_tests(., sets)) %>%
 #   mutate(p.adj = p.adjust(asymp.p.val, method = 'fdr'))
@@ -733,18 +741,50 @@ gene_set_strain_diff_ad_tests <- readRDS('data/Rdata/gene_set_ad_tests.RDS') %>%
   left_join(., set_meta)
 View(filter(gene_set_strain_diff_ad_tests,
             p.adj < 0.05,
-            condition %in% c('Paraquat (48H)', 'Caffeine 20mM (48H)', 'Caffeine 15mM (48H)', 'Acetic acid (48H)'),
+            condition %in% growth_diff_cons,
             set_size < 20))
 
+p <- plot_con_gene_heatmaps(ko_growth, sets[['mf.iron_ion_transmembrane_transporter_activity(10)']], primary_strain = 'UWOP')
+p <- plot_con_gene_heatmaps(ko_growth, sets[['bp.cytogamy(4)']], primary_strain = 'UWOP')
+
+gene_sig_summary <- filter(ko_growth, condition %in% growth_diff_cons) %>%
+  mutate(signed_qvalue = sign(score) * qvalue) %>%
+  select(strain, condition, name, signed_qvalue) %>%
+  spread(key = 'strain', value = 'signed_qvalue')
+
+switch_prob_summary_set <- filter(switch_probs, name %in% set_genes, condition %in% growth_diff_cons) %>%
+  unite(col = 'pair', strain1, strain2) %>%
+  select(condition, gene, name, pair, qval) %>%
+  spread(key = pair, value = qval) %>%
+  left_join(., gene_sig_summary, by=c("condition", "name")) %>%
+  left_join(., bind_rows(sapply(sets, function(x){data_frame(name=x)}, simplify=FALSE), .id='gene_set'), by='name') %>%
+  group_by(condition, gene_set) %>%
+  summarise(S288C_switches = sum(Y55_S288C < 0.001, na.rm = TRUE) + sum(YPS_S288C < 0.001, na.rm = TRUE) + sum(UWOP_S288C < 0.001, na.rm = TRUE),
+            UWOP_switches = sum(UWOP_Y55 < 0.001, na.rm = TRUE) + sum(YPS_UWOP < 0.001, na.rm = TRUE) + sum(UWOP_S288C < 0.001, na.rm = TRUE),
+            Y55_switches = sum(Y55_S288C < 0.001, na.rm = TRUE) + sum(YPS_Y55 < 0.001, na.rm = TRUE) + sum(UWOP_Y55 < 0.001, na.rm = TRUE),
+            YPS_switches = sum(YPS_S288C < 0.001, na.rm = TRUE) + sum(YPS_UWOP < 0.001, na.rm = TRUE) + sum(YPS_Y55 < 0.001, na.rm = TRUE),
+            switches_per_strain = (S288C_switches + UWOP_switches + YPS_switches + Y55_switches)/4,
+            S288C_non_sigs = sum(S288C > 0.001 & (abs(UWOP) < 0.001 | abs(YPS) < 0.001 | abs(Y55) < 0.001), na.rm = TRUE)) %>%
+  left_join(., set_meta, by='gene_set') %>%
+  mutate_at(vars(contains('switches'), 'S288C_non_sigs'), .funs = funs(./set_size))
+
+## Identified sets have a strongly recuring theme of ALG/DIE genes
+p <- plot_con_gene_heatmaps(ko_growth, sets[['mf.glucosyltransferase_activity(6)']], primary_strain = 'UWOP')
+p <- plot_con_gene_heatmaps(ko_growth, sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']], primary_strain = 'UWOP')
+
+## Method based on filtering switches first
 switch_prob_summary <- filter(switch_probs, name %in% set_genes) %>%
-  group_by(condition, name) %>%
-  summarise(tot_switches=sum(qval < 0.01),
-            YPS_switches=sum((strain1=='YPS' | strain2=='YPS') & qval < 0.01),
-            Y55_switches=sum((strain1=='Y55' | strain2=='Y55') & qval < 0.01),
-            UWOP_switches=sum((strain1=='UWOP' | strain2=='UWOP') & qval < 0.01),
-            S288C_switches=sum((strain1=='S288C' | strain2=='S288C') & qval < 0.01))
-  
-left_join(switch_probs, bind_rows(sapply(sets, function(x){data_frame(name=x)}, simplify = FALSE), .id = 'gene_set')) %>%
+  mutate_at(vars(contains('phenotype')), as.logical) %>%
+  filter(phenotype1 | phenotype2,
+         !sign(scores1) == sign(scores2)) %>%
+  left_join(., bind_rows(sapply(sets, function(x){data_frame(name=x)}, simplify=FALSE), .id='gene_set'), by='name') %>%
+  group_by(condition, gene_set) %>%
+  summarise(switches = length(unique(name)),
+            S288C_switches = sum(strain1 == 'S288C' | strain2 == 'S288C')) %>%
+  left_join(., set_meta, by = 'gene_set') %>%
+  mutate_at(vars(contains('switches')), .funs = funs(./set_size))
+
+# Again bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)
 
 #### Compare Gene sets vs random set ####
 # Compare known gene sets to random sets of genes in various forms

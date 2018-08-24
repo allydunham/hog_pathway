@@ -31,6 +31,9 @@ ko_growth_spread_all <- ko_growth %>%
   select(strain, condition, name, score) %>%
   spread(key = strain, value = score)
 
+# Version of ko_growth with non sig s-scores replaced with 0 to reduce heatmap noise
+ko_growth_sig <- mutate(ko_growth, score = if_else(qvalue < 0.01, score, 0))
+
 ## Identify Tested Genes/Strains/Conditions
 conditions <- unique(ko_growth$condition)
 condition_combs <- combn(conditions, 2)
