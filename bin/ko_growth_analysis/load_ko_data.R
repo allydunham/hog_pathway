@@ -86,6 +86,16 @@ set_genes <- unlist(sets) %>% unique()
 
 set_meta <- bind_rows(sapply(sets, function(x){data_frame(set_size=length(x))}, simplify = FALSE), .id = 'gene_set')
 
+## Load Reactome Pathways
+pathways <- read_tsv('meta/reactomePathwaysScerevisiae.tsv', col_names = c('gene', 'pathID', 'http', 'path', 'IEA', 'species')) %>%
+  select(gene, pathID, path) %>%
+  left_join(., select(gene_meta, gene, name), by='gene') %>%
+  mutate(name = ifelse(is.na(name), gene, name)) %>%
+  group_by(path) %>%
+  do(genes=c(.$name))
+pathways <- structure(pathways$genes, names=pathways$path)
+pathway_meta <- bind_rows(sapply(pathways, function(x){data_frame(set_size=length(x))}, simplify = FALSE), .id = 'gene_set')
+
 ## Extract S-Scores and Q-Values into per strain matrices
 strain_ko_scores <- sapply(unique(ko_growth$strain), split_strains, var='score', tbl=ko_growth, simplify = FALSE)
 strain_ko_qvalues <- sapply(unique(ko_growth$strain), split_strains, var='qvalue', tbl=ko_growth, simplify = FALSE)

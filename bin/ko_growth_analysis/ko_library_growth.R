@@ -717,7 +717,6 @@ strain_diff_ad_tests <- function(tbl){
 }
 
 do_strain_diff_ad_tests <- function(tbl, sets){
-  t <- unique(tbl$condition)
   return(
     bind_rows(
       sapply(sets,
@@ -747,6 +746,24 @@ View(filter(gene_set_strain_diff_ad_tests,
 p <- plot_con_gene_heatmaps(ko_growth, sets[['mf.iron_ion_transmembrane_transporter_activity(10)']], primary_strain = 'UWOP')
 p <- plot_con_gene_heatmaps(ko_growth, sets[['bp.cytogamy(4)']], primary_strain = 'UWOP')
 
+pathway_strain_diff_ad_tests <- group_by(ko_growth, condition) %>%
+  do(do_strain_diff_ad_tests(., pathways)) %>%
+  mutate(p.adj = p.adjust(asymp.p.val, method = 'fdr')) %>%
+  left_join(., pathway_meta)
+
+View(filter(pathway_strain_diff_ad_tests,
+            p.adj < 0.05,
+            set_size < 30))
+
+p <- plot_con_gene_heatmaps(ko_growth,
+                            pathways[['Biosynthesis of the N-glycan precursor (dolichol lipid-linked oligosaccharide, LLO) and transfer to a nascent protein']])
+
+pathway_strain_diff_ad_tests_filtered_cons <- filter(ko_growth, condition %in% growth_diff_cons) %>%
+  do(do_strain_diff_ad_tests(., pathways)) %>%
+  mutate(p.adj = p.adjust(asymp.p.val, method = 'fdr')) %>%
+  left_join(., pathway_meta)
+
+## Use gene switching probabilities
 gene_sig_summary <- filter(ko_growth, condition %in% growth_diff_cons) %>%
   mutate(signed_qvalue = sign(score) * qvalue) %>%
   select(strain, condition, name, signed_qvalue) %>%
@@ -785,6 +802,71 @@ switch_prob_summary <- filter(switch_probs, name %in% set_genes) %>%
   mutate_at(vars(contains('switches')), .funs = funs(./set_size))
 
 # Again bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)
+
+switch_prob_path_summary <- filter(switch_probs, name %in% unique(unlist(pathways))) %>%
+  mutate_at(vars(contains('phenotype')), as.logical) %>%
+  filter(phenotype1 | phenotype2, !sign(scores1) == sign(scores2)) %>%
+  left_join(., bind_rows(sapply(pathways, function(x){data_frame(name=x)}, simplify=FALSE), .id='gene_set'), by='name') %>%
+  group_by(condition, gene_set) %>%
+  summarise(switches = length(unique(name)), S288C_switches = sum(strain2 == 'S288C')) %>%
+  left_join(., pathway_meta, by = 'gene_set') %>%
+  mutate_at(vars(contains('switches')), .funs = funs(./set_size))
+
+# Again dolichol related appears to be best match
+p <- plot_con_gene_heatmaps(ko_growth, pathways[['Biosynthesis of the N-glycan precursor (dolichol lipid-linked oligosaccharide, LLO) and transfer to a nascent protein']])
+
+## Compare distribution of score diffs in S288C pairs vs other pairs
+strain_diffs_test <- function(tbl){
+  ind <- tbl$strain2 == 'S288C'
+  # Return NAs if not enough genes in the set have been tested
+  if (sum(ind) < 3 | sum(!ind) < 3){
+    return(data_frame(statistic=NA, p.value=NA, method='Two-sample Kolmogorov-Smirnov test', alternative='two-sided'))
+  } else {
+    return(tidy(ks.test(tbl[ind,]$sub, tbl[!ind,]$sub)))
+  }
+}
+
+do_strain_diffs_tests <- function(tbl, sets){
+  return(
+    bind_rows(
+      sapply(sets,
+             function(set){strain_diffs_test(tbl=filter(tbl, name %in% set))},
+             simplify = FALSE),
+      .id = 'gene_set')
+  )
+}
+
+gene_set_strain_diffs_tests_condition <- group_by(switch_probs, condition) %>%
+  do(do_strain_diffs_tests(., sets)) %>%
+  mutate(p.adj = p.adjust(p.value, method = 'fdr')) %>%
+  left_join(., set_meta, by='gene_set')
+
+# # Not particularly useful
+# gene_set_strain_diffs_tests_condition_filtered <- filter(switch_probs, name %in% set_genes) %>%
+#   mutate_at(vars(contains('phenotype')), as.logical) %>%
+#   filter(phenotype1 | phenotype2, !sign(scores1) == sign(scores2)) %>%
+#   group_by(condition) %>%
+#   do(do_strain_diffs_tests(., sets)) %>%
+#   mutate(p.adj = p.adjust(p.value, method = 'fdr'))  %>%
+#   left_join(., set_meta, by='gene_set')
+
+gene_set_strain_diffs_tests <- do(switch_probs, do_strain_diffs_tests(., sets)) %>%
+  mutate(p.adj = p.adjust(p.value, method = 'fdr'))  %>%
+  left_join(., set_meta, by='gene_set')
+
+gene_set_strain_diffs_tests_filt <- filter(switch_probs, condition %in% growth_diff_cons) %>%
+  do(do_strain_diffs_tests(., sets)) %>%
+  mutate(p.adj = p.adjust(p.value, method = 'fdr')) %>%
+  left_join(., set_meta, by='gene_set')
+
+# Identifies many groups that relate to NaCl but apparantly not to conditions of interest
+p <- plot_con_gene_heatmaps(ko_growth, sets[['bp.cellular_response_to_salt_stress(6)']], primary_strain = 'UWOP')
+p <- plot_con_gene_heatmaps(ko_growth, sets[['bp.regulation_of_ion_transport(5)']], primary_strain = 'UWOP')
+
+pathway_strain_diffs_tests_condition <- group_by(switch_probs, condition) %>%
+  do(do_strain_diffs_tests(., pathways)) %>%
+  mutate(p.adj = p.adjust(p.value, method = 'fdr')) %>%
+  left_join(., pathway_meta, by='gene_set')
 
 #### Compare Gene sets vs random set ####
 # Compare known gene sets to random sets of genes in various forms
