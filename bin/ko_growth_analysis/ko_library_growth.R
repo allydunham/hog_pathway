@@ -789,6 +789,13 @@ switch_prob_summary_set <- filter(switch_probs, name %in% set_genes, condition %
 p <- plot_con_gene_heatmaps(ko_growth, sets[['mf.glucosyltransferase_activity(6)']], primary_strain = 'UWOP')
 p <- plot_con_gene_heatmaps(ko_growth, sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']], primary_strain = 'UWOP')
 
+p_dichol <- plot_con_gene_heatmaps(ko_growth,
+                                   unique(c(sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']],
+                                            sets[['mf.glucosyltransferase_activity(6)']])),
+                                   primary_strain = 'UWOP')
+ggsave('figures/ko_growth/dichol_genes_strain_heatmaps.pdf', plot = p_dichol$strain_heatmap, width = 15, height = 17)
+
+
 ## Method based on filtering switches first
 switch_prob_summary <- filter(switch_probs, name %in% set_genes) %>%
   mutate_at(vars(contains('phenotype')), as.logical) %>%
@@ -802,6 +809,9 @@ switch_prob_summary <- filter(switch_probs, name %in% set_genes) %>%
   mutate_at(vars(contains('switches')), .funs = funs(./set_size))
 
 # Again bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)
+## For cyclohexamide, when looking for paraquat (both contain same gene set)
+p <- plot_con_gene_heatmaps(ko_growth, sets[['cc.Sin3_type_complex(5)']])
+p <- plot_con_gene_heatmaps(ko_growth, sets[['bp.negative_regulation_of_chromatin_silencing_at_silent_mating_type_cassette(6)']])
 
 switch_prob_path_summary <- filter(switch_probs, name %in% unique(unlist(pathways))) %>%
   mutate_at(vars(contains('phenotype')), as.logical) %>%
@@ -813,7 +823,8 @@ switch_prob_path_summary <- filter(switch_probs, name %in% unique(unlist(pathway
   mutate_at(vars(contains('switches')), .funs = funs(./set_size))
 
 # Again dolichol related appears to be best match
-p <- plot_con_gene_heatmaps(ko_growth, pathways[['Biosynthesis of the N-glycan precursor (dolichol lipid-linked oligosaccharide, LLO) and transfer to a nascent protein']])
+p_dichol_path <- plot_con_gene_heatmaps(ko_growth, pathways[['Biosynthesis of the N-glycan precursor (dolichol lipid-linked oligosaccharide, LLO) and transfer to a nascent protein']])
+ggsave('figures/ko_growth/dichol_path_genes_strain_heatmaps.pdf', plot = p_dichol_path$strain_heatmap, width = 15, height = 17)
 
 ## Compare distribution of score diffs in S288C pairs vs other pairs
 strain_diffs_test <- function(tbl){
@@ -871,7 +882,7 @@ pathway_strain_diffs_tests_condition <- group_by(switch_probs, condition) %>%
 #### Compare Gene sets vs random set ####
 # Compare known gene sets to random sets of genes in various forms
 # Determine group sizes for random samples
-set_sizes <- sapply(gene_sets_bp$genesets, length)
+set_sizes <- sapply(sets, length)
 set_size_exp_fit <- fitdistr(set_sizes, 'exponential')
 
 hist(set_sizes, freq = FALSE)
@@ -922,7 +933,7 @@ set_vars <- bind_rows(
                     .id = 'gene_set'),
     gene_sets = bind_rows(
                   sapply(
-                    gene_sets_filt$bp,
+                    sets,
                     apply_gene_score_fun,
                     tbl=ko_growth,
                     simplify = FALSE),
@@ -1031,5 +1042,6 @@ set_strain_con_num_sig %<>% left_join(., strain_set_props, by = c('strain', 'con
   mutate(expected_n_sig = func_size * expected_prop,
          prop_enriched = prop_sig/expected_prop)
 
+# Dichols are most enriched in caffeine as found in other analyses
 p <- plot_con_gene_heatmaps(ko_growth, gene_sets_bp_filt[['arginine_biosynthetic_process(8)']])
 
