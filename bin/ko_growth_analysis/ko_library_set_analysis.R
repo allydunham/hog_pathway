@@ -26,7 +26,20 @@ library(kSamples)
 #######################################################
 ##################### Analysis ########################
 #######################################################
-####  Sets determined by conditional impact ####
+#### 1 Manually looking for interesting complexes/sets ####
+## Gene Sets
+man_osmotic_genes <- gene_sets_filt$bp[grep('osmo', names(gene_sets_filt$bp))] %>% unlist() %>% unique()
+
+man_heat_genes <- gene_sets_filt$bp[grep('(temper|heat)', names(gene_sets_filt$bp))] %>% unlist %>% unique
+
+aa_genes <- c(grep('amino_acid_biosynthetic',names(gene_sets_filt$bp),value = TRUE),
+              "methionine_biosynthetic_process(7)",
+              "glutamate_biosynthetic_process(8)",
+              "arginine_biosynthetic_process(8)")
+aa_genes <- gene_sets_filt$bp[aa_genes] %>% unlist() %>% unname() %>% unique()
+########
+
+#### 2 Sets determined by conditional impact ####
 ## NaCl
 nacl_cons <- grep('NaCl 0\\..M \\(', conditions, value = TRUE)
 nacl_genes <- sapply(nacl_cons, get_sig_genes, growth_tbl = ko_growth, threshold=0.01) %>%
@@ -34,29 +47,15 @@ nacl_genes <- sapply(nacl_cons, get_sig_genes, growth_tbl = ko_growth, threshold
   unique() %>%
   setdiff(., c('OPI9', 'ARV1', 'YOR345C')) # Excluded because not tested in UWOP
 
-nacl_plots <- plot_con_gene_heatmaps(ko_growth, nacl_genes)
-ggsave('figures/ko_growth/nacl_genes_strain_heatmaps.pdf', plot = nacl_plots$strain_heatmap, width = 13, height = 13)
-ggsave('figures/ko_growth/nacl_genes_full_heatmaps.pdf', plot = nacl_plots$all_heatmap, width = 13, height = 15)
-nacl_plots_sig <- plot_con_gene_heatmaps(ko_growth_sig, nacl_genes)
-ggsave('figures/ko_growth/nacl_genes_strain_heatmaps_no_noise.pdf', plot = nacl_plots_sig$strain_heatmap, width = 13, height = 13)
-ggsave('figures/ko_growth/nacl_genes_full_heatmaps_no_noise.pdf', plot = nacl_plots_sig$all_heatmap, width = 13, height = 15)
-
 ## Maltose/Glycerol
 malt_cons <- c('Maltose 2% (48H)', 'Maltose 2% (72H)', 'Glycerol 2% (48H)', 'Glycerol 2% (72H)')
 malt_genes <- sapply(malt_cons, get_sig_genes, growth_tbl = ko_growth, threshold=0.001) %>%
   unlist() %>%
   unique()
 
-malt_plots <- plot_con_gene_heatmaps(ko_growth, malt_genes, primary_strain = 'UWOP')
-ggsave('figures/ko_growth/malt_genes_strain_heatmaps.pdf', plot = malt_plots$strain_heatmap, width = 15, height = 17)
-ggsave('figures/ko_growth/malt_genes_full_heatmaps.pdf', plot = malt_plots$all_heatmap, width = 15, height = 30)
-malt_plots_sig <- plot_con_gene_heatmaps(ko_growth_sig, malt_genes, primary_strain = 'UWOP')
-ggsave('figures/ko_growth/malt_genes_strain_heatmaps_no_noise.pdf', plot = malt_plots_sig$strain_heatmap, width = 15, height = 17)
-ggsave('figures/ko_growth/malt_genes_full_heatmaps_no_noise.pdf', plot = malt_plots_sig$all_heatmap, width = 15, height = 30)
-
 ########
 
-#### Sets based on KO growth distances ####
+#### 3 Sets based on KO growth distances ####
 ko_dists <- ko_growth_spread_all %>%
   mutate(S288C_UWOP = abs(S288C - UWOP),
          S288C_YPS = abs(S288C - YPS),
@@ -85,46 +84,9 @@ ko_dists_sum <- gather(ko_dists, key = 'pair', value = 'score_dist', S288C_UWOP:
 top_diff_genes <- filter(ko_dists_sum, na_count < 4, num_large > 2) %>%
   top_n(20, wt = mean_dist) %>%
   tbl_var_to_list(., 'name')
-
-p_heat <- plot_con_gene_heatmaps(ko_growth, top_diff_genes$`39ºC (72H)`)
-ggsave('figures/ko_growth/diff_heat_genes_strain_heatmap.pdf', p_heat$strain_heatmap, width = 12, height = 14)
-
-p_caff <- plot_con_gene_heatmaps(ko_growth, top_diff_genes$`Caffeine 20mM (48H)`)
 ########
 
-#### Manually looking for interesting complexes/sets ####
-## Complexes
-p_kornberg_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Kornberg\'s mediator (SRB) complex')$gene))
-p_rpd3l_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Rpd3L complex')$gene))
-p_ub_ligase_eradl_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'ubiquitin ligase ERAD-L complex')$gene))
-
-## Gene Sets
-osmotic_genes <- gene_sets_filt$bp[grep('osmo', names(gene_sets_filt$bp))] %>% unlist() %>% unique()
-osmo_plots <- plot_con_gene_heatmaps(ko_growth, osmotic_genes, primary_strain = 'UWOP')
-ggsave('figures/ko_growth/osmo_genes_strain_heatmaps.pdf', plot = osmo_plots$strain_heatmap, width = 20, height = 23)
-ggsave('figures/ko_growth/osmo_genes_full_heatmaps.pdf', plot = osmo_plots$all_heatmap, width = 20, height = 40)
-osmo_plots_sig <- plot_con_gene_heatmaps(ko_growth_sig, osmotic_genes, primary_strain = 'UWOP')
-ggsave('figures/ko_growth/osmo_genes_strain_heatmaps_no_noise.pdf', plot = osmo_plots_sig$strain_heatmap, width = 20, height = 23)
-ggsave('figures/ko_growth/osmo_genes_full_heatmaps_no_noise.pdf', plot = osmo_plots_sig$all_heatmap, width = 20, height = 40)
-
-heat_genes <- gene_sets_filt$bp[grep('(temper|heat)', names(gene_sets_filt$bp))] %>% unlist %>% unique
-heat_plots <- plot_con_gene_heatmaps(ko_growth, heat_genes)
-ggsave('figures/ko_growth/heat_genes_strain_heatmaps.pdf', plot = heat_plots$strain_heatmap, width = 15, height = 17)
-ggsave('figures/ko_growth/heat_genes_full_heatmaps.pdf', plot = heat_plots$all_heatmap, width = 15, height = 30)
-heat_plots_sig <- plot_con_gene_heatmaps(ko_growth_sig, heat_genes)
-ggsave('figures/ko_growth/heat_genes_strain_heatmaps_no_noise.pdf', plot = heat_plots_sig$strain_heatmap, width = 15, height = 17)
-ggsave('figures/ko_growth/heat_genes_full_heatmaps_no_noise.pdf', plot = heat_plots_sig$all_heatmap, width = 15, height = 30)
-
-aa_genes <- c(grep('amino_acid_biosynthetic',names(gene_sets_filt$bp),value = TRUE),
-              "methionine_biosynthetic_process(7)",
-              "glutamate_biosynthetic_process(8)",
-              "arginine_biosynthetic_process(8)")
-aa_genes <- gene_sets_filt$bp[aa_genes] %>% unlist() %>% unname() %>% unique()
-aa_plots <- plot_con_gene_heatmaps(ko_growth, aa_genes)
-ggsave('figures/ko_growth/aa_genes_strain_heatmaps.pdf', plot = aa_plots$strain_heatmap, width = 15, height = 23)
-########
-
-#### KS tests on set S-Score within each strain/con background ####
+#### 4 KS tests on set S-Score within each strain/con background ####
 gene_set_test <- function(set, con, tbl){
   tbl %<>% filter(condition == con)
   if (sum(tbl$name %in% set) > 0){
@@ -148,18 +110,19 @@ set_ks_tests_mat <- select(set_ks_tests, -gene_set_name, -p.val) %>%
   tbl_to_matrix(., row = 'gene_set_id') %>%
   set_na(., 0) %>%
   set_inf(., 16)
-heatmap.2(set_ks_tests_mat, col = colorRampPalette(colors = c('white','red'))(100), trace = 'none', margins = c(13,3))
+#heatmap.2(set_ks_tests_mat, col = colorRampPalette(colors = c('white','red'))(100), trace = 'none', margins = c(13,3))
 
 ## KS tests over all strain/condition pairs with all gene sets
-ks_batches %<>% mutate(p.adj = p.adjust(p.value, method = 'fdr'))
+ks_batches %<>% mutate(p.adj = p.adjust(p.value, method = 'fdr')) %>%
+  mutate(gene_set = paste(gene_set_group, gene_set, sep = '.')) %>%
+  select(-gene_set_group) %>%
+  left_join(., set_meta, by = "gene_set")
 
 p_pval_strain_density <- ggplot(ks_batches, aes(x=p.adj, colour=gene_set_group)) + geom_density() + facet_wrap(~strain)
 p_pval_con_dist <- ggplot(ks_batches, aes(y=p.adj, x=condition)) + geom_boxplot() + theme(axis.text.x = element_text(hjust = 1, vjust = 0.5, angle = 90))
-
-p <- plot_con_gene_heatmaps(ko_growth, genes=gene_sets_filt$cc[c('ribosomal_subunit(4)')] %>% unlist() %>% unique())
 ########
 
-#### T-tests on difference to background in each strain/con pair ####
+#### 5 T-tests on difference to background in each strain/con pair ####
 comp_t_test <- function(tbl, comp){
   ind <- tbl$name %in% comp
   # Return NAs if not enough genes in the set have been tested
@@ -187,7 +150,7 @@ complex_t_tests <- group_by(ko_growth, condition, strain) %>%
   mutate(p.adj=p.adjust(p.value, method = 'fdr'))
 ########
 
-#### T-tests comparing each strain to the others ####
+#### 6 T-tests comparing each strain to the others ####
 comp_strain_t_test <- function(tbl, str){
   ind <- tbl$strain == str
   # Return NAs if not enough genes in the set have been tested
@@ -228,7 +191,7 @@ set_strain_t_tests <- group_by(ko_growth, condition) %>%
   mutate(p.adj=p.adjust(p.value, method = 'fdr'))
 ########
 
-#### Anderson-Darling tests (difference between strains in a gene set in a condition) ####
+#### 7 Anderson-Darling tests (difference between strains in a gene set in a condition) ####
 strain_diff_ad_tests <- function(tbl){
   str_sizes <- table(tbl$strain)
   strs <- names(str_sizes)[str_sizes > 4]
@@ -278,11 +241,9 @@ pathway_strain_diff_ad_tests_filtered_cons <- filter(ko_growth, condition %in% g
   do(do_strain_diff_ad_tests(., pathways)) %>%
   mutate(p.adj = p.adjust(asymp.p.val, method = 'fdr')) %>%
   left_join(., pathway_meta)
-
-p <- plot_con_gene_heatmaps(ko_growth, pathways[['Biosynthesis of the N-glycan precursor (dolichol lipid-linked oligosaccharide, LLO) and transfer to a nascent protein']])
 ########
 
-#### Gene Switching Probabilities ####
+#### 8 Gene Switching Probabilities ####
 gene_sig_summary <- filter(ko_growth, condition %in% growth_diff_cons) %>%
   mutate(signed_qvalue = sign(score) * qvalue) %>%
   select(strain, condition, name, signed_qvalue) %>%
@@ -305,15 +266,6 @@ switch_prob_summary_set <- filter(switch_probs, name %in% set_genes, condition %
   mutate_at(vars(contains('switches'), 'S288C_non_sigs'), .funs = funs(./set_size))
 
 ## Identified sets have a strongly recuring theme of ALG/DIE genes
-p <- plot_con_gene_heatmaps(ko_growth, sets[['mf.glucosyltransferase_activity(6)']], primary_strain = 'UWOP')
-p <- plot_con_gene_heatmaps(ko_growth, sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']], primary_strain = 'UWOP')
-
-p_dichol <- plot_con_gene_heatmaps(ko_growth,
-                                   unique(c(sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']],
-                                            sets[['mf.glucosyltransferase_activity(6)']])),
-                                   primary_strain = 'UWOP')
-ggsave('figures/ko_growth/dichol_genes_strain_heatmaps.pdf', plot = p_dichol$strain_heatmap, width = 15, height = 17)
-
 
 ## Method based on filtering switches first
 switch_prob_summary <- filter(switch_probs, name %in% set_genes) %>%
@@ -328,9 +280,6 @@ switch_prob_summary <- filter(switch_probs, name %in% set_genes) %>%
   mutate_at(vars(contains('switches')), .funs = funs(./set_size))
 
 # Again bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)
-## For cyclohexamide, when looking for paraquat (both contain same gene set)
-p <- plot_con_gene_heatmaps(ko_growth, sets[['cc.Sin3_type_complex(5)']])
-p <- plot_con_gene_heatmaps(ko_growth, sets[['bp.negative_regulation_of_chromatin_silencing_at_silent_mating_type_cassette(6)']])
 
 switch_prob_path_summary <- filter(switch_probs, name %in% unique(unlist(pathways))) %>%
   mutate_at(vars(contains('phenotype')), as.logical) %>%
@@ -342,11 +291,9 @@ switch_prob_path_summary <- filter(switch_probs, name %in% unique(unlist(pathway
   mutate_at(vars(contains('switches')), .funs = funs(./set_size))
 
 # Again dolichol related appears to be best match
-p_dichol_path <- plot_con_gene_heatmaps(ko_growth, pathways[['Biosynthesis of the N-glycan precursor (dolichol lipid-linked oligosaccharide, LLO) and transfer to a nascent protein']])
-ggsave('figures/ko_growth/dichol_path_genes_strain_heatmaps.pdf', plot = p_dichol_path$strain_heatmap, width = 15, height = 17)
 ########
 
-#### KS tests on gene set gene's strain differences in each condition ####
+#### 9 KS tests on gene set gene's strain differences in each condition ####
 ## Compare distribution of score diffs in S288C pairs vs other pairs
 strain_diffs_test <- function(tbl){
   ind <- tbl$strain2 == 'S288C'
@@ -392,8 +339,6 @@ gene_set_strain_diffs_tests_filt <- filter(switch_probs, condition %in% growth_d
   left_join(., set_meta, by='gene_set')
 
 # Identifies many groups that relate to NaCl but apparantly not to conditions of interest
-p <- plot_con_gene_heatmaps(ko_growth, sets[['bp.cellular_response_to_salt_stress(6)']], primary_strain = 'UWOP')
-p <- plot_con_gene_heatmaps(ko_growth, sets[['bp.regulation_of_ion_transport(5)']], primary_strain = 'UWOP')
 
 pathway_strain_diffs_tests_condition <- group_by(switch_probs, condition) %>%
   do(do_strain_diffs_tests(., pathways)) %>%
@@ -401,7 +346,7 @@ pathway_strain_diffs_tests_condition <- group_by(switch_probs, condition) %>%
   left_join(., pathway_meta, by='gene_set')
 ########
 
-#### Compare Gene sets vs random set ####
+#### 10 Compare Gene sets vs random set ####
 # Compare known gene sets to random sets of genes in various forms
 # Determine group sizes for random samples
 set_sizes <- sapply(sets, length)
@@ -565,13 +510,56 @@ set_strain_con_num_sig %<>% left_join(., strain_set_props, by = c('strain', 'con
          prop_enriched = prop_sig/expected_prop)
 
 # Dichols are most enriched in caffeine as found in other analyses
-p <- plot_con_gene_heatmaps(ko_growth, gene_sets_bp_filt[['arginine_biosynthetic_process(8)']])
 ########
 
-#### Overall top sets identified ####
+#### Interesting Sets Identified (from previous sections and manual) ####
+# Identified by the section number they were drawn from
+## Heat
+p_manual_heat <- plot_con_gene_heatmaps(ko_growth, man_heat_genes) #1
+ggsave('figures/ko_growth/heat_genes_strain_heatmaps.pdf', plot = p_manual_heat$strain_heatmap, width = 15, height = 17)
+
+p_kornberg_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Kornberg\'s mediator (SRB) complex')$gene)) #1
+
+p_heat <- plot_con_gene_heatmaps(ko_growth, top_diff_genes$`39ºC (72H)`) #3
+ggsave('figures/ko_growth/diff_heat_genes_strain_heatmap.pdf', p_heat$strain_heatmap, width = 12, height = 14)
+
 ## Caffiene
-p_caff_dichol <- plot_con_gene_heatmaps(ko_growth, sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']], primary_strain = 'UWOP')
-p_caff_swr1_comp <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Swr1p complex')$gene))
+p_caff_diff <- plot_con_gene_heatmaps(ko_growth, top_diff_genes$`Caffeine 20mM (48H)`) #3
+p_caff_swr1_comp <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Swr1p complex')$gene)) #10
+
+p_dichol <- plot_con_gene_heatmaps(ko_growth,
+                                   unique(c(sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']],
+                                            sets[['mf.glucosyltransferase_activity(6)']])),
+                                   primary_strain = 'UWOP') # 10, 8, 7
+ggsave('figures/ko_growth/dichol_genes_strain_heatmaps.pdf', plot = p_dichol$strain_heatmap, width = 15, height = 17)
+
+p_dichol_path <- plot_con_gene_heatmaps(ko_growth, pathways[['Biosynthesis of the N-glycan precursor (dolichol lipid-linked oligosaccharide, LLO) and transfer to a nascent protein']]) #8, 7
+ggsave('figures/ko_growth/dichol_path_genes_strain_heatmaps.pdf', plot = p_dichol_path$strain_heatmap, width = 15, height = 17)
+
+## NaCl
+p_manual_osmo <- plot_con_gene_heatmaps(ko_growth, man_osmotic_genes, primary_strain = 'UWOP') #1
+ggsave('figures/ko_growth/osmo_genes_strain_heatmaps.pdf', plot = p_manual_osmo$strain_heatmap, width = 20, height = 23)
+
+p_resp_to_salt <- plot_con_gene_heatmaps(ko_growth, sets[['bp.cellular_response_to_salt_stress(6)']], primary_strain = 'UWOP') #9
+p_ion_transport_reg <- plot_con_gene_heatmaps(ko_growth, sets[['bp.regulation_of_ion_transport(5)']], primary_strain = 'UWOP') #9
+nacl_plots <- plot_con_gene_heatmaps(ko_growth, nacl_genes) #2
+ggsave('figures/ko_growth/nacl_genes_strain_heatmaps.pdf', plot = nacl_plots$strain_heatmap, width = 13, height = 13)
+
+## Cyclohexamide
+p_rpd3l_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Rpd3L complex')$gene)) #1
+# For cyclohexamide, when looking for paraquat (both contain same gene set)
+p_sin3_comp <- plot_con_gene_heatmaps(ko_growth, sets[['cc.Sin3_type_complex(5)']]) #8
+p_neg_chrom_silence <- plot_con_gene_heatmaps(ko_growth, sets[['bp.negative_regulation_of_chromatin_silencing_at_silent_mating_type_cassette(6)']]) #8
+
+## Maltose/Glycerol
+p_rib_subunit <- plot_con_gene_heatmaps(ko_growth, genes=gene_sets_filt$cc[c('ribosomal_subunit(4)')] %>% unlist() %>% unique()) #4
+malt_plots <- plot_con_gene_heatmaps(ko_growth, malt_genes, primary_strain = 'UWOP') #2
+ggsave('figures/ko_growth/malt_genes_strain_heatmaps.pdf', plot = malt_plots$strain_heatmap, width = 15, height = 17)
+
+##AA Starvation
+p_aa <- plot_con_gene_heatmaps(ko_growth, aa_genes) #1
+ggsave('figures/ko_growth/aa_genes_strain_heatmaps.pdf', plot = p_aa$strain_heatmap, width = 15, height = 23)
+
 
 ########
 
