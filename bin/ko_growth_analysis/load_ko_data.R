@@ -136,6 +136,7 @@ ks_batches <- read_tsv('data/ko_ks_tests/all_tests.tsv')
 
 ## Growth rate of each strain in each condition relative to S288C
 strain_relative_growth <- read_tsv('data/relative_fitness.tsv')
+growth_diff_cons <- c('Paraquat (48H)', 'Caffeine 20mM (48H)', 'Caffeine 15mM (48H)', 'Acetic acid (48H)', 'Maltose 2% (48H)', 'Maltose 2% (72H)')
 
 ## Switching probabilities (probability difference in growth between strains for a gene ko is by chance)
 switch_probs <- read_tsv('data/gene_switch_probabilities.tsv') %>%
