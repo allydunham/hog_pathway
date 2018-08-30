@@ -37,6 +37,8 @@ aa_genes <- c(grep('amino_acid_biosynthetic',names(gene_sets_filt$bp),value = TR
               "glutamate_biosynthetic_process(8)",
               "arginine_biosynthetic_process(8)")
 aa_genes <- gene_sets_filt$bp[aa_genes] %>% unlist() %>% unname() %>% unique()
+
+mal_genes <- grep('MAL', genes, value = TRUE)
 ########
 
 #### 2 Sets determined by conditional impact ####
@@ -267,11 +269,10 @@ switch_prob_summary_set <- filter(switch_probs, name %in% set_genes, condition %
 
 ## Identified sets have a strongly recuring theme of ALG/DIE genes
 
-## Method based on filtering switches first
+## Method based on filtering switches first - anomolies seen in relation to stars on heatmaps from different sig threshold
 switch_prob_summary <- filter(switch_probs, name %in% set_genes) %>%
   mutate_at(vars(contains('phenotype')), as.logical) %>%
-  filter(phenotype1 | phenotype2,
-         !sign(scores1) == sign(scores2)) %>%
+  filter(xor(phenotype1, phenotype2) | (!(sign(scores1) == sign(scores2)) & qval< 0.01)) %>%
   left_join(., bind_rows(sapply(sets, function(x){data_frame(name=x)}, simplify=FALSE), .id='gene_set'), by='name') %>%
   group_by(condition, gene_set) %>%
   summarise(switches = length(unique(name)),
@@ -280,6 +281,17 @@ switch_prob_summary <- filter(switch_probs, name %in% set_genes) %>%
   mutate_at(vars(contains('switches')), .funs = funs(./set_size))
 
 # Again bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)
+
+# # Method restricted to S288C switches
+# switch_prob_summary <- filter(switch_probs, name %in% set_genes, condition %in% c("Cyclohexamide (48H)", "39ºC (48H)", "39ºC (72H)")) %>%
+#   mutate_at(vars(contains('phenotype')), as.logical) %>%
+#   filter(xor(phenotype1, phenotype2) | (!(sign(scores1) == sign(scores2)) & qval< 0.01),
+#          strain2 == 'S288C' & phenotype2) %>%
+#   left_join(., bind_rows(sapply(sets, function(x){data_frame(name=x)}, simplify=FALSE), .id='gene_set'), by='name') %>%
+#   group_by(condition, gene_set) %>%
+#   summarise(switches = length(unique(name))) %>%
+#   left_join(., set_meta, by = 'gene_set') %>%
+#   mutate(switches = switches/set_size)
 
 switch_prob_path_summary <- filter(switch_probs, name %in% unique(unlist(pathways))) %>%
   mutate_at(vars(contains('phenotype')), as.logical) %>%
@@ -523,6 +535,8 @@ p_kornberg_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes,
 p_heat <- plot_con_gene_heatmaps(ko_growth, top_diff_genes$`39ºC (72H)`) #3
 ggsave('figures/ko_growth/diff_heat_genes_strain_heatmap.pdf', p_heat$strain_heatmap, width = 12, height = 14)
 
+p_tubulin_heat <- plot_con_gene_heatmaps(ko_growth, sets[['bp.tubulin_complex_assembly(6)']]) #8
+
 ## Caffiene
 p_caff_diff <- plot_con_gene_heatmaps(ko_growth, top_diff_genes$`Caffeine 20mM (48H)`) #3
 p_caff_swr1_comp <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Complex == 'Swr1p complex')$gene)) #10
@@ -550,8 +564,10 @@ p_rpd3l_complex <- plot_con_gene_heatmaps(ko_growth, unlist(filter(complexes, Co
 # For cyclohexamide, when looking for paraquat (both contain same gene set)
 p_sin3_comp <- plot_con_gene_heatmaps(ko_growth, sets[['cc.Sin3_type_complex(5)']]) #8
 p_neg_chrom_silence <- plot_con_gene_heatmaps(ko_growth, sets[['bp.negative_regulation_of_chromatin_silencing_at_silent_mating_type_cassette(6)']]) #8
+p_chrom_silence <- plot_con_gene_heatmaps(ko_growth, sets[['bp.regulation_of_chromatin_silencing_at_rDNA(6)']]) #8
 
 ## Maltose/Glycerol
+p_mal_genes <- plot_con_gene_heatmaps(ko_growth, mal_genes) #1, manually identified mal gene example
 p_rib_subunit <- plot_con_gene_heatmaps(ko_growth, genes=gene_sets_filt$cc[c('ribosomal_subunit(4)')] %>% unlist() %>% unique()) #4
 malt_plots <- plot_con_gene_heatmaps(ko_growth, malt_genes, primary_strain = 'UWOP') #2
 ggsave('figures/ko_growth/malt_genes_strain_heatmaps.pdf', plot = malt_plots$strain_heatmap, width = 15, height = 17)
