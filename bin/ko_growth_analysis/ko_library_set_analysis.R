@@ -595,11 +595,16 @@ p <- plot_ly(filter(imp_gens, type=='nonsynonymous'), x=~freq, y=~sift_score, te
 
 ## Look only at genes with phenotypes
 imp_gens_restricted <- filter(imp, name %in% c('TPS1', 'ALG3', 'DIE2', 'ALG5', 'ALG8', 'ALG6'))
-imp_strs_restricted <- filter(imp_gens, mut_id %in% c(uwop_muts, y55_muts))
+imp_strs_restricted <- filter(imp_gens_restricted, mut_id %in% c(uwop_muts, y55_muts))
 # Single non-synonomous variant found in dichol genes with phenotypes (chrVII:947885_G/A), only carried in Y55
 
 # Look at frequency vs sift score in nonsynonymous variants in phenotype genes - single high freq, high sift variant - YGR227W M61V
 p <- plot_ly(filter(imp_gens_restricted, type=='nonsynonymous'), x=~freq, y=~sift_score, text=~id)
 
+## Look only at genes with phenotypes
+imp_strs_both <- filter(imp_gens, mut_id %in% intersect(uwop_muts, y55_muts))
+
+# Look at frequency vs sift score in nonsynonymous variants in phenotype genes - single high freq, high sift variant - YGR227W M61V
+p <- plot_ly(filter(imp_gens_both, type=='nonsynonymous'), x=~freq, y=~sift_score, text=~id)
 ########
 
