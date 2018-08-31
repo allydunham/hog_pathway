@@ -141,3 +141,11 @@ growth_diff_cons <- c('Paraquat (48H)', 'Caffeine 20mM (48H)', 'Caffeine 15mM (4
 ## Switching probabilities (probability difference in growth between strains for a gene ko is by chance)
 switch_probs <- read_tsv('data/gene_switch_probabilities.tsv') %>%
   left_join(., select(gene_meta, gene, name))
+
+## Genotypes and mut impacts
+frq <- readRDS('data/Rdata/allele_freqs.rds')
+geno <- readRDS('data/Rdata/genotypes_all_genes.rds')
+imp <- readRDS('data/Rdata/all_muts_impacts.rds') %>%
+  left_join(., frq, by='mut_id') %>%
+  left_join(., gene_meta, by = 'gene')
+  

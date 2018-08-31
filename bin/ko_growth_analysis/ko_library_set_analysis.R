@@ -566,6 +566,9 @@ p_sin3_comp <- plot_con_gene_heatmaps(ko_growth, sets[['cc.Sin3_type_complex(5)'
 p_neg_chrom_silence <- plot_con_gene_heatmaps(ko_growth, sets[['bp.negative_regulation_of_chromatin_silencing_at_silent_mating_type_cassette(6)']]) #8
 p_chrom_silence <- plot_con_gene_heatmaps(ko_growth, sets[['bp.regulation_of_chromatin_silencing_at_rDNA(6)']]) #8
 
+# Also heat and caff
+p_his_ubi <- plot_con_gene_heatmaps(ko_growth, sets[['bp.histone_ubiquitination(5)']]) #8
+
 ## Maltose/Glycerol
 p_mal_genes <- plot_con_gene_heatmaps(ko_growth, mal_genes) #1, manually identified mal gene example
 p_rib_subunit <- plot_con_gene_heatmaps(ko_growth, genes=gene_sets_filt$cc[c('ribosomal_subunit(4)')] %>% unlist() %>% unique()) #4
@@ -576,6 +579,27 @@ ggsave('figures/ko_growth/malt_genes_strain_heatmaps.pdf', plot = malt_plots$str
 p_aa <- plot_con_gene_heatmaps(ko_growth, aa_genes) #1
 ggsave('figures/ko_growth/aa_genes_strain_heatmaps.pdf', plot = p_aa$strain_heatmap, width = 15, height = 23)
 
+########
+
+#### Test Genes of interest for mutations ####
+# Identify variants carried by the ko strains
+uwop_muts <- geno$mut_id[geno$SACE_GAT > 0]
+y55_muts <- geno$mut_id[geno$ADA > 0]
+
+## Look at whole dichol gene set (was significant in caffiene)
+imp_gens <- filter(imp, name %in% unique(c(sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']],
+                                           sets[['mf.glucosyltransferase_activity(6)']])))
+imp_strs <- filter(imp_gens, mut_id %in% c(uwop_muts, y55_muts))
+
+p <- plot_ly(filter(imp_gens, type=='nonsynonymous'), x=~freq, y=~sift_score, text=~id)
+
+## Look only at genes with phenotypes
+imp_gens_restricted <- filter(imp, name %in% c('TPS1', 'ALG3', 'DIE2', 'ALG5', 'ALG8', 'ALG6'))
+imp_strs_restricted <- filter(imp_gens, mut_id %in% c(uwop_muts, y55_muts))
+# Single non-synonomous variant found in dichol genes with phenotypes (chrVII:947885_G/A), only carried in Y55
+
+# Look at frequency vs sift score in nonsynonymous variants in phenotype genes - single high freq, high sift variant - YGR227W M61V
+p <- plot_ly(filter(imp_gens_restricted, type=='nonsynonymous'), x=~freq, y=~sift_score, text=~id)
 
 ########
 
