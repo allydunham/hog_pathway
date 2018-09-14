@@ -49,6 +49,10 @@ nacl_genes <- sapply(nacl_cons, get_sig_genes, growth_tbl = ko_growth, threshold
   unique() %>%
   setdiff(., c('OPI9', 'ARV1', 'YOR345C')) # Excluded because not tested in UWOP
 
+# No gene set contains more than a few of the NaCl sig genes
+nacl_sets <- data_frame(set = names(sets), count = sapply(sets, function(x){sum(x %in% nacl_genes)}), len = gene_set_lengths) %>%
+  mutate(rel_count = count/len)
+
 ## Maltose/Glycerol
 malt_cons <- c('Maltose 2% (48H)', 'Maltose 2% (72H)', 'Glycerol 2% (48H)', 'Glycerol 2% (72H)')
 malt_genes <- sapply(malt_cons, get_sig_genes, growth_tbl = ko_growth, threshold=0.001) %>%
@@ -358,6 +362,7 @@ pathway_strain_diffs_tests_condition <- group_by(switch_probs, condition) %>%
   left_join(., pathway_meta, by='gene_set')
 ########
 
+## Reorganise plots into lists?
 #### 10 Compare Gene sets vs random set ####
 # Compare known gene sets to random sets of genes in various forms
 # Determine group sizes for random samples
@@ -578,7 +583,6 @@ ggsave('figures/ko_growth/malt_genes_strain_heatmaps.pdf', plot = malt_plots$str
 ##AA Starvation
 p_aa <- plot_con_gene_heatmaps(ko_growth, aa_genes) #1
 ggsave('figures/ko_growth/aa_genes_strain_heatmaps.pdf', plot = p_aa$strain_heatmap, width = 15, height = 23)
-
 ########
 
 #### Test Genes of interest for mutations ####
@@ -608,3 +612,70 @@ imp_strs_both <- filter(imp_gens, mut_id %in% intersect(uwop_muts, y55_muts))
 p <- plot_ly(filter(imp_gens_both, type=='nonsynonymous'), x=~freq, y=~sift_score, text=~id)
 ########
 
+#### Test Gene Sets for RNA seq enrichment ####
+rna_seq_sets <- data_frame(gene_set = rep(names(sets), gene_set_lengths), name = unlist(sets)) %>%
+  left_join(., rna_seq, by='name') %>%
+  group_by(gene_set, strain) %>%
+  summarise(all = sum(padj < 0.01),
+            up = sum(padj < 0.01 & log2FoldChange > 0),
+            down = sum(padj < 0.01 & log2FoldChange < 0)) %>%
+  drop_na() %>%
+  gather(key = 'type', value = 'count', all, up, down) %>%
+  unite(col = 'unite', strain, type, sep = '_') %>%
+  spread(key = 'unite', value = 'count') %>%
+  mutate(total_all = UWOPS87_2421_all + Y55_all + YPS606_all,
+         total_up = UWOPS87_2421_up + Y55_all + YPS606_up,
+         total_down = UWOPS87_2421_down + Y55_down + YPS606_down) %>%
+  left_join(., data_frame(gene_set=names(gene_set_lengths), set_size=gene_set_lengths), by='gene_set') %>%
+  mutate_at(.vars = vars(-gene_set, set_size), funs(norm = ./set_size)) %>%
+  mutate_at(.vars = vars(matches('total_.+_norm')), funs(./3))
+########
+
+#### RNA Seq Comparison in Interesting Sets ####
+## Heat
+p_manual_heat_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = man_heat_genes) #1
+
+p_kornberg_complex_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = unlist(filter(complexes, Complex == 'Kornberg\'s mediator (SRB) complex')$gene)) #1
+
+p_heat_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = top_diff_genes$`39ºC (72H)`) #3
+
+p_tubulin_heat_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = sets[['bp.tubulin_complex_assembly(6)']]) #8
+
+## Caffiene
+p_caff_diff_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = top_diff_genes$`Caffeine 20mM (48H)`) #3
+p_caff_swr1_comp_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = unlist(filter(complexes, Complex == 'Swr1p complex')$gene)) #10
+
+p_dichol_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = unique(c(sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']],
+                                                                         sets[['mf.glucosyltransferase_activity(6)']]))) # 10, 8, 7
+ggsave('figures/ko_growth/dichol_genes_expression.pdf', plot = p_dichol_expr, width = 8, height = 8)
+p_dichol_expr_caff <- plot_rna_seq_fold_change(rna_seq_caff, gene_names = unique(c(sets[['bp.dolichol_linked_oligosaccharide_biosynthetic_process(6)']],
+                                                                         sets[['mf.glucosyltransferase_activity(6)']]))) # 10, 8, 7
+ggsave('figures/ko_growth/dichol_genes_expression_caff.pdf', plot = p_dichol_expr_caff, width = 8, height = 8)
+
+p_dichol_path_expr <- plot_rna_seq_fold_change(rna_seq, gene_names =  pathways[['Biosynthesis of the N-glycan precursor (dolichol lipid-linked oligosaccharide, LLO) and transfer to a nascent protein']]) #8, 7
+
+## NaCl
+p_manual_osmo_expr <- plot_rna_seq_fold_change(rna_seq, gene_names =  man_osmotic_genes) #1
+
+p_resp_to_salt_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = sets[['bp.cellular_response_to_salt_stress(6)']]) #9
+p_ion_transport_reg_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = sets[['bp.regulation_of_ion_transport(5)']]) #9
+p_nacl_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = nacl_genes) #2
+
+## Cyclohexamide
+p_rpd3l_complex_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = unlist(filter(complexes, Complex == 'Rpd3L complex')$gene)) #1
+# For cyclohexamide, when looking for paraquat (both contain same gene set)
+p_sin3_comp_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = sets[['cc.Sin3_type_complex(5)']]) #8
+p_neg_chrom_silence_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = sets[['bp.negative_regulation_of_chromatin_silencing_at_silent_mating_type_cassette(6)']]) #8
+p_chrom_silence_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = sets[['bp.regulation_of_chromatin_silencing_at_rDNA(6)']]) #8
+
+# Also heat and caff
+p_his_ubi_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = sets[['bp.histone_ubiquitination(5)']]) #8
+
+## Maltose/Glycerol
+p_mal_genes_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = mal_genes) #1, manually identified mal gene example
+p_rib_subunit_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = gene_sets_filt$cc[c('ribosomal_subunit(4)')] %>% unlist() %>% unique()) #4
+p_malt_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = malt_genes) #2
+
+##AA Starvation
+p_aa_expr <- plot_rna_seq_fold_change(rna_seq, gene_names = aa_genes) #1
+########

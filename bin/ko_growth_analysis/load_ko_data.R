@@ -1,7 +1,5 @@
 # Initialisation script to load the data for KO growht analyis
 setwd('~/Projects/hog/')
-source('bin/general_functions.R')
-source('bin/ko_growth_analysis/ko_analysis_functions.R')
 
 # Load Packages
 library(rlang)
@@ -148,4 +146,19 @@ geno <- readRDS('data/Rdata/genotypes_all_genes.rds')
 imp <- readRDS('data/Rdata/all_muts_impacts.rds') %>%
   left_join(., frq, by='mut_id') %>%
   left_join(., gene_meta, by = 'gene')
-  
+
+## RNA seq
+rna_seq <- sapply(dir('data/raw/ko_BY4742/', pattern = '[0-9].csv'), function(x){read_csv(paste0('data/raw/ko_BY4742/', x), col_names = TRUE) %>%
+    rename(gene = X1) %>%
+    left_join(., select(gene_meta, gene, name))}, simplify = FALSE) %>%
+  set_names(gsub('.csv', '', names(.))) %>%
+  bind_rows(., .id = 'strain')
+
+## Some padj found to be NA despite presence of test statistic - not unusually distributed
+p <- ggplot(rna_seq, aes(x=strain, y=baseMean, col=is.na(padj))) + geom_boxplot()
+
+rna_seq_caff <- sapply(dir('data/raw/ko_BY4742/', pattern = '.caff.csv'), function(x){read_csv(paste0('data/raw/ko_BY4742/', x), col_names = TRUE) %>%
+    rename(gene = X1) %>%
+    left_join(., select(gene_meta, gene, name))}, simplify = FALSE) %>%
+  set_names(gsub('.csv', '', names(.))) %>%
+  bind_rows(., .id = 'strain')

@@ -160,3 +160,43 @@ plot_con_gene_heatmaps <- function(tbl, genes, cons=NULL, strains=NULL, primary_
               all_gene_dend=p_all_gene_dend,
               all_condition_dend=p_all_con_dend))
 }
+
+# Function to plot RNA seq expression levels relative to S288C in a gene set. Gene IDs take precedent over gene names
+plot_rna_seq_fold_change <- function(tbl, gene_ids=NULL, gene_names=NULL, cons=NULL, strains=NULL, sig_level=0.01){
+  if (!is.null(strains)){
+    tbl <- filter(tbl, strain %in% strains)
+  }
+  if (!is.null(gene_ids)){
+    tbl <- filter(tbl, gene %in% gene_ids)
+    var = 'gene'
+  } else if (!is.null(gene_names)){
+    tbl <- filter(tbl, name %in% gene_names)
+    var = 'name'
+  } else {
+    stop("One of 'genes' or 'names' must be provided")
+  }
+  
+  tbl <- mutate(tbl, sig = ifelse(padj < sig_level, '*', ''))
+  
+  limits <- c(min(tbl$log2FoldChange, na.rm = TRUE), max(tbl$log2FoldChange, na.rm = TRUE))
+  max_abs <- max(abs(limits))
+  
+  if (max_abs < 2){
+    clrs <- c('firebrick2', 'white', 'cornflowerblue')
+  } else {
+    clrs <- c('firebrick2', 'darkgoldenrod1', 'white', 'cornflowerblue', 'darkorchid')
+  }
+  
+  p <- ggplot(tbl, aes_string(y=var, x='strain', fill='log2FoldChange')) +
+    geom_raster() +
+    geom_text(aes(label=sig)) +
+    xlab('Strain') +
+    ylab('Gene') + 
+    scale_fill_gradientn(colours = clrs, na.value = 'black', limits=c(-max_abs, max_abs)) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+    guides(fill=guide_colourbar(title = 'Log2 Fold Change'))
+  
+  return(p)
+}
+
+
