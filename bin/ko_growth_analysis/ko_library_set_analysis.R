@@ -606,7 +606,7 @@ imp_strs_restricted <- filter(imp_gens_restricted, mut_id %in% c(uwop_muts, y55_
 p <- plot_ly(filter(imp_gens_restricted, type=='nonsynonymous'), x=~freq, y=~sift_score, text=~id)
 
 ## Look only at genes with phenotypes
-imp_strs_both <- filter(imp_gens, mut_id %in% intersect(uwop_muts, y55_muts))
+imp_gens_both <- filter(imp_gens, mut_id %in% intersect(uwop_muts, y55_muts))
 
 # Look at frequency vs sift score in nonsynonymous variants in phenotype genes - single high freq, high sift variant - YGR227W M61V
 p <- plot_ly(filter(imp_gens_both, type=='nonsynonymous'), x=~freq, y=~sift_score, text=~id)
