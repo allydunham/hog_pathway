@@ -8,3 +8,4 @@ mutfunc/*
 *.jpg
 *.png
 *.pdg
+*.Rdata
