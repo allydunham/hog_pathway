@@ -274,6 +274,10 @@ p_gene_strain_cor_boxes <- ggplot(gather(gene_ko_profile_cor, key = 'strain_pair
   geom_jitter()
 ggplotly(p_gene_strain_cor_boxes, tooltip = c('gene'))
 
+p_gene_strain_cor_boxes <- ggplot(gather(gene_ko_profile_cor, key = 'strain_pair', value = 'cor', UWOP_S288C:YPS_Y55), aes(x=strain_pair, y=cor)) +
+  geom_boxplot()
+ggsave('figures/ko_growth/gene_cors_between_strains.pdf', p_gene_strain_cor_boxes, width = 8, height = 6)
+
 plot_ly(gene_ko_profile_cor, x=~var_cor, y=~mean_cor, color=~sig_level, text=~gene) %>%
   add_markers() %>%
   layout(title = "Summary of gene profiles correlations between strains",
@@ -306,6 +310,13 @@ p_gene_mean_var_cor <- ggarrange(ggplot(gene_ko_profile_cor, aes(x=var_cor, y=me
                                  legend = 'top',
                                  align = 'hv')
 ggsave('figures/ko_growth/gene_strain_impact_profile_correlations.pdf', p_gene_mean_var_cor, width = 9, height = 9)
+
+p_gene_sig_vs_cor_boxes <- ggplot(gene_ko_profile_cor, aes(x=sig_level, y=mean_cor)) +
+  geom_boxplot() +
+  xlab('Number of strains with q.value < 0.01') +
+  ylab('Mean Correlation Between Strains') +
+  stat_summary(geom = 'text', fun.data = function(x){return(c(y = -0.55, label = length(x)))})
+ggsave('figures/ko_growth/mean_gene_cor_by_sig.pdf', p_gene_sig_vs_cor_boxes, width = 8, height = 5)
 
 p_gene_strain_cor_density <- ggplot(gather(gene_ko_profile_cor, key = 'strain_pair', value = 'cor', UWOP_S288C:YPS_Y55), aes(colour=strain_pair, x=cor)) +
   geom_density() +
