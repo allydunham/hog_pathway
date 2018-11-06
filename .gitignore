@@ -1,0 +1,10 @@
+# Folders #
+data/*
+meta/*
+figures/*
+mutfunc/*
+
+# Files #
+*.jpg
+*.png
+*.pdg
