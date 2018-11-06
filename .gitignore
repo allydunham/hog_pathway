@@ -7,5 +7,5 @@ mutfunc/*
 # Files #
 *.jpg
 *.png
-*.pdg
+*.pdf
 *.Rdata
