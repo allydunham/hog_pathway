@@ -14,7 +14,7 @@
 project_name="HOG Pathway Mutations Project"
 local_dir=$HOME/phd/hog
 remote_dirs=( ebi:/nfs/research1/beltrao/ally/hog ) # not on yet ebi:/hps/research1/beltrao/ally/hog )
-folders=( "meta" "figures" ) # "data" "mutfunc" stored only on farm to save data
+folders=( "meta" "figures" "data" ) # "data" "mutfunc" stored only on farm to save data
 
 ## Colours for printf ##
 green=$(tput setaf 2)
