@@ -27,7 +27,7 @@ syncr () {
 
 if [ $# -eq 0 ]
    then
-   folders=( "meta" "figures" ) # "data" excluded to save disk space, add if necessary
+   folders=( "meta" "figures" ) # "data" "mutfunc" excluded to save disk space, add if necessary
 else
    folders=( "$@" )
 fi
