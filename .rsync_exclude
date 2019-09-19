@@ -12,13 +12,10 @@ bede_condition_sig_gene_affect_growth_impacts_0.8.tsv
 jelier.impact
 combined-variants/*
 ko_condition_sensitivity.tsv
-relative_fitness.tsv
 complexes.tsv
 ko_gene_opposite_growth.tsv
 correlation_data.Rdata
-ko_ks_tests/*
 correlations/*
 mal_variants.recode.vcf
 strain_genotypes/*
-gene_switch_probabilities.tsv
 mutfunc/*
