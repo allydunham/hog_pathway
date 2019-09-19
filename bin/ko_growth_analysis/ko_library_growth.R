@@ -1,5 +1,4 @@
 # Script performing analying ko library growth
-setwd('~/Projects/hog/')
 
 ## Load Packages and Import data
 # Packages loaded before Tidyverse

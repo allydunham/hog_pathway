@@ -1,5 +1,4 @@
 # Initialisation script to load the data for KO growht analyis
-setwd('~/Projects/hog/')
 
 # Load Packages
 library(rlang)
