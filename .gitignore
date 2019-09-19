@@ -9,3 +9,4 @@ mutfunc/*
 *.png
 *.pdf
 *.Rdata
+.Rproj.user
