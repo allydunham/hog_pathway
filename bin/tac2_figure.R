@@ -6,6 +6,7 @@ library(tidyverse)
 library(rlang)
 library(magrittr)
 library(ggpubr)
+library(gridExtra)
 
 source('bin/general_functions.R')
 source('bin/ko_growth_analysis/ko_analysis_functions.R')
@@ -48,8 +49,8 @@ p_distances <- ggplot(distances, aes(x=genetic_distance, y=growth_distance,
   geom_point(shape=20, colour='cornflowerblue') +
   geom_boxplot(alpha = 0.5, outlier.shape = NA) +
   theme_pubclean() +
-  ylab('S-Score Profile Distance') +
-  xlab('Genetic Distance (Manhattan)')
+  labs(y = 'S-Score Profile Distance', x = 'Genetic Distance (Manhattan)', tag = 'B')
+ggsave('figures/tac2_figure/distances.pdf', p_distances, height = 10, width = 20, units = 'cm')
 ########
 
 #### Panel 2 - Summary of number of different genes ####
@@ -88,7 +89,11 @@ p_ko_summary_tbl <- gather(strain_ko_summary, key = 'lab', value = 'value', Coun
   scale_x_discrete(position = 'top') +
   theme(panel.background = element_blank(),
         axis.title = element_blank(),
-        axis.ticks = element_blank())
+        axis.ticks = element_blank()) +
+  labs(tag = 'A')
+
+ggsave('figures/tac2_figure/ko_summary.pdf', p_ko_summary, height = 15, width = 10, units = 'cm')
+ggsave('figures/tac2_figure/ko_summary_tbl.pdf', p_ko_summary_tbl, height = 15, width = 5, units = 'cm')
 
 strain_ko_summary_condition <- mutate(ko_growth, sig = (qvalue < 0.01) * sign(score)) %>%
   select(-score, -qvalue) %>%
@@ -117,6 +122,8 @@ strain_ko_summary_condition <- mutate(ko_growth, sig = (qvalue < 0.01) * sign(sc
 condition_sensitivity <- ko_growth %>%
   filter(qvalue < 0.01) %>%
   select(strain, condition, name, score) %>%
+  mutate(condition = str_replace(condition, "Dichlorophenoxyacetic acid", 'D Acid'),
+         condition = str_replace(condition, "Amphotericin B", 'Amph. B')) %>%
   group_by(condition) %>%
   spread(key = strain, value = score) %>%
   summarise(S288C = sum(!is.na(S288C)),
@@ -124,15 +131,18 @@ condition_sensitivity <- ko_growth %>%
             Y55 = sum(!is.na(Y55)),
             YPS = sum(!is.na(YPS))) %>%
   mutate(condition = factor(condition, levels = condition[order(.$S288C/(.$S288C + .$UWOP + .$Y55 + .$YPS))], ordered = TRUE)) %>%
-  gather(key = 'strain', value = 'sig_count', S288C:YPS) 
+  gather(key = 'strain', value = 'sig_count', S288C:YPS)
 
 p_con_sens_bar <- ggplot(condition_sensitivity, aes(x=condition, y=sig_count, fill=strain)) +
   geom_col(position='fill') +
   theme_pubclean() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
-  ylab('Conditionally Significant Genes') + 
-  xlab('Condition') +
-  guides(fill = guide_legend(title = 'Strain'))
+  theme(axis.text.x = element_text(angle = 90, hjust = 0, vjust = 0.5),
+        legend.position = 'bottom', axis.title.x = element_blank(),
+        axis.ticks.x = element_blank()) +
+  scale_x_discrete(position = 'top') +
+  labs(y='Proportion of Significant Genes', tag = 'C') + 
+  guides(fill = guide_legend(title = ''))
+ggsave('figures/tac2_figure/conditional_sensitivity.pdf', p_con_sens_bar, height = 10, width = 20, units = 'cm')
 ########
 
 #### Panel 4 - Examples of genes responsing very differently ####
@@ -141,7 +151,7 @@ limits <- c(-11, 5)
 clrs <- c('firebrick2', 'darkgoldenrod1', 'white', 'cornflowerblue', 'darkorchid')
 vals <- scales::rescale(c(limits[1], limits[1]/2, 0, limits[2]/2, limits[2]))
 
-plot_example_heatmaps <- function(genes, conditions, ko=ko_growth){
+plot_example_heatmap <- function(genes, conditions, ko=ko_growth){
   tbl <- filter(ko, name %in% genes, condition %in% conditions)
   
   # Sort based on 288C
@@ -175,7 +185,9 @@ dichol_genes <- c('ALG9', 'GSY1', 'ALG12', 'ALG6', 'ALG8', 'ALG5', 'DIE2', 'ALG3
 dichol_conditions <- c('39ºC (48H)', '6−AU + 39ºC (48H)', 'Caffeine 20mM (48H)',
                        'NaCl 0.6M (48H)', 'Acetic acid (48H)')
 
-p_dichol_genes <- plot_example_heatmaps(dichol_genes, dichol_conditions)
+p_dichol_genes <- plot_example_heatmap(dichol_genes, dichol_conditions) +
+  labs(tag = 'F')
+ggsave('figures/tac2_figure/dichol_genes.pdf', p_dichol_genes, height = 10, width = 20, units = 'cm')
 
 ## Mal genes
 mal_genes <- c('MAL11', 'MAL12', 'MAL13', 'MAL31', 'MAL32', 'MAL33')
@@ -191,16 +203,29 @@ p_mal_genes <- ggplot(mal_tbl, aes(x=strain, y=name, fill=score)) +
   scale_fill_gradientn(colours = clrs, limits=limits, na.value = 'black', values = vals) +
   theme(panel.background = element_blank(), strip.background = element_blank(),
         axis.ticks = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
-        plot.title = element_text(hjust = 0.5)) +
-  labs(x = '', y = '', title = mal_condition)
+        plot.subtitle = element_text(hjust = 0.5, size = 10)) +
+  labs(x = '', y = '', tag = 'D', subtitle = mal_condition) +
+  guides(fill = FALSE)
+ggsave('figures/tac2_figure/mal_genes.pdf', p_mal_genes, height = 10, width = 5, units = 'cm')
 
 ## NaCl genes
 nacl_genes <- c('HOG1', 'PBS2', 'IXR1', 'RVS161', 'SNF4', 'VRP1', 'DUF1', 'GEM1')
 nacl_conditions <- c('NaCl 0.4M (48H)', 'NaCl 0.6M (48H)', 'Maltose 2% (48H)', 'Glycerol 2% (48H)')
 
-p_nacl_genes <- plot_example_heatmaps(nacl_genes, nacl_conditions)
+p_nacl_genes <- plot_example_heatmap(nacl_genes, nacl_conditions) +
+  labs(tag = 'E') +
+  guides(fill = FALSE)
+ggsave('figures/tac2_figure/nacl_genes.pdf', p_nacl_genes, height = 10, width = 20, units = 'cm')
 ########
 
 #### Assemble plot ####
+pl <- list(ko_summary_tbl=p_ko_summary_tbl, ko_summary=p_ko_summary, distances=p_distances,
+           conditional_sensitivity=p_con_sens_bar, mal_genes=p_mal_genes, nacl_genes=p_nacl_genes,
+           dichol_genes=p_dichol_genes)
 
+# Not optimal layout so making manually as more convinient
+lay <- rbind(c(1, 1, 2, 3, 3, 4, 4),
+             c(5, 6, 6, 6, 7, 7, 7))
+p <- arrangeGrob(grobs = pl, layout_matrix = lay)
+ggsave('figures/tac2_figure/tac2_figure.pdf', p, width = 25, height = 15, units = 'cm')
 ########
