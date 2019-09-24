@@ -92,8 +92,8 @@ p_ko_summary_tbl <- gather(strain_ko_summary, key = 'lab', value = 'value', Coun
         axis.ticks = element_blank()) +
   labs(tag = 'A')
 
-ggsave('figures/tac2_figure/ko_summary.pdf', p_ko_summary, height = 15, width = 10, units = 'cm')
-ggsave('figures/tac2_figure/ko_summary_tbl.pdf', p_ko_summary_tbl, height = 15, width = 5, units = 'cm')
+ggsave('figures/tac2_figure/ko_summary.pdf', p_ko_summary, height = 6, width = 5, units = 'cm')
+ggsave('figures/tac2_figure/ko_summary_tbl.pdf', p_ko_summary_tbl, height = 6, width = 10, units = 'cm')
 
 strain_ko_summary_condition <- mutate(ko_growth, sig = (qvalue < 0.01) * sign(score)) %>%
   select(-score, -qvalue) %>%
@@ -116,6 +116,30 @@ strain_ko_summary_condition <- mutate(ko_growth, sig = (qvalue < 0.01) * sign(sc
   mutate(Percentage = Count / tot * 100) %>%
   select(-Count) %>%
   spread(key = metric, value = Percentage)
+
+gene_ko_summary <- mutate(ko_growth, sig = (qvalue < 0.01) * sign(score)) %>%
+  select(-score, -qvalue) %>%
+  spread(key = strain, value = sig) %>%
+  mutate(del = apply(select(., S288C, UWOP, Y55, YPS), 1, function(x){sum(x == -1, na.rm = TRUE)}),
+         pos = apply(select(., S288C, UWOP, Y55, YPS), 1, function(x){sum(x == 1, na.rm = TRUE)}),
+         neut = apply(select(., S288C, UWOP, Y55, YPS), 1, function(x){sum(x == 0, na.rm = TRUE)}),
+         na = apply(select(., S288C, UWOP, Y55, YPS), 1, function(x){sum(is.na(x))})) %>%
+  filter(na < 2) %>%
+  group_by(name) %>%
+  summarise(tot = n(),
+            `All Deleterious` = sum(del == 4 - na),
+            `All Neutral` = sum(neut == 4 - na),
+            `All beneficial` = sum(pos == 4 - na),
+            `Deleterious & Beneficial Strains` = sum(del > 0 & pos > 0),
+            `Beneficial & Neutral Strains` = sum(pos > 0 & neut > 0),
+            `Deleterious & Neutral Strains` = sum(del > 0 & neut > 0),
+            `Deleterious, Beneficial & Neutral Strains` = sum(del > 0 & neut > 0 & pos > 0))
+
+# # Genes with a significant switch in at least 1 condition
+# sum(gene_ko_summary$`Deleterious & Beneficial Strains` > 0 | 
+#       gene_ko_summary$`Beneficial & Neutral Strains` > 0 | 
+#       gene_ko_summary$`Deleterious & Neutral Strains` > 0 | 
+#       gene_ko_summary$`Deleterious, Beneficial & Neutral Strains` > 0)
 ########
 
 #### Panel 3 - Relative condition sensitivity ####
