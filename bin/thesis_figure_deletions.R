@@ -33,9 +33,29 @@ ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   mutate(condition = gsub('  ', ' ', condition)) %>% # Some conditions have double spaces in names
   mutate(name = if_else(is.na(name), gene, name))
 
+# geno <- readRDS('data/Rdata/genotypes_all_genes.rds') %>%
+#   select(UWOP = SACE_GAT, Y55 = ADA, YPS = AKN, S288C = SACE_GAV) %>%
+#   mutate(across(everything(), ~ifelse(. > 0, 1, 0))) %>%
+#   as.matrix() %>%
+#   t()
+# geno_dist <- dist(geno, method = "manhattan")
+
 #### Panel - Strain Relationships - genetic and phenotypic (confusion) ####
 # dendrgrams from genetic distance and KO profiles
-# Maybe also schematic of data?
+growth_dists <- select(ko_growth, condition, strain, name, score) %>%
+  pivot_wider(names_from = strain, values_from = score) %>%
+  group_by(condition) %>%
+  summarise(S288C_UWOP = sqrt(sum((S288C - UWOP)^2, na.rm = TRUE)),
+            S288C_Y55 = sqrt(sum((S288C - Y55)^2, na.rm = TRUE)),
+            S288C_YPS = sqrt(sum((S288C - YPS)^2, na.rm = TRUE)),
+            Y55_UWOP = sqrt(sum((Y55 - UWOP)^2, na.rm = TRUE)),
+            Y55_YPS = sqrt(sum((Y55 - YPS)^2, na.rm = TRUE)),
+            YPS_UWOP = sqrt(sum((YPS - UWOP)^2, na.rm = TRUE))) %>%
+  pivot_longer(-condition, names_to = "pair", values_to = "distance")
+
+ggplot(growth_dists, aes(x = pair, y = distance)) +
+  geom_boxplot()
+
 p_strains <- blank_plot("Strain dendrograms\n(genetic/growth)")
 
 #### Panel - Mal gene example heatmap ####
