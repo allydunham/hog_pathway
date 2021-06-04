@@ -5,6 +5,7 @@ library(ggpubr)
 library(multipanelfigure)
 library(ggtext)
 library(ggdendro)
+library(ggrepel)
 
 theme_set(theme_pubclean() + theme(legend.position = 'right',
                                    plot.title = element_text(hjust = 0.5),
@@ -34,19 +35,29 @@ ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   mutate(condition = gsub('  ', ' ', condition)) %>% # Some conditions have double spaces in names
   mutate(name = if_else(is.na(name), gene, name))
 
-# geno <- readRDS('data/Rdata/genotypes_all_genes.rds') %>%
-#   select(UWOP = SACE_GAT, Y55 = ADA, YPS = AKN, S288C = SACE_GAV) %>%
-#   mutate(across(everything(), ~ifelse(. > 0, 1, 0))) %>%
-#   as.matrix() %>%
-#   t()
-# geno_dist <- dist(geno, method = "manhattan")
+ko_comparisons <- read_tsv("data/raw/ko_comparisons.tsv", skip = 2) %>%
+  mutate(condition = gsub('  ', ' ', condition)) %>%
+  left_join(select(gene_meta, gene, name), by = "gene")
 
-#### Panel - Strain Relationships - genetic and phenotypic (confusion) ####
+gene_exclusivity <- readxl::read_xlsx("data/raw/gene_exclusivity.xlsx", sheet = 2, col_names = c("gene", "exclusiveness"), skip = 1) %>%
+  left_join(select(gene_meta, gene, name), by = "gene")
+
+mash_dist <- tribble(
+  ~strain, ~S288c,    ~UWOP,    ~Y55,     ~YPS,
+  "S288C",  0.000000, 0.005539, 0.005905, 0.006047,
+  "UWOP",   0.005539, 0.000000, 0.005615, 0.004640,
+  "Y55",    0.005905, 0.005615, 0.000000, 0.006115,
+  "YPS", 0.006047, 0.004640, 0.006115, 0.000000,
+) %>%
+  tblhelpr::tibble_to_matrix(-strain, row_names = "strain") %>%
+  as.dist()
+
+#### Panel - Strain Relationships - genetic and phenotypic ####
 # dendrgrams from genetic distance and KO profiles
 # get_dend_order <- function(tbl, ...) {
 #   mat <- tblhelpr::tibble_to_matrix(arrange(tbl, strain), -strain, row_names = "strain")
 #   d <- dist(mat, method = "manhattan")
-#   hc <- hclust(d)
+#   hc <- hclust(d, method = "single")
 #   out <- matrix(c(t(hc$merge)), nrow = 1)
 #   return(as_tibble(out, .name_repair = ~str_c(str_c("p", c(1,1,2,2,3,3)), "_", c(1,2,1,2,1,2))))
 # }
@@ -56,7 +67,8 @@ ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
 #   pivot_wider(names_from = name, values_from = sig) %>%
 #   filter(!condition == "Maltose 2% (72H)")
 # 
-# growth_dends <- group_by(growth_wide, condition) %>%
+# growth_dends <- mutate(growth_wide, strain = factor(strain, levels = c("S288c", "UWOP", "Y55", "YPS"))) %>%
+#   group_by(condition) %>%
 #   group_modify(., get_dend_order) %>%
 #   group_by(p1_1, p1_2, p2_1, p2_2, p3_1, p3_2) %>%
 #   summarise(n = n(), conditions = str_c(condition, collapse  = ", "), .groups = "drop")
@@ -70,18 +82,22 @@ ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
 #   dendro_data(hc)
 # }
 # 
-# ggdendrogram(get_dend("39ºC (48H)"))
-# 
-# 
-# pivot_longer(growth_dists, c(-n, -conditions), names_to = "pair", values_to = "ind") %>%
-#   separate(pair, into = c("pair", "num")) %>%
-#   pivot_wider(names_from = num, values_from = ind, names_prefix = "i") %>%
-#   mutate()
-# 
 # ggplot(growth_dists, aes(x = pair, y = distance)) +
 #   geom_boxplot()
 
-p_strains <- blank_plot("Strain dendrograms\n(genetic/growth)")
+geno_hc <- hclust(mash_dist, method = "single")
+geno_data <- dendro_data(geno_hc)
+
+p_strains <- ggplot() +
+  geom_segment(data = geno_data$segments, aes(x = x, xend = xend, y = y, yend = ifelse(yend == 0, 0.004, yend))) +
+  geom_point(data = geno_data$labels, aes(x = x, y = y + 0.004, colour = label), show.legend = FALSE, size = 3) +
+  scale_x_continuous(breaks = 1:4, labels = geno_data$labels$label) +
+  scale_y_continuous(expand = expansion(0)) +
+  scale_colour_brewer(name = "Strain", type = "qual", palette = "Set1") +
+  coord_cartesian(clip = "off") +
+  labs(y = "Mash Distance") +
+  theme(axis.title.x = element_blank(),
+        axis.ticks = element_blank())
 
 #### Panel - Relative Sensitivity per strain ####
 # Which strain has most sig knockouts per condition
@@ -139,34 +155,56 @@ p_nacl <- ggplot(nacl_ko, aes(x = strain, y = name, fill = score, label = sig)) 
         panel.grid.major.y = element_blank())
 
 #### Panel - Proportion of shared phenotypes ####
-double_prop <- mutate(ko_growth, sig = sign(score) * (qvalue < 0.01)) %>%
-  select(strain, name, condition, sig) %>%
-  pivot_wider(names_from = strain, values_from = sig) %>%
-  mutate(S288C_UWOP = S288C == UWOP,
-         S288C_Y55 = S288C == Y55,
-         S288C_YPS = S288C == YPS,
-         UWOP_Y55 = UWOP == Y55,
-         UWOP_YPS = UWOP == YPS,
-         YPS_Y55 = YPS == Y55) %>%
-  select(S288C_UWOP:YPS_Y55) %>%
-  pivot_longer(everything(), names_to = "pair", values_to = "shared") %>%
-  group_by(pair) %>%
-  summarise(prop = sum(shared, na.rm = TRUE) / sum(!is.na(shared)))
+calc_prop <- function(x) {
+  x <- x[!is.na(x)]
+  sum(x) / length(x)
+}
 
-p_prop <- blank_plot("Proportion of shared phenotypes")
+get_props <- function(tbl, ...) {
+  tbl <- select(tbl, condition, name, strain = strain2, shared) %>%
+    pivot_wider(names_from = strain, values_from = shared)
+  
+  quad <- calc_prop(tbl[,3] & tbl[,4] & tbl[,5])
+  triple <- c(calc_prop(tbl[,3] & tbl[,4]), calc_prop(tbl[,3] & tbl[,5]), calc_prop(tbl[,4] & tbl[,5]))
+  double <- c(calc_prop(tbl[,3]), calc_prop(tbl[,4]) ,calc_prop(tbl[,5]))
+  
+  tibble(strains = 2:4, mean = c(mean(double), mean(triple), quad), sd = c(sd(double), sd(triple), NA))
+}
 
-#### Panel - Condition pair correlation ####
-# Condition pair correlations within strains
-p_pair_cor <- blank_plot("Condition pair correlations")
+props <- left_join(ko_comparisons, select(ko_growth, strain1 = strain, condition, gene, qvalue1 = qvalue),
+          by = c("strain1", "condition", "gene")) %>%
+  left_join(select(ko_growth, strain2 = strain, condition, gene, qvalue2 = qvalue),
+            by = c("strain2", "condition", "gene")) %>%
+  bind_rows(., set_names(., c("condition", "gene", "strain2", "strain1", "scores2", "scores1", "qvalue", "name", "qvalue2", "qvalue1"))) %>%
+  filter((qvalue1 < 0.01 & qvalue < 0.01) | (qvalue1 < 0.01 & qvalue2 < 0.01 & qvalue >= 0.01)) %>%
+  mutate(shared = qvalue >= 0.01) %>%
+  group_by(strain = strain1) %>%
+  group_modify(get_props)
+
+p_prop <- ggplot(props, aes(x = strains, y = mean, ymin = mean - sd, ymax = mean + sd, fill = strain)) +
+  geom_col(position = "dodge", width = 0.75) + 
+  geom_errorbar(position = position_dodge(0.75), width = 0.25) +
+  scale_fill_brewer(name = "", type = "qual", palette = "Set1") +
+  lims(y = c(0, 1)) +
+  labs(x = "Number of Strains", y = "Proportion of Shared Significant Phenotypes")
+
+#### Panel - Gene phenotypes ####
+gene_exclusivity <- mutate(gene_exclusivity, rank = 1:n()) %>%
+  drop_na()
+
+p_exclusiveness <- ggplot(gene_exclusivity, aes(x = rank, y = exclusiveness, label = name)) +
+  geom_point(shape = 20) +
+  geom_text_repel(data = filter(gene_exclusivity, rank <= 10), xlim = c(0, Inf)) +
+  labs(x = "Rank", y = "Exclusive phenotype propensity")
 
 #### Figure Assembly ####
-size <- theme(text = element_text(size = 8))
+size <- theme(text = element_text(size = 12))
 p1 <- p_strains + labs(tag = 'A') + size
 p2 <- p_sensitivity + labs(tag = 'B') + size
 p3 <- p_mal + labs(tag = 'C') + size
 p4 <- p_nacl + labs(tag = 'D') + size
 p5 <- p_prop + labs(tag = 'E') + size
-p6 <- p_pair_cor + labs(tag = 'F') + size
+p6 <- p_exclusiveness + labs(tag = 'F') + size
 
 figure <- multi_panel_figure(width = 360, height = 240, columns = 3, rows = 2,
                              panel_label_type = 'none', row_spacing = 0, column_spacing = 0) %>%
