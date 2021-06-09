@@ -69,6 +69,13 @@ associations <- read_tsv("data/gene_paff_growth_assocations.tsv") %>%
 path <- readRDS('data/Rdata/hog_path_probs.rds') %>%
   filter(strain %in% unique(growth$strain))
 
+ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
+  filter(!gene == 'WT') %>%
+  filter(!duplicated(.[,c('strain', 'condition', 'gene')])) %>%
+  select(-position) %>%
+  mutate(condition = gsub('  ', ' ', condition)) %>% # Some conditions have double spaces in names
+  mutate(name = if_else(is.na(name), gene, name))
+
 #### Panel - P(Aff) ####
 jelier <- read_tsv("data/jelier.impact") %>%
   select(gene, position = pos_aa, wt = ref_aa, mut = alt_aa, effect, foldx = foldx_ddG, sift = sift_score) %>%
@@ -126,7 +133,9 @@ p_associations <- ggplot(association_summary, aes(x = reorder(condition, count),
         panel.grid.major.y = element_blank(),
         axis.title.x = element_markdown(),
         axis.ticks.y = element_blank(),
-        legend.position = "top")
+        legend.position = "top",
+        legend.margin = margin(0,0,0,0),
+        legend.box.margin = margin(0,0,-10,0))
 
 #### Panel - Example Gene Phenotype Associations ####
 association_examples <- left_join(probs, select(genes, gene = id, name), by = "gene") %>%
@@ -166,20 +175,31 @@ p_hog <- ggplot(path_elements, aes(x = x, y = y, colour = colour)) +
 
 #### Panel - HOG Pathway Models ####
 # Summarise performance of different models - plot Rsquared, cor and prob?
-gene_counts <- filter(associations, p_adj < 0.01, mean_ko < mean_active, essential == "NE") %>%
+assoc_gene_counts <- filter(associations, p_adj < 0.05, mean_ko < mean_active, essential == "NE") %>%
   select(condition, gene) %>%
   left_join(probs, by = "gene") %>%
   group_by(strain, condition) %>%
-  summarise(sig_ko_count = sum(ko), .groups = "drop")
+  summarise(sig_assoc_count = sum(ko), .groups = "drop")
 
-path_models <- left_join(gene_counts, select(path, strain, hog_probability), by = "strain") %>%
-  left_join(select(growth, condition, sscore = score, strain), by = c("strain", "condition")) %>%
+ko_gene_counts <- filter(ko_growth, qvalue < 0.05) %>%
+  select(condition, gene) %>%
+  distinct() %>%
+  left_join(probs, by = "gene") %>%
+  drop_na() %>%
+  group_by(strain, condition) %>%
+  summarise(sig_ko_count = sum(ko, na.rm = TRUE), .groups = "drop")
+
+path_models <- left_join(select(growth, condition, sscore = score, strain), select(path, strain, hog_probability), "strain") %>%
+  left_join(assoc_gene_counts, by = c("strain", "condition")) %>%
+  left_join(ko_gene_counts, by = c("strain", "condition")) %>%
   pivot_longer(c(-strain, -sscore, -condition), names_to = "model", values_to = "value") %>%
+  drop_na() %>%
   group_by(model, condition) %>%
   group_modify(~broom::glance(lm(sscore ~ value, data = .))) %>%
   ungroup() %>%
-  mutate(model = c(hog_probability = "P(HOG Pathway)", sig_ko_count = "Sig Gene Count")[model],
-         log_p = log10(p.value),
+  mutate(model = c(hog_probability = "P(HOG Pathway)", sig_assoc_count = "P(Aff) Association\nGene Sets",
+                   sig_ko_count = "KO Growth\nGene Set")[model],
+         model = factor(model, levels = c("P(HOG Pathway)", "P(Aff) Association\nGene Sets", "KO Growth\nGene Set")),
          p_cat = pretty_p_values(p.value, breaks = c(1e-10, 1e-5, 0.0001, 0.001, 0.01, 0.05, 0.1)))
 
 condition_levels <- filter(path_models, model == "P(HOG Pathway)") %>% arrange(r.squared) %>% pull(condition)
@@ -188,16 +208,18 @@ p_pathway <- ggplot(path_models, aes(x = factor(condition, levels = condition_le
   facet_wrap(~model, nrow = 1) +
   geom_col() +
   coord_flip() +
-  scale_fill_brewer(palette = "YlGnBu") +
-  labs(x = "", y = expression(r^2))
+  scale_fill_brewer(name = "p-value", palette = "YlGnBu") +
+  labs(x = "", y = expression(r^2)) +
+  theme(panel.grid.major.x = element_line(linetype = "dotted", colour = "grey"),
+        panel.grid.major.y = element_blank())
 
 #### Figure Assembly ####
 size <- theme(text = element_text(size = 10))
 p1 <- p_paff + labs(tag = 'A') + size
-p2 <- p_associations + labs(tag = 'B') + size
+p2 <- p_associations + labs(tag = 'B') + size + theme(axis.text.y = element_text(size = 9))
 p3 <- p_association_examples + labs(tag = 'C') + size
 p4 <- p_hog + labs(tag = 'D') + size
-p5 <- p_pathway + labs(tag = 'E') + size
+p5 <- p_pathway + labs(tag = 'E') + size + theme(axis.text.y = element_text(size = 9))
 
 figure <- multi_panel_figure(width = 360, height = 240, columns = 3, rows = 2,
                               panel_label_type = 'none', row_spacing = 0, column_spacing = 0) %>%
@@ -207,5 +229,5 @@ figure <- multi_panel_figure(width = 360, height = 240, columns = 3, rows = 2,
   fill_panel(p4, row = 2, column = 1) %>%
   fill_panel(p5, row = 2, column = 2:3)
 
-ggsave('figures/thesis_figure_hog.pdf', figure, width = figure_width(figure), height = figure_height(figure), units = 'mm')
+ggsave('figures/thesis_figure_hog.pdf', figure, width = figure_width(figure), height = figure_height(figure), units = 'mm', device = cairo_pdf)
 ggsave('figures/thesis_figure_hog.tiff', figure, width = figure_width(figure), height = figure_height(figure), units = 'mm')
