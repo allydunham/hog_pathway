@@ -53,51 +53,25 @@ mash_dist <- tribble(
   as.dist()
 
 #### Panel - Strain Relationships - genetic and phenotypic ####
-# dendrgrams from genetic distance and KO profiles
-# get_dend_order <- function(tbl, ...) {
-#   mat <- tblhelpr::tibble_to_matrix(arrange(tbl, strain), -strain, row_names = "strain")
-#   d <- dist(mat, method = "manhattan")
-#   hc <- hclust(d, method = "single")
-#   out <- matrix(c(t(hc$merge)), nrow = 1)
-#   return(as_tibble(out, .name_repair = ~str_c(str_c("p", c(1,1,2,2,3,3)), "_", c(1,2,1,2,1,2))))
-# }
-# 
-# growth_wide <- mutate(ko_growth, sig = sign(score) * (qvalue < 0.01)) %>%
-#   select(condition, strain, name, sig) %>%
-#   pivot_wider(names_from = name, values_from = sig) %>%
-#   filter(!condition == "Maltose 2% (72H)")
-# 
-# growth_dends <- mutate(growth_wide, strain = factor(strain, levels = c("S288c", "UWOP", "Y55", "YPS"))) %>%
-#   group_by(condition) %>%
-#   group_modify(., get_dend_order) %>%
-#   group_by(p1_1, p1_2, p2_1, p2_2, p3_1, p3_2) %>%
-#   summarise(n = n(), conditions = str_c(condition, collapse  = ", "), .groups = "drop")
-# 
-# get_dend <- function(con, ...) {
-#   tbl <- filter(growth_wide, condition == con)
-#   mat <- tblhelpr::tibble_to_matrix(arrange(tbl, strain), -strain, -condition, row_names = "strain")
-#   d <- dist(mat, method = "manhattan")
-#   hc <- hclust(d)
-#   hc$height <- 1:3
-#   dendro_data(hc)
-# }
-# 
-# ggplot(growth_dists, aes(x = pair, y = distance)) +
-#   geom_boxplot()
-
 geno_hc <- hclust(mash_dist, method = "single")
 geno_data <- dendro_data(geno_hc)
 
+margin_size <- 15
 p_strains <- ggplot() +
   geom_segment(data = geno_data$segments, aes(x = x, xend = xend, y = y, yend = ifelse(yend == 0, 0.004, yend))) +
   geom_point(data = geno_data$labels, aes(x = x, y = y + 0.004, colour = label), show.legend = FALSE, size = 3) +
-  scale_x_continuous(breaks = 1:4, labels = geno_data$labels$label) +
-  scale_y_continuous(expand = expansion(0)) +
+  scale_x_continuous(breaks = 1:4, labels = geno_data$labels$label, sec.axis = dup_axis(name = "")) +
+  scale_y_continuous(expand = expansion(0), sec.axis = dup_axis(name = "")) +
   scale_colour_brewer(name = "Strain", type = "qual", palette = "Set1") +
   coord_cartesian(clip = "off") +
-  labs(y = "Mash Distance") +
-  theme(axis.title.x = element_blank(),
-        axis.ticks = element_blank())
+  labs(x = "", y = "Mash Distance") +
+  theme(axis.title.x.top = element_text(margin = margin(margin_size,0,0,0,unit = "mm")),
+        axis.title.y.right = element_text(margin = margin(0,margin_size,0,0,unit = "mm")),
+        axis.title.x.bottom = element_text(margin = margin(0,0,margin_size,0,unit = "mm")),
+        axis.title.y.left = element_text(margin = margin(0,0,0,margin_size,unit = "mm")),
+        axis.ticks = element_blank(),
+        axis.text.x.top = element_blank(),
+        axis.text.y.right = element_blank())
 
 #### Panel - Relative Sensitivity per strain ####
 # Which strain has most sig knockouts per condition
@@ -114,26 +88,36 @@ condition_sensitivity <- filter(ko_growth, qvalue < 0.05) %>%
 p_sensitivity <- ggplot(condition_sensitivity, aes(x=condition, y=sig_count, fill=strain)) +
   geom_col(position='fill') +
   scale_fill_brewer(name = "Strain", type = "qual", palette = "Set1") +
-  scale_y_continuous(expand = expansion(0)) +
-  labs(y = 'Relative conditionally significant gene count', x = "") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1),
-        panel.grid.major.y = element_blank(),
-        axis.ticks.x = element_blank())
+  scale_y_continuous(expand = expansion(c(0.01, 0.05))) +
+  coord_flip(clip = "off") +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  labs(y = 'Relative conditionally significant\ngene count', x = "") +
+  theme(panel.grid.major.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "top",
+        legend.title = element_blank(),
+        legend.key.size = unit(2, "mm"),
+        legend.margin = margin(0,0,0,0),
+        legend.box.margin = margin(0,0,-10,0))
   
 #### Panel - Mal gene example heatmap ####
 # MAL genes noticed first
 mal_ko <- filter(ko_growth, condition == "Maltose 2% (48H)", str_starts(name, "MAL")) %>%
   mutate(sig = ifelse(qvalue < 0.01, "*", ""))
 
+mal_margin <- 5
 p_mal <- ggplot(mal_ko, aes(x = strain, y = name, fill = score, label = sig)) +
   geom_raster() +
   geom_text() +
-  scale_fill_gradientn(colours = c("#b10026", "#fc4e2a", "#feb24c", "#f7f7f7", "#4393c3", "#2d004b"),
+  scale_fill_gradientn(colours = c("#b10026", "#fc4e2a", "#feb24c", "#f7f7f7", "#4393c3", "#053061"),
                        values = scales::rescale(c(-7.5, -5, -2.5, 0, 2.5, 5)), name = "S-Score") +
-  labs(subtitle = "Maltose 2% (48H)") +
+  labs(subtitle = "Maltose 2% (48H)", x = "", y = "") +
   theme(axis.ticks = element_blank(),
-        axis.title = element_blank(),
-        panel.grid.major.y = element_blank())
+        panel.grid.major.y = element_blank(),
+        plot.subtitle = element_text(margin = margin(mal_margin, 0, 0, 0, unit = "mm")),
+        legend.box.margin = margin(0, mal_margin, 0, 0, unit = "mm"),
+        axis.title.x = element_text(margin = margin(0, 0, mal_margin, 0, unit = "mm")),
+        axis.title.y = element_text(margin = margin(0, 0, 0, mal_margin, unit = "mm")))
 
 #### Panel - Other example heatmap ####
 # A second set of example genes showing switching behavior
@@ -144,15 +128,19 @@ nacl_ko <- filter(ko_growth, condition == "NaCl 0.6M (72H)") %>%
   arrange(name, strain) %>%
   mutate(sig = ifelse(qvalue < 0.01, "*", ""))
 
+nacl_margin <- 5
 p_nacl <- ggplot(nacl_ko, aes(x = strain, y = name, fill = score, label = sig)) +
   geom_raster() +
   geom_text() +
-  scale_fill_gradientn(colours = c("#b10026", "#fc4e2a", "#feb24c", "#f7f7f7", "#4393c3", "#2d004b"),
+  scale_fill_gradientn(colours = c("#b10026", "#fc4e2a", "#feb24c", "#f7f7f7", "#4393c3", "#053061"),
                        values = scales::rescale(c(-7.5, -5, -2.5, 0, 2.5, 5)), name = "S-Score") +
-  labs(subtitle = "NaCl 0.6M (72H)") +
+  labs(subtitle = "NaCl 0.6M (72H)", x = "", y = "") +
   theme(axis.ticks = element_blank(),
-        axis.title = element_blank(),
-        panel.grid.major.y = element_blank())
+        panel.grid.major.y = element_blank(),
+        plot.subtitle = element_text(margin = margin(nacl_margin, 0, 0, 0, unit = "mm")),
+        legend.box.margin = margin(0, nacl_margin, 0, 0, unit = "mm"),
+        axis.title.x = element_text(margin = margin(0, 0, nacl_margin, 0, unit = "mm")),
+        axis.title.y = element_text(margin = margin(0, 0, 0, nacl_margin, unit = "mm")))
 
 #### Panel - Proportion of shared phenotypes ####
 calc_prop <- function(x) {
@@ -194,11 +182,12 @@ gene_exclusivity <- mutate(gene_exclusivity, rank = 1:n()) %>%
 
 p_exclusiveness <- ggplot(gene_exclusivity, aes(x = rank, y = exclusiveness, label = name)) +
   geom_point(shape = 20) +
-  geom_text_repel(data = filter(gene_exclusivity, rank <= 10), xlim = c(0, Inf)) +
+  geom_text_repel(data = filter(gene_exclusivity, rank <= 10), xlim = c(0, Inf), force = 20,
+                  nudge_x = 150, nudge_y = -0.05, force_pull = 10) +
   labs(x = "Rank", y = "Exclusive phenotype propensity")
 
 #### Figure Assembly ####
-size <- theme(text = element_text(size = 12))
+size <- theme(text = element_text(size = 11))
 p1 <- p_strains + labs(tag = 'A') + size
 p2 <- p_sensitivity + labs(tag = 'B') + size
 p3 <- p_mal + labs(tag = 'C') + size
