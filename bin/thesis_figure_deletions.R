@@ -5,7 +5,6 @@ library(ggpubr)
 library(multipanelfigure)
 library(ggtext)
 library(ggdendro)
-library(ggrepel)
 
 theme_set(theme_pubclean() + theme(legend.position = 'right',
                                    plot.title = element_text(hjust = 0.5),
@@ -34,6 +33,15 @@ ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   select(-position) %>%
   mutate(condition = gsub('  ', ' ', condition)) %>% # Some conditions have double spaces in names
   mutate(name = if_else(is.na(name), gene, name))
+
+# Growth cor (comment out growth filtering)
+# select(ko_growth, strain, gene, condition, score) %>%
+#   extract(condition, c("condition", "time"), "([^\\(\\)]*) \\((48H|72H)\\)") %>%
+#   drop_na() %>%
+#   pivot_wider(names_from = time, values_from = score) %>%
+#   drop_na() %>%
+#   group_by(condition) %>%
+#   group_modify(~broom::tidy(cor.test(.$`48H`, .$`72H`)))
 
 ko_comparisons <- read_tsv("data/raw/ko_comparisons.tsv", skip = 2) %>%
   mutate(condition = gsub('  ', ' ', condition)) %>%
@@ -180,16 +188,19 @@ p_prop <- ggplot(props, aes(x = strains, y = mean, ymin = mean - sd, ymax = mean
 gene_exclusivity <- mutate(gene_exclusivity, rank = 1:n()) %>%
   drop_na()
 
-p_exclusiveness <- ggplot(gene_exclusivity, aes(x = rank, y = exclusiveness, label = name)) +
+top_genes <- filter(gene_exclusivity, rank <= 10) %>%
+  mutate(x = 300, y = 0.833 - (rank - 1) * 0.05)
+
+p_exclusiveness <- ggplot(gene_exclusivity, aes(x = rank, y = exclusiveness)) +
   geom_point(shape = 20) +
-  geom_text_repel(data = filter(gene_exclusivity, rank <= 10), xlim = c(0, Inf), force = 20,
-                  nudge_x = 150, nudge_y = -0.05, force_pull = 10) +
+  geom_text(data = top_genes, mapping = aes(x = x, y = y, label = name), hjust = -0.05, vjust = 0.5) +
+  geom_segment(data = top_genes, mapping = aes(x = x, y = y, xend = rank, yend = exclusiveness)) +
   labs(x = "Rank", y = "Exclusive phenotype propensity")
 
 #### Figure Assembly ####
-size <- theme(text = element_text(size = 11))
+size <- theme(text = element_text(size = 12))
 p1 <- p_strains + labs(tag = 'A') + size
-p2 <- p_sensitivity + labs(tag = 'B') + size
+p2 <- p_sensitivity + labs(tag = 'B') + size + theme(axis.text.y = element_text(size = 8))
 p3 <- p_mal + labs(tag = 'C') + size
 p4 <- p_nacl + labs(tag = 'D') + size
 p5 <- p_prop + labs(tag = 'E') + size
