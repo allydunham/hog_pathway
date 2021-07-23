@@ -52,10 +52,31 @@ filtered_strains <- filter(strains, Ploidy <= 2, Aneuploidies == 'euploid') %>%
 genes <- readRDS('data/Rdata/gene_meta_all.rds')
 essential <- readRDS('data/Rdata/essential_genes.rds')
 
+# Take 72H where both available
+conditions <- c(
+  "2,4-Dichlorophenoxyacetic acid (48H)", "20ºC (72H)", "39ºC (72H)", "42ºC (72H)", "5-FU (48H)", 
+  "6-AU (48H)", "6-AU + 39ºC (72H)", "aa starvation (48H)", "Acetic acid (48H)",
+  "Amphotericin B (48H)", "Amphotericin B + anaerobic (48H)", "Anaerobic growth (48H)", "Cadmium chloride (48H)",
+  "Caffeine 15mM (72H)", "Caffeine 20mM (72H)", "Caspofungin (48H)", "Clioquinol (72H)", 
+  "Clozapine (48H)", "Cyclohexamide (72H)", "DMSO 1%  (48H)", "Glucose 20% (48H)", 
+  "Glycerol 2%  (72H)", "NaCl 0.4M (72H)", "NaCl 0.4M + 39ºC (72H)", "NaCl 0.6M (72H)", 
+  "NaCl 0.6M + 39ºC (72H)", "NiSO4 (48H)", "Nitrogen starvation (48H)", "Nystatin (48H)", "Paraquat (48H)", 
+  "SC (48H)", "SC + hepes (48H)", "Sorbitol 1M (48H)", "YPD (24H)"
+)
+
 growth <- read_tsv('data/raw/yeasts_liti_fixed.tsv', col_names = TRUE, col_types = cols(strain = col_character())) %>%
-  filter(info %in% filtered_strains) %>% 
+  filter(info %in% filtered_strains, condition %in% conditions) %>% 
   filter(subset == 'liti') %>%
   rename(strain_id = strain, strain=info)
+
+# Growth cor (comment out growth filtering)
+# select(growth, strain, condition, score) %>% 
+#   extract(condition, c("condition", "time"), "([^\\(\\)]*) \\((48H|72H)\\)") %>%
+#   drop_na() %>%
+#   pivot_wider(names_from = time, values_from = score) %>%
+#   drop_na() %>%
+#   group_by(condition) %>%
+#   group_modify(~broom::tidy(cor.test(.$`48H`, .$`72H`)))
 
 ko_thresh <- 0.5
 probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
@@ -64,7 +85,8 @@ probs <- readRDS('data/Rdata/paff_all_genes.rds') %>%
 
 associations <- read_tsv("data/gene_paff_growth_assocations.tsv") %>%
   left_join(select(genes, gene = id, name), by = "gene") %>%
-  left_join(select(essential, gene = locus, essential), by = "gene")
+  left_join(select(essential, gene = locus, essential), by = "gene") %>%
+  filter(condition %in% conditions)
 
 path <- readRDS('data/Rdata/hog_path_probs.rds') %>%
   filter(strain %in% unique(growth$strain))
@@ -103,7 +125,7 @@ jelier_probs <- bind_rows(SIFT4G = select(jelier, x = sift, y = sift_prob),
                           FoldX = select(jelier, x = foldx, y = foldx_prob),
                           .id = "model")
   
-lab <- as_labeller(c(SIFT4G='"SIFT4G Score"', FoldX='"FoldX"~Delta*Delta*"G (kj~mol"[-1]*")"'), default = label_parsed)
+lab <- as_labeller(c(SIFT4G='"SIFT4G Score"', FoldX='"FoldX"~Delta*Delta*"G (kj"~"mol"[-1]*")"'), default = label_parsed)
 p_paff <- ggplot(mapping = aes(x = x, y = y, colour = model)) +
   facet_wrap(~model, ncol = 1, scales = "free_x", labeller = lab, strip.position = "bottom") +
   geom_point(data = jelier_probs, shape = 20, show.legend = FALSE) +
@@ -135,7 +157,8 @@ p_associations <- ggplot(association_summary, aes(x = reorder(condition, count),
         axis.ticks.y = element_blank(),
         legend.position = "top",
         legend.margin = margin(0,0,0,0),
-        legend.box.margin = margin(0,0,-10,0))
+        legend.box.margin = margin(0,0,-10,0),
+        legend.key.size = unit(2, "mm"))
 
 #### Panel - Example Gene Phenotype Associations ####
 association_examples <- left_join(probs, select(genes, gene = id, name), by = "gene") %>%
@@ -214,15 +237,15 @@ p_pathway <- ggplot(path_models, aes(x = factor(condition, levels = condition_le
         panel.grid.major.y = element_blank())
 
 #### Figure Assembly ####
-size <- theme(text = element_text(size = 10))
+size <- theme(text = element_text(size = 12))
 p1 <- p_paff + labs(tag = 'A') + size
-p2 <- p_associations + labs(tag = 'B') + size + theme(axis.text.y = element_text(size = 9))
+p2 <- p_associations + labs(tag = 'B') + size
 p3 <- p_association_examples + labs(tag = 'C') + size
 p4 <- p_hog + labs(tag = 'D') + size
-p5 <- p_pathway + labs(tag = 'E') + size + theme(axis.text.y = element_text(size = 9))
+p5 <- p_pathway + labs(tag = 'E') + size
 
 figure <- multi_panel_figure(width = 360, height = 240, columns = 3, rows = 2,
-                              panel_label_type = 'none', row_spacing = 0, column_spacing = 0) %>%
+                             panel_label_type = 'none', row_spacing = 0, column_spacing = 0) %>%
   fill_panel(p1, row = 1, column = 1) %>%
   fill_panel(p2, row = 1, column = 2) %>%
   fill_panel(p3, row = 1, column = 3) %>%
