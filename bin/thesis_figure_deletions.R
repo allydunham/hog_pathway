@@ -83,7 +83,7 @@ p_strains <- ggplot() +
 
 #### Panel - Relative Sensitivity per strain ####
 # Which strain has most sig knockouts per condition
-condition_sensitivity <- filter(ko_growth, qvalue < 0.05) %>%
+condition_sensitivity <- filter(ko_growth, qvalue < 0.01) %>%
   select(strain, condition, name, score) %>%
   group_by(condition) %>%
   summarise(S288C = sum(!is.na(score) & strain == "S288C"),
@@ -181,6 +181,7 @@ p_prop <- ggplot(props, aes(x = strains, y = mean, ymin = mean - sd, ymax = mean
   geom_col(position = "dodge", width = 0.75) + 
   geom_errorbar(position = position_dodge(0.75), width = 0.25) +
   scale_fill_brewer(name = "", type = "qual", palette = "Set1") +
+  scale_x_continuous(breaks = c(2, 3, 4)) +
   lims(y = c(0, 1)) +
   labs(x = "Number of Strains", y = "Proportion of Shared Significant Phenotypes")
 
