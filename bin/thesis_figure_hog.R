@@ -70,7 +70,11 @@ growth <- read_tsv('data/raw/yeasts_liti_fixed.tsv', col_names = TRUE, col_types
   rename(strain_id = strain, strain=info)
 
 # Growth cor (comment out growth filtering)
-# select(growth, strain, condition, score) %>% 
+# read_tsv('data/raw/yeasts_liti_fixed.tsv', col_names = TRUE, col_types = cols(strain = col_character())) %>%
+#   filter(info %in% filtered_strains) %>% 
+#   filter(subset == 'liti') %>%
+#   rename(strain_id = strain, strain=info) %>%
+#   select(strain, condition, score) %>%
 #   extract(condition, c("condition", "time"), "([^\\(\\)]*) \\((48H|72H)\\)") %>%
 #   drop_na() %>%
 #   pivot_wider(names_from = time, values_from = score) %>%
