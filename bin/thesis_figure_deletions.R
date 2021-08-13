@@ -32,7 +32,8 @@ ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   filter(!duplicated(.[,c('strain', 'condition', 'gene')])) %>%
   select(-position) %>%
   mutate(condition = gsub('  ', ' ', condition)) %>% # Some conditions have double spaces in names
-  mutate(name = if_else(is.na(name), gene, name))
+  mutate(name = if_else(is.na(name), gene, name)) %>%
+  filter(!str_detect(condition, "Caspofungin"))
 
 # Growth cor (comment out growth filtering)
 # select(ko_growth, strain, gene, condition, score) %>%
@@ -45,10 +46,8 @@ ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
 
 ko_comparisons <- read_tsv("data/raw/ko_comparisons.tsv", skip = 2) %>%
   mutate(condition = gsub('  ', ' ', condition)) %>%
-  left_join(select(gene_meta, gene, name), by = "gene")
-
-gene_exclusivity <- readxl::read_xlsx("data/raw/gene_exclusivity.xlsx", sheet = 2, col_names = c("gene", "exclusiveness"), skip = 1) %>%
-  left_join(select(gene_meta, gene, name), by = "gene")
+  left_join(select(gene_meta, gene, name), by = "gene") %>%
+  filter(!str_detect(condition, "Caspofungin"))
 
 mash_dist <- tribble(
   ~strain, ~S288c,    ~UWOP,    ~Y55,     ~YPS,
@@ -97,14 +96,15 @@ p_sensitivity <- ggplot(condition_sensitivity, aes(x=condition, y=sig_count, fil
   geom_col(position='fill') +
   scale_fill_brewer(name = "Strain", type = "qual", palette = "Set1") +
   scale_y_continuous(expand = expansion(c(0.01, 0.05))) +
-  coord_flip(clip = "off") +
+  coord_cartesian(clip = "off") +
   guides(fill = guide_legend(reverse = TRUE)) +
-  labs(y = 'Relative conditionally significant\ngene count', x = "") +
+  labs(y = 'Relative conditionally\nsignificant gene count', x = "") +
   theme(panel.grid.major.y = element_blank(),
-        axis.ticks.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1.05),
         legend.position = "top",
         legend.title = element_blank(),
-        legend.key.size = unit(2, "mm"),
+        legend.key.size = unit(4, "mm"),
         legend.margin = margin(0,0,0,0),
         legend.box.margin = margin(0,0,-10,0))
   
@@ -185,36 +185,21 @@ p_prop <- ggplot(props, aes(x = strains, y = mean, ymin = mean - sd, ymax = mean
   lims(y = c(0, 1)) +
   labs(x = "Number of Strains", y = "Proportion of Shared Significant Phenotypes")
 
-#### Panel - Gene phenotypes ####
-gene_exclusivity <- mutate(gene_exclusivity, rank = 1:n()) %>%
-  drop_na()
-
-top_genes <- filter(gene_exclusivity, rank <= 10) %>%
-  mutate(x = 300, y = 0.833 - (rank - 1) * 0.05)
-
-p_exclusiveness <- ggplot(gene_exclusivity, aes(x = rank, y = exclusiveness)) +
-  geom_point(shape = 20) +
-  geom_text(data = top_genes, mapping = aes(x = x, y = y, label = name), hjust = -0.05, vjust = 0.5) +
-  geom_segment(data = top_genes, mapping = aes(x = x, y = y, xend = rank, yend = exclusiveness)) +
-  labs(x = "Rank", y = "Exclusive phenotype propensity")
-
 #### Figure Assembly ####
-size <- theme(text = element_text(size = 12))
+size <- theme(text = element_text(size = 13))
 p1 <- p_strains + labs(tag = 'A') + size
-p2 <- p_sensitivity + labs(tag = 'B') + size + theme(axis.text.y = element_text(size = 8))
+p2 <- p_sensitivity + labs(tag = 'B') + size
 p3 <- p_mal + labs(tag = 'C') + size
 p4 <- p_nacl + labs(tag = 'D') + size
 p5 <- p_prop + labs(tag = 'E') + size
-p6 <- p_exclusiveness + labs(tag = 'F') + size
 
 figure <- multi_panel_figure(width = 360, height = 240, columns = 3, rows = 2,
                              panel_label_type = 'none', row_spacing = 0, column_spacing = 0) %>%
   fill_panel(p1, row = 1, column = 1) %>%
-  fill_panel(p2, row = 1, column = 2) %>%
-  fill_panel(p3, row = 1, column = 3) %>%
-  fill_panel(p4, row = 2, column = 1) %>%
-  fill_panel(p5, row = 2, column = 2) %>%
-  fill_panel(p6, row = 2, column = 3)
+  fill_panel(p2, row = 1, column = 2:3) %>%
+  fill_panel(p3, row = 2, column = 1) %>%
+  fill_panel(p4, row = 2, column = 2) %>%
+  fill_panel(p5, row = 2, column = 3)
 
 ggsave('figures/thesis_figure_deletions.pdf', figure, width = figure_width(figure), height = figure_height(figure), units = 'mm')
 ggsave('figures/thesis_figure_deletions.tiff', figure, width = figure_width(figure), height = figure_height(figure), units = 'mm')

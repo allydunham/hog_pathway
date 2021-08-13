@@ -208,7 +208,7 @@ assoc_gene_counts <- filter(associations, p_adj < 0.05, mean_ko < mean_active, e
   group_by(strain, condition) %>%
   summarise(sig_assoc_count = sum(ko), .groups = "drop")
 
-ko_gene_counts <- filter(ko_growth, qvalue < 0.05) %>%
+ko_gene_counts <- filter(ko_growth, qvalue < 0.05, strain == "S288C") %>%
   select(condition, gene) %>%
   distinct() %>%
   left_join(probs, by = "gene") %>%
@@ -227,34 +227,70 @@ path_models <- left_join(select(growth, condition, sscore = score, strain), sele
   mutate(model = c(hog_probability = "P(HOG Pathway)", sig_assoc_count = "P(Aff) Association\nGene Sets",
                    sig_ko_count = "KO Growth\nGene Set")[model],
          model = factor(model, levels = c("P(HOG Pathway)", "P(Aff) Association\nGene Sets", "KO Growth\nGene Set")),
-         p_cat = pretty_p_values(p.value, breaks = c(1e-10, 1e-5, 0.0001, 0.001, 0.01, 0.05, 0.1)))
+         p_cat = pretty_p_values(p.value, breaks = c(1e-10, 1e-5, 0.0001, 0.001, 0.01, 0.05, 0.1), prefix_p = TRUE))
 
-condition_levels <- filter(path_models, model == "P(HOG Pathway)") %>% arrange(r.squared) %>% pull(condition)
+condition_levels_hog <- filter(path_models, model == "P(HOG Pathway)") %>% arrange(r.squared) %>% pull(condition)
+condition_levels_assoc <- filter(path_models, model != "P(HOG Pathway)") %>% 
+  arrange(model) %>% 
+  distinct(condition, .keep_all = TRUE) %>% 
+  arrange(r.squared) %>% 
+  pull(condition)
 
-p_pathway <- ggplot(path_models, aes(x = factor(condition, levels = condition_levels), y = r.squared, fill = p_cat)) +
+p_assoc_model <- filter(path_models, model != "P(HOG Pathway)") %>%
+  ggplot(aes(x = factor(condition, levels = condition_levels_assoc), y = r.squared, fill = p_cat)) +
   facet_wrap(~model, nrow = 1) +
   geom_col() +
   coord_flip() +
-  scale_fill_brewer(name = "p-value", palette = "YlGnBu") +
+  scale_fill_brewer(name = "", palette = "YlGnBu") +
   labs(x = "", y = expression(r^2)) +
   theme(panel.grid.major.x = element_line(linetype = "dotted", colour = "grey"),
-        panel.grid.major.y = element_blank())
+        panel.grid.major.y = element_blank(),
+        legend.key.size = unit(2, "mm"),
+        legend.margin = margin(0,0,0,0),
+        legend.box.margin = margin(0, 0, 0, -10))
 
-#### Figure Assembly ####
-size <- theme(text = element_text(size = 12))
-p1 <- p_paff + labs(tag = 'A') + size
-p2 <- p_associations + labs(tag = 'B') + size
-p3 <- p_association_examples + labs(tag = 'C') + size
-p4 <- p_hog + labs(tag = 'D') + size
-p5 <- p_pathway + labs(tag = 'E') + size
+p_pathway <- filter(path_models, model == "P(HOG Pathway)") %>%
+  ggplot(aes(x = factor(condition, levels = condition_levels_hog), y = r.squared, fill = p_cat)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_brewer(name = "", palette = "YlGnBu") +
+  labs(x = "", y = expression(r^2)) +
+  theme(panel.grid.major.x = element_line(linetype = "dotted", colour = "grey"),
+        panel.grid.major.y = element_blank(),
+        legend.key.size = unit(2, "mm"),
+        legend.margin = margin(0,0,0,0),
+        legend.box.margin = margin(0, 0, 0, -10))
 
-figure <- multi_panel_figure(width = 360, height = 240, columns = 3, rows = 2,
-                             panel_label_type = 'none', row_spacing = 0, column_spacing = 0) %>%
-  fill_panel(p1, row = 1, column = 1) %>%
-  fill_panel(p2, row = 1, column = 2) %>%
-  fill_panel(p3, row = 1, column = 3) %>%
-  fill_panel(p4, row = 2, column = 1) %>%
-  fill_panel(p5, row = 2, column = 2:3)
+#### Figure Assembly - Associations ####
+size <- theme(text = element_text(size = 14))
+p1_assoc <- p_paff + labs(tag = 'A') + size
+p2_assoc <- p_associations + labs(tag = 'B') + size
+p3_assoc <- p_association_examples + labs(tag = 'C') + size
+p4_assoc <- p_assoc_model + labs(tag = 'D') + size
 
-ggsave('figures/thesis_figure_hog.pdf', figure, width = figure_width(figure), height = figure_height(figure), units = 'mm', device = cairo_pdf)
-ggsave('figures/thesis_figure_hog.tiff', figure, width = figure_width(figure), height = figure_height(figure), units = 'mm')
+figure_assoc <- multi_panel_figure(width = 360, height = 360, columns = 2, rows = 2,
+                                   panel_label_type = 'none', row_spacing = 0, column_spacing = 0) %>%
+  fill_panel(p1_assoc, row = 1, column = 1) %>%
+  fill_panel(p2_assoc, row = 1, column = 2) %>%
+  fill_panel(p3_assoc, row = 2, column = 1) %>%
+  fill_panel(p4_assoc, row = 2, column = 2)
+
+#### Figure Assembly - Hog ####
+size <- theme(text = element_text(size = 14))
+p1_hog <- p_hog + labs(tag = 'A') + size
+p2_hog <- p_pathway + labs(tag = 'B') + size
+
+figure_hog <- multi_panel_figure(width = 360, height = 200, columns = 2, rows = 1,
+                                 panel_label_type = 'none', row_spacing = 0, column_spacing = 0) %>%
+  fill_panel(p1_hog, row = 1, column = 1) %>%
+  fill_panel(p2_hog, row = 1, column = 2)
+
+#### Save Figures ####
+ggsave('figures/thesis_figure_assoc.pdf', figure_assoc, units = 'mm', device = cairo_pdf,
+       width = figure_width(figure_assoc), height = figure_height(figure_assoc))
+ggsave('figures/thesis_figure_assoc.tiff', figure_assoc, units = 'mm',
+       width = figure_width(figure_assoc), height = figure_height(figure_assoc))
+ggsave('figures/thesis_figure_hog.pdf', figure_hog, units = 'mm', device = cairo_pdf,
+       width = figure_width(figure_hog), height = figure_height(figure_hog))
+ggsave('figures/thesis_figure_hog.tiff', figure_hog, units = 'mm',
+       width = figure_width(figure_hog), height = figure_height(figure_hog))
