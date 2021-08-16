@@ -164,6 +164,22 @@ p_associations <- ggplot(association_summary, aes(x = reorder(condition, count),
         legend.box.margin = margin(0,0,-10,0),
         legend.key.size = unit(2, "mm"))
 
+# Global overlap with KO sets
+# assoc_jaccard <- bind_rows(paff = filter(associations, p_adj < 0.01) %>% 
+#             select(condition, gene) %>% 
+#             group_by(condition) %>% 
+#             summarise(genes = list(gene)),
+#           ko = filter(ko_growth, qvalue < 0.01, strain == "S288C") %>% 
+#             select(condition, gene) %>% 
+#             group_by(condition) %>%
+#             summarise(genes = list(gene)),
+#           .id = "type") %>%
+#   pivot_wider(names_from = "type", values_from = "genes") %>%
+#   filter(map(paff, length) > 0, map(ko, length) > 0) %>%
+#   mutate(shared = pmap_dbl(list(x = paff, y = ko), ~length(intersect(.x, .y))),
+#          total = pmap_dbl(list(x = paff, y = ko), ~length(union(.x, .y))),
+#          jaccard = shared / total)
+
 #### Panel - Example Gene Phenotype Associations ####
 association_examples <- left_join(probs, select(genes, gene = id, name), by = "gene") %>%
   filter(name %in% c("HOG1", "PBS2", "SER3", "CDC42")) %>%
