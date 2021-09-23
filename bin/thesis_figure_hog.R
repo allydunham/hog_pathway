@@ -102,6 +102,27 @@ ko_growth <- read_tsv('data/raw/ko_scores.txt', col_names = TRUE) %>%
   mutate(condition = gsub('  ', ' ', condition)) %>% # Some conditions have double spaces in names
   mutate(name = if_else(is.na(name), gene, name))
 
+genetic_distance <- readRDS('data/Rdata/genetic_distance.rds')
+
+#### Genetic - Correlation distance stat ####
+distance_cor <- select(growth, strain, condition, score) %>%
+  pivot_wider(names_from = strain, values_from = score) %>%
+  tblhelpr::tibble_to_matrix(-condition, row_names = "condition") %>%
+  cor(method = "pearson") %>% 
+  as_tibble(rownames = "strain1") %>%
+  pivot_longer(-strain1, names_to = "strain2", values_to = "growth_cor") %>%
+  left_join(genetic_distance, by = c("strain1"="strain", "strain2"))
+
+# cor.test(distance_cor$growth_cor, distance_cor$distance)
+
+# distance_per_con <- select(growth, strain, condition, score) %>%
+#   group_by(condition) %>%
+#   group_modify(~as_tibble(as.matrix(dist(tblhelpr::tibble_to_matrix(., score, row_names = "strain"))), rownames = "strain1")) %>%
+#   pivot_longer(c(-condition, -strain1), names_to = "strain2", values_to = "growth_distance") %>%
+#   left_join(genetic_distance, by = c("strain1"="strain", "strain2")) %>%
+#   group_by(condition) %>%
+#   group_modify(~broom::tidy(cor.test(.$distance, .$growth_distance)))
+
 #### Panel - P(Aff) ####
 jelier <- read_tsv("data/jelier.impact") %>%
   select(gene, position = pos_aa, wt = ref_aa, mut = alt_aa, effect, foldx = foldx_ddG, sift = sift_score) %>%
