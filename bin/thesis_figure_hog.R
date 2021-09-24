@@ -266,7 +266,7 @@ path_models <- left_join(select(growth, condition, sscore = score, strain), sele
          model = factor(model, levels = c("P(HOG Pathway)", "P(Aff) Association\nGene Sets", "KO Growth\nGene Set")),
          p_cat = pretty_p_values(p.value, breaks = c(1e-10, 1e-5, 0.0001, 0.001, 0.01, 0.05, 0.1), prefix_p = TRUE))
 
-p_val_colours = c( `p > 0.1` = "#ffff33", `p < 0.1` = "#c7e9b4", `p < 0.05` = "#7fcdbb",
+p_val_colours = c( `p > 0.1` = "#fed976", `p < 0.1` = "#c7e9b4", `p < 0.05` = "#7fcdbb",
                    `p < 0.01` = "#41b6c4", `p < 0.001` = "#1d91c0", `p < 1e-04` = "#225ea8",
                    `p < 1e-05` = "#253494", `p < 1e-10` = "#081d58")
 
