@@ -16,12 +16,12 @@ theme_set(theme_pubclean() + theme(legend.position = 'right',
 pretty_p_values <- function(p, breaks = c(0.001, 0.01, 0.05), markdown_exp=FALSE, prefix_p=FALSE){
   breaks <- sort(breaks, decreasing = TRUE)
   break_str <- as.character(breaks)
-  gt <- '>'
+  gt <- '≥'
   lt <- '<'
   
   if (markdown_exp){
     break_str <- str_replace(break_str, "^1?e(-?[0-9]*\\.?[0-9]*)", "10<sup>\\1</sup>")
-    gt <- '&gt;'
+    gt <- '&ge;'
     lt <- '&lt;'
   }
   
@@ -150,9 +150,9 @@ jelier_probs <- bind_rows(SIFT4G = select(jelier, x = sift, y = sift_prob),
                           FoldX = select(jelier, x = foldx, y = foldx_prob),
                           .id = "model")
   
-lab <- as_labeller(c(SIFT4G='"SIFT4G Score"', FoldX='"FoldX"~Delta*Delta*"G (kj"~"mol"[-1]*")"'), default = label_parsed)
+lab <- as_labeller(c(SIFT4G='"SIFT4G Score"', FoldX='"FoldX"~Delta*Delta*"G (kj"~"mol"^-1*")"'), default = label_parsed)
 p_paff <- ggplot(mapping = aes(x = x, y = y, colour = model)) +
-  facet_wrap(~model, ncol = 1, scales = "free_x", labeller = lab, strip.position = "bottom") +
+  facet_wrap(~model, nrow = 1, scales = "free_x", labeller = lab, strip.position = "bottom") +
   geom_point(data = jelier_probs, shape = 20, show.legend = FALSE) +
   geom_line(data = jelier_preds, colour = "black") +
   scale_colour_manual(values = c(SIFT4G = "cornflowerblue", FoldX = "firebrick2")) +
@@ -175,6 +175,7 @@ p_associations <- ggplot(association_summary, aes(x = reorder(condition, count),
   coord_flip() +
   scale_fill_manual(name = "", values = c(Essential = "#4daf4a", `Non-Essential` = "#377eb8")) +
   scale_y_continuous(expand = expansion(0)) +
+  guides(fill = guide_legend(reverse = TRUE)) +
   labs(y = "Significant Genes (P<sub>adj</sub> < 0.01)", x = "") +
   theme(panel.grid.major.x = element_line(linetype = "dotted", colour = "grey"),
         panel.grid.major.y = element_blank(),
@@ -210,10 +211,11 @@ association_examples <- left_join(probs, select(genes, gene = id, name), by = "g
 
 p_association_examples <- ggplot(association_examples, aes(x = ko_desc, y = score, fill = ko_desc)) +
   facet_wrap(~name, nrow = 1) +
-  geom_boxplot(outlier.shape = 20) +
+  geom_boxplot(outlier.shape = 20, size = 0.35, width = 0.5) +
   stat_compare_means(method = "wilcox", comparisons = list(c("P(Aff) > 0.5", "P(Aff) ≤ 0.5"))) +
-  stat_summary(geom = "text", fun.data = function(x) {data.frame(y = -4.4, label = length(x))}) +
+  stat_summary(geom = "text", fun.data = function(x) {data.frame(y = -4.55, label = length(x))}) +
   scale_fill_manual(name = "", values = c(`P(Aff) > 0.5` = "firebrick2", `P(Aff) ≤ 0.5` = "cornflowerblue")) +
+  coord_cartesian(clip = "off", ylim = c(-4, 3.5)) +
   labs(x = "", y = "S-Score") +
   theme(axis.ticks.x = element_blank(),
         axis.text.x = element_blank(),
@@ -264,11 +266,11 @@ path_models <- left_join(select(growth, condition, sscore = score, strain), sele
   mutate(model = c(hog_probability = "P(HOG Pathway)", sig_assoc_count = "P(Aff) Association\nGene Sets",
                    sig_ko_count = "KO Growth\nGene Set")[model],
          model = factor(model, levels = c("P(HOG Pathway)", "P(Aff) Association\nGene Sets", "KO Growth\nGene Set")),
-         p_cat = pretty_p_values(p.value, breaks = c(1e-10, 1e-5, 0.0001, 0.001, 0.01, 0.05, 0.1), prefix_p = TRUE))
+         p_cat = pretty_p_values(p.value, breaks = c(1e-10, 1e-5, 0.0001, 0.001, 0.01, 0.05, 0.1), prefix_p = TRUE, markdown_exp = TRUE))
 
-p_val_colours = c( `p > 0.1` = "#fed976", `p < 0.1` = "#c7e9b4", `p < 0.05` = "#7fcdbb",
-                   `p < 0.01` = "#41b6c4", `p < 0.001` = "#1d91c0", `p < 1e-04` = "#225ea8",
-                   `p < 1e-05` = "#253494", `p < 1e-10` = "#081d58")
+p_val_colours = c( `p &ge; 0.1` = "#fed976", `p &lt; 0.1` = "#c7e9b4", `p &lt; 0.05` = "#7fcdbb",
+                   `p &lt; 0.01` = "#41b6c4", `p &lt; 0.001` = "#1d91c0", `p &lt; 10<sup>-04</sup>` = "#225ea8",
+                   `p &lt; 10<sup>-05</sup>` = "#253494", `p &lt; 10<sup>-10</sup>` = "#081d58")
 
 condition_levels_hog <- filter(path_models, model == "P(HOG Pathway)") %>% arrange(r.squared) %>% pull(condition)
 condition_levels_assoc <- filter(path_models, model != "P(HOG Pathway)") %>% 
@@ -280,12 +282,18 @@ condition_levels_assoc <- filter(path_models, model != "P(HOG Pathway)") %>%
 p_assoc_model <- filter(path_models, model != "P(HOG Pathway)") %>%
   ggplot(aes(x = factor(condition, levels = condition_levels_assoc), y = r.squared, fill = p_cat)) +
   facet_wrap(~model, nrow = 1) +
-  geom_col() +
+  geom_hline(yintercept = c(0, 0.1, 0.2, 0.3), linetype = "dotted", colour = c("black", "grey", "grey", "grey",
+                                                                               "black", "grey", "grey", "grey")) +
+  geom_col(width = 0.75) +
   coord_flip() +
+  scale_y_continuous(expand = expansion(mult = c(0.01, 0.05)), limits = c(0, 0.3)) +
   scale_fill_manual(name = "", values = p_val_colours) +
   labs(x = "", y = expression(r^2)) +
-  theme(panel.grid.major.x = element_line(linetype = "dotted", colour = "grey"),
+  theme(panel.grid.major.x = element_blank(),
         panel.grid.major.y = element_blank(),
+        panel.spacing.x = unit(5, "mm"),
+        axis.ticks.y = element_blank(),
+        legend.text = element_markdown(),
         legend.key.size = unit(2, "mm"),
         legend.margin = margin(0,0,0,0),
         legend.box.margin = margin(0, 0, 0, -10))
@@ -297,32 +305,36 @@ p_pathway <- filter(path_models, model == "P(HOG Pathway)") %>%
   scale_fill_manual(name = "", values = p_val_colours) +
   scale_y_continuous(expand = expansion(mult = c(0.01, 0.05)), limits = c(0, 0.1)) +
   labs(x = "", y = expression(r^2)) +
-  theme(panel.grid.major.x = element_line(linetype = "dotted", colour = "grey"),
+  theme(panel.grid.major.x = element_line(linetype = "dotted", colour = "grey", size = 0.5),
         panel.grid.major.y = element_blank(),
         axis.ticks.y = element_blank(),
+        legend.text = element_markdown(),
         legend.key.size = unit(2, "mm"),
         legend.margin = margin(0,0,0,0),
         legend.box.margin = margin(0, 0, 0, -10),
-        text = element_text(size = 9))
+        text = element_text(size = 11))
 
 #### Figure Assembly - Associations ####
-size <- theme(text = element_text(size = 14))
-p1_assoc <- p_paff + labs(tag = 'A') + size
-p2_assoc <- p_associations + labs(tag = 'B') + size
-p3_assoc <- p_association_examples + labs(tag = 'C') + size
-p4_assoc <- p_assoc_model + labs(tag = 'D') + size
+size <- theme(text = element_text(size = 11.5))
+p1_assoc <- p_associations + labs(tag = 'A') + size
+p2_assoc <- p_association_examples + labs(tag = 'B') + size
 
-figure_assoc <- multi_panel_figure(width = 360, height = 360, columns = 2, rows = 2,
-                                   panel_label_type = 'none', row_spacing = 0, column_spacing = 0) %>%
+figure_assoc <- multi_panel_figure(width = 180, height = c(130, 60), columns = 1, 
+                                  panel_label_type = 'none', row_spacing = 0, column_spacing = 0) %>%
   fill_panel(p1_assoc, row = 1, column = 1) %>%
-  fill_panel(p2_assoc, row = 1, column = 2) %>%
-  fill_panel(p3_assoc, row = 2, column = 1) %>%
-  fill_panel(p4_assoc, row = 2, column = 2)
+  fill_panel(p2_assoc, row = 2, column = 1)
 
 #### Save Figures ####
+ggsave('figures/thesis_figure_pneut.pdf', p_paff, units = 'mm', device = cairo_pdf, width = 150, height = 60)
+ggsave('figures/thesis_figure_pneut.tiff', p_paff, units = 'mm', width = 150, height = 60)
+
 ggsave('figures/thesis_figure_assoc.pdf', figure_assoc, units = 'mm', device = cairo_pdf,
        width = figure_width(figure_assoc), height = figure_height(figure_assoc))
 ggsave('figures/thesis_figure_assoc.tiff', figure_assoc, units = 'mm',
        width = figure_width(figure_assoc), height = figure_height(figure_assoc))
-ggsave('figures/thesis_figure_hog.pdf', p_pathway, units = 'mm', device = cairo_pdf, width = 150, height = 90)
-ggsave('figures/thesis_figure_hog.tiff', p_pathway, units = 'mm', width = 150, height = 90)
+
+ggsave('figures/thesis_figure_sets.pdf', p_assoc_model, units = 'mm', device = cairo_pdf, width = 180, height = 130)
+ggsave('figures/thesis_figure_sets.tiff', p_assoc_model, units = 'mm', width = 180, height = 130)
+
+ggsave('figures/thesis_figure_hog.pdf', p_pathway, units = 'mm', device = cairo_pdf, width = 150, height = 120)
+ggsave('figures/thesis_figure_hog.tiff', p_pathway, units = 'mm', width = 150, height = 120)
