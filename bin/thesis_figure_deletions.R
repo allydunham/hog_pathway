@@ -63,7 +63,6 @@ mash_dist <- tribble(
 geno_hc <- hclust(mash_dist, method = "single")
 geno_data <- dendro_data(geno_hc)
 
-margin_size <- 15
 p_strains <- ggplot() +
   geom_segment(data = geno_data$segments, aes(x = x, xend = xend, y = y, yend = ifelse(yend == 0, 0.004, yend))) +
   geom_point(data = geno_data$labels, aes(x = x, y = y + 0.004, colour = label), show.legend = FALSE, size = 3) +
@@ -72,13 +71,10 @@ p_strains <- ggplot() +
   scale_colour_brewer(name = "Strain", type = "qual", palette = "Set1") +
   coord_cartesian(clip = "off") +
   labs(x = "", y = "Mash Distance") +
-  theme(axis.title.x.top = element_text(margin = margin(margin_size,0,0,0,unit = "mm")),
-        axis.title.y.right = element_text(margin = margin(0,margin_size,0,0,unit = "mm")),
-        axis.title.x.bottom = element_text(margin = margin(0,0,margin_size,0,unit = "mm")),
-        axis.title.y.left = element_text(margin = margin(0,0,0,margin_size,unit = "mm")),
-        axis.ticks = element_blank(),
+  theme(axis.ticks = element_blank(),
         axis.text.x.top = element_blank(),
-        axis.text.y.right = element_blank())
+        axis.text.y.right = element_blank(),
+        text = element_text(size = 12))
 
 #### Panel - Relative Sensitivity per strain ####
 # Which strain has most sig knockouts per condition
@@ -106,26 +102,24 @@ p_sensitivity <- ggplot(condition_sensitivity, aes(x=condition, y=sig_count, fil
         legend.title = element_blank(),
         legend.key.size = unit(4, "mm"),
         legend.margin = margin(0,0,0,0),
-        legend.box.margin = margin(0,0,-10,0))
+        legend.box.margin = margin(0,0,-10,0),
+        text = element_text(size = 11))
   
 #### Panel - Mal gene example heatmap ####
 # MAL genes noticed first
 mal_ko <- filter(ko_growth, condition == "Maltose 2% (48H)", str_starts(name, "MAL")) %>%
   mutate(sig = ifelse(qvalue < 0.01, "*", ""))
 
-mal_margin <- 5
 p_mal <- ggplot(mal_ko, aes(x = strain, y = name, fill = score, label = sig)) +
   geom_raster() +
   geom_text() +
+  coord_fixed() +
   scale_fill_gradientn(colours = c("#b10026", "#fc4e2a", "#feb24c", "#f7f7f7", "#4393c3", "#053061"),
                        values = scales::rescale(c(-7.5, -5, -2.5, 0, 2.5, 5)), name = "S-Score") +
   labs(subtitle = "Maltose 2% (48H)", x = "", y = "") +
   theme(axis.ticks = element_blank(),
         panel.grid.major.y = element_blank(),
-        plot.subtitle = element_text(margin = margin(mal_margin, 0, 0, 0, unit = "mm")),
-        legend.box.margin = margin(0, mal_margin, 0, 0, unit = "mm"),
-        axis.title.x = element_text(margin = margin(0, 0, mal_margin, 0, unit = "mm")),
-        axis.title.y = element_text(margin = margin(0, 0, 0, mal_margin, unit = "mm")))
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
 #### Panel - Other example heatmap ####
 # A second set of example genes showing switching behavior
@@ -136,19 +130,16 @@ nacl_ko <- filter(ko_growth, condition == "NaCl 0.6M (72H)") %>%
   arrange(name, strain) %>%
   mutate(sig = ifelse(qvalue < 0.01, "*", ""))
 
-nacl_margin <- 5
 p_nacl <- ggplot(nacl_ko, aes(x = strain, y = name, fill = score, label = sig)) +
   geom_raster() +
   geom_text() +
+  coord_fixed() +
   scale_fill_gradientn(colours = c("#b10026", "#fc4e2a", "#feb24c", "#f7f7f7", "#4393c3", "#053061"),
                        values = scales::rescale(c(-7.5, -5, -2.5, 0, 2.5, 5)), name = "S-Score") +
   labs(subtitle = "NaCl 0.6M (72H)", x = "", y = "") +
   theme(axis.ticks = element_blank(),
         panel.grid.major.y = element_blank(),
-        plot.subtitle = element_text(margin = margin(nacl_margin, 0, 0, 0, unit = "mm")),
-        legend.box.margin = margin(0, nacl_margin, 0, 0, unit = "mm"),
-        axis.title.x = element_text(margin = margin(0, 0, nacl_margin, 0, unit = "mm")),
-        axis.title.y = element_text(margin = margin(0, 0, 0, nacl_margin, unit = "mm")))
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
 #### Panel - Proportion of shared phenotypes ####
 calc_prop <- function(x) {
@@ -182,24 +173,30 @@ p_prop <- ggplot(props, aes(x = strains, y = mean, ymin = mean - sd, ymax = mean
   geom_errorbar(position = position_dodge(0.75), width = 0.25) +
   scale_fill_brewer(name = "", type = "qual", palette = "Set1") +
   scale_x_continuous(breaks = c(2, 3, 4)) +
+  guides(fill = guide_legend(nrow = 2)) +
   lims(y = c(0, 1)) +
-  labs(x = "Number of Strains", y = "Proportion of Shared Significant Phenotypes")
+  labs(x = "Number of Strains", y = "Proportion of Shared Significant Phenotypes") +
+  theme(legend.position = "top",
+        legend.key.size = unit(2, "mm"))
+
+#### Individual Panels ####
+ggsave('figures/thesis_figure_deletion_strains.pdf', p_strains, width = 80, height = 80, units = 'mm')
+ggsave('figures/thesis_figure_deletion_sensitivity.pdf', p_sensitivity, width = 180, height = 100, units = 'mm')
 
 #### Figure Assembly ####
-size <- theme(text = element_text(size = 13))
-p1 <- p_strains + labs(tag = 'A') + size
-p2 <- p_sensitivity + labs(tag = 'B') + size
-p3 <- p_mal + labs(tag = 'C') + size
-p4 <- p_nacl + labs(tag = 'D') + size
-p5 <- p_prop + labs(tag = 'E') + size
+size <- theme(text = element_text(size = 12))
+p_sscore <- as_ggplot(get_legend(p_mal + theme(legend.position = "bottom", legend.title = element_text(vjust = 0.8))))
+p1 <- p_mal + guides(fill = FALSE) + labs(tag = 'A') + size
+p2 <- p_nacl + guides(fill = FALSE) + labs(tag = 'B') + size
+p3 <- p_prop + labs(tag = 'C') + size
 
-figure <- multi_panel_figure(width = 360, height = 240, columns = 3, rows = 2,
+figure <- multi_panel_figure(width = 180, height = c(80, 50), columns = 3,
                              panel_label_type = 'none', row_spacing = 0, column_spacing = 0) %>%
   fill_panel(p1, row = 1, column = 1) %>%
-  fill_panel(p2, row = 1, column = 2:3) %>%
-  fill_panel(p3, row = 2, column = 1) %>%
-  fill_panel(p4, row = 2, column = 2) %>%
-  fill_panel(p5, row = 2, column = 3)
+  fill_panel(p2, row = 1:2, column = 2) %>%
+  fill_panel(p_sscore, row = 2, column = 1) %>%
+  fill_panel(p3, row = 1:2, column = 3)
 
 ggsave('figures/thesis_figure_deletions.pdf', figure, width = figure_width(figure), height = figure_height(figure), units = 'mm')
+ggsave('figures/thesis_figure_deletions.png', figure, width = figure_width(figure), height = figure_height(figure), units = 'mm')
 ggsave('figures/thesis_figure_deletions.tiff', figure, width = figure_width(figure), height = figure_height(figure), units = 'mm')
