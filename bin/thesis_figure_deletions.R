@@ -108,34 +108,36 @@ p_sensitivity <- ggplot(condition_sensitivity, aes(x=condition, y=sig_count, fil
 #### Panel - Mal gene example heatmap ####
 # MAL genes noticed first
 mal_ko <- filter(ko_growth, condition == "Maltose 2% (48H)", str_starts(name, "MAL")) %>%
-  mutate(sig = ifelse(qvalue < 0.01, "*", ""))
+  mutate(sig = qvalue < 0.01)
 
-p_mal <- ggplot(mal_ko, aes(x = strain, y = name, fill = score, label = sig)) +
+p_mal <- ggplot(mal_ko, aes(x = strain, y = name, fill = score)) +
   geom_raster() +
-  geom_text() +
+  geom_point(data = filter(mal_ko, sig), mapping = aes(shape = sig), colour = "white", fill = "black", size = 1) +
   coord_fixed() +
   scale_fill_gradientn(colours = c("#b10026", "#fc4e2a", "#feb24c", "#f7f7f7", "#4393c3", "#053061"),
-                       values = scales::rescale(c(-7.5, -5, -2.5, 0, 2.5, 5)), name = "S-Score") +
+                       values = scales::rescale(c(-7.5, -5, -2.5, 0, 2.5, 5)), name = "S-Score", limits = c(-7.5, 5)) +
+  scale_shape_manual(name = "", values = c(`TRUE` = 23), labels = c(`TRUE` = "q < 0.01")) +
   labs(subtitle = "Maltose 2% (48H)", x = "", y = "") +
   theme(axis.ticks = element_blank(),
         panel.grid.major.y = element_blank(),
         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
 #### Panel - Other example heatmap ####
-# A second set of example genes showing switching behavior
+# A second set of example genes showing switching behaviour
 nacl_ko <- filter(ko_growth, condition == "NaCl 0.6M (72H)") %>%
   group_by(name) %>%
   filter(sum(qvalue < 0.01) > 1) %>%
   ungroup() %>%
   arrange(name, strain) %>%
-  mutate(sig = ifelse(qvalue < 0.01, "*", ""))
+  mutate(sig = qvalue < 0.01)
 
-p_nacl <- ggplot(nacl_ko, aes(x = strain, y = name, fill = score, label = sig)) +
+p_nacl <- ggplot(nacl_ko, aes(x = strain, y = name, fill = score)) +
   geom_raster() +
-  geom_text() +
+  geom_point(data = filter(nacl_ko, sig), mapping = aes(shape = sig), colour = "white", fill = "black", size = 1) +
   coord_fixed() +
   scale_fill_gradientn(colours = c("#b10026", "#fc4e2a", "#feb24c", "#f7f7f7", "#4393c3", "#053061"),
-                       values = scales::rescale(c(-7.5, -5, -2.5, 0, 2.5, 5)), name = "S-Score") +
+                       values = scales::rescale(c(-7.5, -5, -2.5, 0, 2.5, 5)), name = "S-Score", limits = c(-7.5, 5)) +
+  scale_shape_manual(name = "", values = c(`TRUE` = 23), labels = c(`TRUE` = "q < 0.01")) +
   labs(subtitle = "NaCl 0.6M (72H)", x = "", y = "") +
   theme(axis.ticks = element_blank(),
         panel.grid.major.y = element_blank(),
@@ -185,17 +187,28 @@ ggsave('figures/thesis_figure_deletion_sensitivity.pdf', p_sensitivity, width = 
 
 #### Figure Assembly ####
 size <- theme(text = element_text(size = 12))
-p_sscore <- as_ggplot(get_legend(p_mal + theme(legend.position = "bottom", legend.title = element_text(vjust = 0.8))))
-p1 <- p_mal + guides(fill = FALSE) + labs(tag = 'A') + size
-p2 <- p_nacl + guides(fill = FALSE) + labs(tag = 'B') + size
+p_sscore <- get_legend(
+  p_mal +
+    guides(fill = guide_colourbar(direction = "horizontal", title.position = "top", title.hjust = 0.5, barwidth = unit(45, "mm")), shape = "none") +
+    size) %>% 
+  as_ggplot()
+p_padj <- get_legend(
+  p_mal + 
+    guides(fill = "none", shape = guide_legend(direction = "horizontal", override.aes = list(size = 3))) +
+    size
+  ) %>% 
+  as_ggplot()
+p1 <- p_mal + guides(fill = "none", shape = "none") + labs(tag = 'A') + size
+p2 <- p_nacl + guides(fill = "none", shape = "none") + labs(tag = 'B') + size
 p3 <- p_prop + labs(tag = 'C') + size
 
-figure <- multi_panel_figure(width = 180, height = c(80, 50), columns = 3,
+figure <- multi_panel_figure(width = 180, height = c(80, 25, 25), columns = 3,
                              panel_label_type = 'none', row_spacing = 0, column_spacing = 0) %>%
   fill_panel(p1, row = 1, column = 1) %>%
-  fill_panel(p2, row = 1:2, column = 2) %>%
+  fill_panel(p2, row = 1:3, column = 2) %>%
   fill_panel(p_sscore, row = 2, column = 1) %>%
-  fill_panel(p3, row = 1:2, column = 3)
+  fill_panel(p_padj, row = 3, column = 1) %>%
+  fill_panel(p3, row = 1:3, column = 3)
 
 ggsave('figures/thesis_figure_deletions.pdf', figure, width = figure_width(figure), height = figure_height(figure), units = 'mm')
 ggsave('figures/thesis_figure_deletions.png', figure, width = figure_width(figure), height = figure_height(figure), units = 'mm')
